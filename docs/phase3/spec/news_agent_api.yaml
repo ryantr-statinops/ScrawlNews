@@ -1,0 +1,58 @@
+openapi: 3.0.3
+info:
+  title: ScrawlNews API
+  version: 0.1.0
+  description: REST API for the ScrawlNews agent
+
+paths:
+  /api/fetch:
+    post:
+      summary: Fetch latest news from Google News
+      responses:
+        '200':
+          description: Articles fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchResponse'
+
+  /api/summarize:
+    post:
+      summary: Summarize fetched articles
+      responses:
+        '200':
+          description: Summaries generated successfully
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  schemas:
+    FetchResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        articles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Article'
+
+    Article:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        source:
+          type: string
+        fetched_at:
+          type: string
+          format: date-time
