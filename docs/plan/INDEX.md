@@ -1,11 +1,11 @@
 # Documentation — Index
 
-Thư mục `docs/main/` chứa toàn bộ tài liệu dự án ScrawlNews, được tổ chức theo chức năng thay vì theo phase.
+Thư mục `docs/plan/` chứa toàn bộ tài liệu dự án ScrawlNews, được tổ chức theo chức năng thay vì theo phase.
 
 ## Cấu trúc thư mục
 
 ```
-docs/main/
+docs/plan/
 ├── INDEX.md                  ← Bạn đang ở đây
 ├── architecture.md           ← Kiến trúc hệ thống, data model, services, edge cases
 ├── roadmap.md                ← Lộ trình phát triển 3 giai đoạn
