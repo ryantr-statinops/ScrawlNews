@@ -1,15 +1,17 @@
-# Documentation — Index
+# ScrawlNews — Project Plan
 
-Thư mục `docs/plan/` chứa toàn bộ tài liệu dự án ScrawlNews, được tổ chức theo chức năng thay vì theo phase.
+Thư mục `docs/plan/` chứa **kế hoạch dự án** đầy đủ: ideas, kiến trúc, cách hoạt động, lộ trình, và các quyết định kỹ thuật.
 
 ## Cấu trúc thư mục
 
 ```
 docs/plan/
-├── INDEX.md                  ← Bạn đang ở đây
+├── INDEX.md                  ← Bạn đang ở đây — Tổng quan kế hoạch
 ├── architecture.md           ← Kiến trúc hệ thống, data model, services, edge cases
-├── roadmap.md                ← Lộ trình phát triển 3 giai đoạn
+├── roadmap.md                ← Lộ trình phát triển 3 giai đoạn + milestones
 ├── technical-deep-dive.md    ← Phân tích kỹ thuật chi tiết, trade-offs, open questions
+├── decisions.md              ← Architecture Decision Records (ADR)
+├── ideas.md                  ← Ý tưởng mở rộng, future features
 ├── testing.md                ← Test strategy, layers, parity
 ├── setup.md                  ← Setup guide, config, install, run
 ├── usage.md                  ← Hướng dẫn sử dụng agent
@@ -20,27 +22,47 @@ docs/plan/
 
 ## Trật tự đọc đề xuất
 
-1. **INDEX.md** — Tổng quan cấu trúc tài liệu
+1. **INDEX.md** — Tổng quan kế hoạch dự án
 2. **architecture.md** — Hiểu kiến trúc tổng quan, data model, services, data flows
-3. **roadmap.md** — Biết lộ trình phát triển 3 giai đoạn
+3. **roadmap.md** — Biết lộ trình phát triển 3 giai đoạn + milestones
 4. **technical-deep-dive.md** — Đào chi tiết kỹ thuật, trade-offs, open questions trước khi code
-5. **setup.md** — Chuẩn bị môi trường local
-6. **testing.md** — Chiến lược test
-7. **usage.md** — Hướng dẫn chạy agent
-8. **implementation-notes.md** — Cập nhật trong quá trình code
-9. **execplan-template.md** — Template để viết exec plan mới
-10. **api.yaml** — Reference cho API spec (nếu có REST layer)
+5. **decisions.md** — Các quyết định kiến trúc đã chốt (ADR)
+6. **ideas.md** — Ý tưởng mở rộng, future backlog
+7. **setup.md** — Chuẩn bị môi trường local
+8. **testing.md** — Chiến lược test
+9. **usage.md** — Hướng dẫn chạy agent
+10. **implementation-notes.md** — Cập nhật trong quá trình code
+11. **execplan-template.md** — Template để viết exec plan mới
+12. **api.yaml** — Reference cho API spec (nếu có REST layer)
 
-## Mô tả từng file
+## Mục tiêu dự án
 
-| File | Nội dung | Nguồn |
-|------|----------|--------|
-| `architecture.md` | System diagram, data model (Article, Summary), services (Scrawler, Synthesizer, Messenger), repos, data flows, edge cases | phase2 overview + phase3 design |
-| `roadmap.md` | 3 giai đoạn: Core, Optimize, Deploy. Env vars. Bonus features | phase1 execplan |
-| `technical-deep-dive.md` | Google News scraping challenges, LLM provider comparison, Telegram formatting, SQLite schema, pipeline orchestration, error handling, GitHub Actions, file structure, dependencies, trade-offs, open questions | phase1 technical deep dive |
-| `testing.md` | Unit tests cho models + 3 services. Integration tests cho pipeline + E2E. Parity strategy | phase3 validation |
-| `setup.md` | Install dependencies, config env vars, run agent, run tests | phase5 how_to_use_agent + phase1 config section |
-| `usage.md` | Cách sử dụng agent hàng ngày | phase5 how_to_use_agent |
-| `implementation-notes.md` | Ghi chép trong quá trình implement | phase4 implementation notes |
-| `execplan-template.md` | Template markdown cho execution plan | phase5 template |
-| `api.yaml` | OpenAPI 3.0.3 spec: /api/fetch, /api/summarize, /health, schemas | phase3 spec |
+> **ScrawlNews** là một Agent tự động hóa quy trình thu thập, tóm tắt và phân phối tin tức hàng ngày từ Google News.
+
+### 3 Skills cốt lõi
+
+| Skill | Vai trò | Công nghệ | Output |
+|-------|---------|-----------|--------|
+| **Scrawler** | Thu thập dữ liệu | Python + RSS + trafilatura / Playwright (fallback) | Raw articles |
+| **Synthesizer** | Tóm tắt bằng LLM | OpenAI gpt-4o-mini | Summaries |
+| **Messenger** | Gửi Telegram | Telegram Bot API | Newsletter |
+
+### Pipeline
+
+```
+Google News (RSS) → Scrawler → Articles → Synthesizer → Summaries → Messenger → Telegram
+                              │                    │
+                              ▼                    ▼
+                         ArticleRepo         SummaryRepo
+                         (SQLite)            (SQLite)
+```
+
+### Deployment
+
+- **Platform**: GitHub Actions (free, cron support)
+- **Schedule**: 08:00, 12:00, 16:00, 21:00 UTC daily
+- **Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `LLM_API_KEY`
+
+---
+
+> **Lưu ý**: Đây là thư mục *Plan* — chứa thiết kế và quyết định. Source code nằm ở `src/` (chưa tạo), tests ở `tests/`.
