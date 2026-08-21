@@ -17,13 +17,74 @@ Google News **không có public API miễn phí**. Việc scrape trực tiếp g
 | Dynamic content | Nội dung load bằng JavaScript, cần browser thực | Trung bình |
 | Rate limiting | Quá nhiều request → 429 hoặc tạm block | Trung bình |
 
+### HTML Content Extraction Libraries
+
+Khi có URL rồi, cần extract nội dung thực sự từ HTML. Ba thư viện Python phổ biến:
+
+#### 1. Trafilatura (Khuyến nghị)
+
+```
+pip install trafilatura
+```
+
+- F1=0.909 (tốt nhất), pure Python, ~22ms/trang, hỗ trợ nhiều ngôn ngữ
+- Extract được: main text, metadata, comments
+- Benchmark: [ScrapingHub Article Extraction Benchmark](https://github.com/scrapinghub/article-extraction-benchmark)
+
+```python
+import trafilatura
+
+downloaded = trafilatura.fetch_url(url)
+content = trafilatura.extract(downloaded, include_links=True)
+```
+
+#### 2. Readability-lxml
+
+```
+pip install readability-lxml
+```
+
+- Port của Mozilla Readability, F1=0.801
+- Lấy cleaned HTML snippet, đơn giản
+
+```python
+from readability import Document
+doc = Document(html)
+title = doc.title()
+clean_html = doc.summary()
+```
+
+#### 3. Newspaper3k/4K
+
+```
+pip install newspaper4k
+```
+
+- Chuyên cho news, có NLP features, F1=0.708
+
+```python
+from newspaper import Article
+art = Article(url)
+art.download()
+art.parse()
+text = art.text
+```
+
+#### So sánh nhanh
+
+| Library | F1 Score | Speed | Metadata | Comments | Notes |
+|---------|----------|-------|----------|----------|-------|
+| Trafilatura | 0.909 ✅ | ~22ms | ✅ | ✅ | Best overall |
+| Readability-lxml | 0.801 | ~30ms | ❌ | ❌ | Simple, cleaned HTML |
+| Newspaper3k | 0.708 | ~500ms+ | ✅ | ❌ | News-specific, NLP built-in |
+
 ### Data Source Options
 
 #### Option A: Google News RSS Feed (Khuyến nghị)
 - URL: `https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en`
 - **Ưu điểm**: Không cần Playwright, không bị CAPTCHA, ổn định
 - **Nhược điểm**: Chỉ lấy được title + link, không có full content
-- **Kết hợp**: Dùng RSS lấy danh sách URLs, rồi dùng `trafilatura` extract full article content từ URL đó
+- **Kết hợp**: Dùng RSS lấy danh sách URLs, rồi dùng **Trafilatura** extract full article content từ URL đó
 
 ```python
 import feedparser
@@ -47,23 +108,67 @@ for url in urls:
 - SerpApi, NewsAPI.org, Tavily
 
 ### Khuyến nghị
-Dùng RSS + trafilatura làm primary, Playwright làm fallback. Xem thêm chi tiết trong `decisions.md` ADR-001.
+
+**Primary**: RSS feed (Google News) lấy danh sách URLs → dùng **Trafilatura** extract nội dung.
+**Fallback**: Nếu Trafilatura fail → thử Readability-lxml → cuối cùng là Playwright (full browser render).
+**Xem chi tiết**: `decisions.md` ADR-001.
 
 ---
 
 ## 2. Synthesizer — Tóm tắt bằng LLM
 
-### Lựa chọn LLM Provider
+### Option A: Trực tiếp OpenRouter API
 
-| Provider | Model | Cost (input/1K tokens) | Context | Khuyến nghị |
-|----------|-------|----------------------|---------|-------------|
-| OpenAI | gpt-4o-mini | $0.15 / $0.60 | 128K | ✅ Khuyến nghị |
-| OpenAI | gpt-4o | $2.50 / $10.00 | 128K | Chất lượng cao hơn |
-| Anthropic | claude-3-haiku | $0.25 / $1.25 | 200K | Alternative tốt |
-| Google | gemini-1.5-flash | $0.075 / $0.30 | 1M | Rẻ nhất |
-| Local | llama-3.1-8B | Free | 8K | Cần GPU |
+- Đăng ký tài khoản tại [openrouter.ai](https://openrouter.ai)
+- Lấy `OPENROUTER_API_KEY`
+- Dùng OpenAI-compatible client:
 
-Xem chi tiết lựa chọn trong `decisions.md` ADR-002.
+```python
+self.client = openai.AsyncOpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+)
+```
+
+- **Ưu điểm**: Đơn giản, direct, không cần setup server
+- **Nhược điểm**: Cần quản lý API key, chỉ một model tại một thời điểm
+- **Models**: `google/gemma-2-9b-it`, `meta/llama-3-8b-instruct`...
+
+### Option B: 9router (Multi-provider Router)
+
+- **9router** là package npm cài đặt trên máy/local hoặc VPS
+- Expose OpenAI-compatible endpoint tại `http://localhost:20128/v1`
+- Tự động route tới provider có free quota (OpenRouter, Google, Anthropic, etc.)
+- Cài đặt: `npm install -g 9router && 9router`
+- Sau đó trỏ client về 9router endpoint:
+
+```python
+self.client = openai.AsyncOpenAI(
+    base_url="http://localhost:20128/v1",
+    api_key="your-9router-key",
+)
+```
+
+| Feature | OpenRouter (A) | 9router (B) |
+|---------|----------------|-------------|
+| Complexity | Thấp | Trung bình |
+| Setup | Chỉ cần API key | Cần cài Node.js + chạy server |
+| Multi-model | Switch thủ công | Auto-fallback |
+| Free providers | Có | Có (nhiều hơn) |
+| Token savings | Không | Có (20-40% RTK) |
+| Recommendation | ✅ Chọn A nếu chưa có server | Chọn B nếu cần auto-fallback |
+
+### So sánh chi phí
+
+| Option | Model | Cost (input/1K tokens) | Notes |
+|--------|-------|----------------------|-------|
+| OpenRouter | Various | Free - $0.15 | Nhiều free models |
+| 9router | Auto/best | Free (nếu có free provider) | RTK giảm 20-40% tokens |
+| Direct OpenAI | gpt-4o-mini | $0.15 / $0.60 | Cần trả phí nếu hết free credit |
+| 9router premium | Auto/best | $0.075 - $0.25 | Dùng provider rẻ nhất |
+
+**Khuyến nghị**: Dùng Option A (OpenRouter) cho giai đoạn 1 đơn giản.  
+Chuyển sang 9router nếu cần tự động chuyển đổi giữa nhiều provider free.
 
 ### Prompt Engineering cho Summarization
 
@@ -90,11 +195,13 @@ Requirements:
 
 ### Chi phí ước tính
 
-| Scenario | Articles/batch | Tokens/batch | Cost (gpt-4o-mini) |
-|----------|---------------|--------------|-------------------| 
-| Light | 10 | ~3K | ~$0.0005 |
-| Normal | 20 | ~6K | ~$0.001 |
-| Heavy | 50 | ~15K | ~$0.003 |
+| Scenario | Articles/batch | Tokens/batch | Cost (gpt-4o-mini) | Cost (9router/OpenRouter) |
+|----------|---------------|--------------|-------------------|--------------------------|
+| Light | 10 | ~3K | ~$0.0005 | ~$0.0001 (via 9router) |
+| Normal | 20 | ~6K | ~$0.001 | ~$0.0002 |
+| Heavy | 50 | ~15K | ~$0.003 | ~$0.0006 |
+
+**Lưu ý**: 9router có thể giảm chi phí 20-40% nhờ RTK và auto routing tới free providers.
 
 ---
 
@@ -298,13 +405,14 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python src/main.py
 ```
 
 ### Secrets cần cấu hình
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
-- `LLM_API_KEY`
+- `LLM_API_KEY` (hoặc `OPENROUTER_API_KEY` nếu dùng OpenRouter/9router)
 
 ---
 
