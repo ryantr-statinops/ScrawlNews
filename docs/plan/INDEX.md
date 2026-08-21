@@ -38,24 +38,18 @@ make run
 
 ## 📚 Hướng dẫn đọc tài liệu
 
-Thư mục `docs/plan/` là **kế hoạch dự án** được tổ chức theo vai trò. Đọc theo trật tự sau:
+Thư mục `docs/plan/` là **kế hoạch dự án** được tổ chức thành các file chuyên đề. Đọc theo trật tự sau:
 
-### 1. Getting Started (đọc trước khi làm gì)
+### 1. Hiểu dự án (đọc trước khi làm gì)
 - **INDEX.md** → Bạn đang ở đây — tổng quan + reading guide
-- **architecture.md** → Hiểu kiến trúc tổng quan, data model, services, edge cases
-- **roadmap.md** → Biết lộ trình phát triển 3 giai đoạn + milestones
+- **PLAN.md** → Kiến trúc, data model, roadmap, lộ trình
+- **DECISIONS.md** → Các quyết định kỹ thuật đã chốt (8 ADRs)
 
 ### 2. Trước khi code
-- **technical-deep-dive.md** → Đào chi tiết kỹ thuật, trade-offs, open questions
-- **decisions.md** → Các quyết định kiến trúc đã chốt (8 ADRs)
+- **IMPLEMENT.md** → Chi tiết technical deep dive, setup, testing, usage
+- **IDEAS.md** → Ý tưởng mở rộng, future backlog
 
-### 3. Tham khảo nhanh trong quá trình code
-- **testing.md** → Test strategy, mocking strategies, fixtures
-- **setup.md** → Cách setup môi trường, troubleshooting
-- **usage.md** → Cách chạy agent, CLI args, FAQ
-- **ideas.md** → Ý tưởng mở rộng, technical debt
-
-### 4. Workflow & ghi chú
+### 3. Workflow & ghi chép
 - **implementation-notes.md** → Ghi chép implement thực tế
 - **execplan-template.md** → Template để viết kế hoạch task mới
 - **api.yaml** → OpenAPI spec
@@ -66,27 +60,30 @@ Thư mục `docs/plan/` là **kế hoạch dự án** được tổ chức theo 
 
 | Bạn cần tìm | File | Section |
 |-------------|------|---------|
-| Cách Google News scraping hoạt động | technical-deep-dive.md | Section 1: Scrawler |
-| Prompt LLM summarization | technical-deep-dive.md | Section 2: Synthesizer |
-| Cách Telegram message được format | technical-deep-dive.md | Section 3: Messenger |
-| Schema SQLite (articles, summaries) | architecture.md | Data Model |
-| Cách deduplicate articles | architecture.md | Edge Cases |
-| Error handling strategy | technical-deep-dive.md | Section 6: Error Handling |
-| GitHub Actions workflow | technical-deep-dive.md | Section 7 |
-| Cấu trúc thư mục src/ | technical-deep-dive.md | Section 8 |
-| Test mocking strategies | testing.md | Unit Tests section |
-| Cách setup môi trường | setup.md | Full file |
-| Env vars cần thiết | roadmap.md | Section 3 + setup.md |
-| CLI args | usage.md | CLI Modes |
-| Debug tips | usage.md | Troubleshooting |
-| Tại sao chọn RSS | decisions.md | ADR-001 |
-| Tại sao chọn gpt-4o-mini | decisions.md | ADR-002 |
-| Tất cả trade-offs | technical-deep-dive.md | Section 10 |
-| Open questions | technical-deep-dive.md | Section 11 |
-| Ý tưởng mở rộng | ideas.md | Full file |
-| Technical debt | ideas.md | Technical Debt Tracker |
+| Cách Google News scraping hoạt động | IMPLEMENT.md | Section 1: Scrawler |
+| Prompt LLM summarization | IMPLEMENT.md | Section 2: Synthesizer |
+| Cách Telegram message được format | IMPLEMENT.md | Section 3: Messenger |
+| Schema SQLite (articles, summaries) | PLAN.md | Data Model |
+| Cách deduplicate articles | PLAN.md | Edge Cases |
+| Error handling strategy | IMPLEMENT.md | Section 5: Error Handling |
+| GitHub Actions workflow | IMPLEMENT.md | Section 6: GitHub Actions |
+| Cấu trúc thư mục src/ | IMPLEMENT.md | Section 10: Dependencies (structure) |
+| Test mocking strategies | IMPLEMENT.md | Section 7: Testing Strategy |
+| Cách setup môi trường | IMPLEMENT.md | Section 8: Setup Guide |
+| Env vars cần thiết | PLAN.md | Environment Variables |
+| CLI args | IMPLEMENT.md | Section 9: Usage Guide |
+| Debug tips | IMPLEMENT.md | Section 9: Monitoring & Troubleshooting |
+| Tại sao chọn RSS | DECISIONS.md | ADR-001 |
+| Tại sao chọn gpt-4o-mini | DECISIONS.md | ADR-002 |
+| Tất cả trade-offs | DECISIONS.md | All ADRs |
+| Open questions | IMPLEMENT.md | Section 11: Open Questions |
+| Ý tưởng mở rộng | IDEAS.md | Future Backlog |
+| Technical debt | IDEAS.md | Technical Debt Tracker |
 | Template exec plan | execplan-template.md | Full file |
 | OpenAPI spec | api.yaml | Full file |
+| Service interfaces | PLAN.md | Service Interfaces |
+| Async execution model | PLAN.md | Async Execution Model |
+| Pipeline orchestration | IMPLEMENT.md | Section 4: Pipeline Orchestration |
 
 ---
 
@@ -94,16 +91,16 @@ Thư mục `docs/plan/` là **kế hoạch dự án** được tổ chức theo 
 
 ### Environment Variables
 
-| Variable | Required | Default | Mô tả |
+| Variable | Bắt buộc | Default | Mô tả |
 |----------|----------|---------|-------|
-| `TELEGRAM_BOT_TOKEN` | ✅ | - | Token từ [@BotFather](https://t.me/BotFather) |
+| `TELEGRAM_BOT_TOKEN` | ✅ | - | Token từ @BotFather |
 | `TELEGRAM_CHAT_ID` | ✅ | - | Chat ID cá nhân hoặc channel |
 | `LLM_API_KEY` | ✅ | - | API key cho OpenAI |
 | `LLM_PROVIDER` | ❌ | `openai` | Provider name |
 | `LLM_MODEL` | ❌ | `gpt-4o-mini` | Model name |
 | `FETCH_LIMIT` | ❌ | `20` | Max articles per run |
 | `SUMMARY_LANG` | ❌ | `vi` | Output language |
-| `RETENTION_DAYS` | ❌ | `7` | Data retention days |
+| `RETENTION_DAYS` | ❌ | `7` | Data retention |
 | `LOG_LEVEL` | ❌ | `INFO` | Logging level |
 
 ### GitHub Secrets (cho Actions)
@@ -123,7 +120,7 @@ make format      ← Format code
 ### Dependencies (requirements.txt)
 ```
 feedparser, trafilatura, openai, python-telegram-bot
-pydantic, python-dotenv, httpx, tenacity
+pydantic, python-dotenv, httpx, tenacity, sqlalchemy
 playwright (optional, fallback scraper)
 pytest, pytest-asyncio (dev)
 ```
@@ -139,35 +136,40 @@ pytest, pytest-asyncio (dev)
 | **Phase 3** | Auto-deploy | GitHub Actions cron workflow | 🟡 Planned |
 | **Phase 4+** | Tính năng mở rộng | Interactive bot, categories, dashboard | ⚪ Backlog |
 
-Chi tiết trong `plan/roadmap.md`
+Chi tiết trong `PLAN.md`
 
 ---
 
-## 📂 Cấu trúc thư mục dự kiến
+## 📂 Cấu trúc thư mục dự án
 
 ```
 ScrawlNews/
 ├── docs/
 │   └── plan/                  ← Kế hoạch (bạn đang ở đây)
-├── src/
-│   ├── main.py                ← Entry point, Pipeline orchestration
-│   ├── config.py              ← Pydantic Settings
-│   ├── models/                ← Article, Summary dataclasses
-│   ├── services/              ← Scrawler, Synthesizer, Messenger
-│   ├── repositories/          ← ArticleRepo, SummaryRepo
-│   └── utils/                 ← Retry, formatter, logging
-├── tests/                     ← Unit + integration tests
-├── data/                      ← SQLite DB, raw/processed data
-├── logs/                      ← Application logs
-├── .env.example
-├── requirements.txt
-├── Makefile
+│       ├── INDEX.md           ← Tổng quan + reading guide
+│       ├── PLAN.md            ← Architecture + roadmap
+│       ├── IMPLEMENT.md       ← Technical guide + testing + setup + usage
+│       ├── DECISIONS.md       ← Architecture decision records (ADRs)
+│       ├── IDEAS.md           ← Future backlog + technical debt
+│       ├── implementation-notes.md
+│       ├── execplan-template.md
+│       └── spec/
+│           └── api.yaml       ← OpenAPI spec (sắp tạo)
+├── src/                       ← Chưa tạo (sẽ có khi code)
+├── tests/                     ← Chưa tạo
+├── data/                      ← Chưa tạo
+├── logs/                      ← Chưa tạo
+├── .env.example               ← Chưa tạo
+├── requirements.txt           ← Chưa tạo
+├── Makefile                   ← Chưa tạo
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-> 📂 **Lưu ý**: `docs/plan/` là **kế hoạch/thiết kế**. Source code nằm ở `src/` (chưa tạo). Mỗi file trong `docs/plan/` đều độc lập nhưng có liên kết qua references. Sử dụng bảng tra cứu trên để tìm nhanh thông tin.
+> 📂 **Lưu ý**: `docs/plan/` là **kế hoạch/thiết kế**. Source code nằm ở `src/` (chưa tạo). Mỗi file trong `docs/plan/` đều độc lập nhưng có liên kết qua cross-references. Sử dụng bảng tra cứu trên để tìm nhanh thông tin.
 
 > ⚠️ **Workflow**: Mỗi khi bắt đầu task mới, dùng `execplan-template.md` để viết kế hoạch → implement → ghi chép vào `implementation-notes.md`.
+
+> 🔗 **Cross-reference**: `PLAN.md` và `IMPLEMENT.md` có nhiều nội dung liên quan. Khi đọc một section, hãy kiểm tra xem có reference đến file khác không.

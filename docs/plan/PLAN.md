@@ -1,8 +1,42 @@
-# Architecture
+# PLAN — Architecture & Roadmap
 
-Kiến trúc hệ thống ScrawlNews: Skill-based Agent pipeline.
+Kế hoạch kiến trúc và lộ trình phát triển dự án ScrawlNews.
 
-## System Diagram
+---
+
+## 1. Tổng quan Dự án
+
+**ScrawlNews** là một AI Agent tự động hóa quy trình: **thu thập → tóm tắt → phân phối** tin tức hàng ngày từ Google News, gửi về Telegram.
+
+### 3 Skills chính
+
+| Skill | Vai trò | Công nghệ | Output |
+|-------|--------|-----------|--------|
+| **Scrawler** | Thu thập dữ liệu | Python + RSS (feedparser) + trafilatura | Danh sách articles |
+| **Synthesizer** | Tóm tắt bằng LLM | OpenAI gpt-4o-mini | Tóm tắt ngắn gọn |
+| **Messenger** | Gửi thông báo | Telegram Bot API | Newsletter trên Telegram |
+
+### Pipeline
+
+```
+Google News RSS → Scrawler → Articles → Synthesizer → Summaries → Messenger → Telegram
+                     │                      │
+                     ▼                      ▼
+                ArticleRepo            SummaryRepo
+                (SQLite)               (SQLite)
+```
+
+### Deployment
+
+- **Platform**: GitHub Actions (free, cron support)
+- **Schedule**: 08:00, 12:00, 16:00, 21:00 UTC daily
+- **Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `LLM_API_KEY`
+
+---
+
+## 2. System Architecture
+
+### System Diagram
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────┐
@@ -17,7 +51,7 @@ Kiến trúc hệ thống ScrawlNews: Skill-based Agent pipeline.
 └─────────────┘     └──────────────┘     └─────────┘
 ```
 
-## High-Level Component Diagram
+### High-Level Component Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -42,17 +76,12 @@ Kiến trúc hệ thống ScrawlNews: Skill-based Agent pipeline.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Skills
+---
 
-| Skill | Role | Module | Technology | Status |
-|-------|------|--------|-----------|--------|
-| **Scrawler** | Collector | `src/services/scrawler.py` | Python + RSS (feedparser) + trafilatura / Playwright (fallback) | Planned |
-| **Synthesizer** | Summary Wrapper | `src/services/synthesizer.py` | OpenAI gpt-4o-mini (configurable) | Planned |
-| **Messenger** | Notifier | `src/services/messenger.py` | Telegram Bot API (python-telegram-bot) | Planned |
+## 3. Data Model
 
-## Data Flows
+### Data Flows
 
-### Primary Flow (RSS + trafilatura)
 ```
 Google News RSS
     │
@@ -70,18 +99,8 @@ Synthesizer.summarize(articles) → List[Summary]
 Messenger.send(summaries) → Telegram Chat
 ```
 
-### Fallback Flow (Playwright)
-```
-Google News HTML (Playwright)
-    │
-    ▼
-Scrawler.fetch_fallback() → List[Article]
-    │ (same as primary)
-```
+### Article Table
 
-## Data Model
-
-### Article
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
 | `id` | TEXT | PK, NOT NULL | SHA256(url)[:16] — deterministic |
@@ -90,28 +109,35 @@ Scrawler.fetch_fallback() → List[Article]
 | `source` | TEXT | | Nguồn tin (VD: VnExpress, BBC) |
 | `raw_html` | TEXT | | HTML gốc (optional, debug/re-summarize) |
 | `content` | TEXT | | Nội dung đã extract & clean |
-| `fetched_at` | DATETIME | NOT NULL, DEFAULT NOW() | Thời điểm fetch |
+| `fetched_at` | DATETIME | NOT NULL, DEFAULT NOW() | Thời gian fetch |
 | `summarized` | INTEGER | NOT NULL, DEFAULT 0 | 0=chưa, 1=đã tóm tắt |
 
-### Summary
+### Summary Table
+
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
 | `id` | TEXT | PK, NOT NULL | UUID v4 |
 | `article_id` | TEXT | FK→Article.id, NOT NULL | Tham chiếu Article |
 | `summary_text` | TEXT | NOT NULL | Nội dung tóm tắt (Markdown) |
 | `model_used` | TEXT | NOT NULL | Model LLM (VD: "gpt-4o-mini") |
-| `created_at` | DATETIME | NOT NULL, DEFAULT NOW() | Thời điểm tạo |
+| `created_at` | DATETIME | NOT NULL, DEFAULT NOW() | Thời gian tạo |
 
 ### Indexes
+
 ```sql
 CREATE INDEX idx_articles_fetched_at ON articles(fetched_at DESC);
 CREATE INDEX idx_articles_summarized ON articles(summarized);
 CREATE INDEX idx_summaries_article_id ON summaries(article_id);
 ```
 
-## Service Interfaces
+---
+
+## 4. Service Interfaces
+
+Tất cả services kế thừa `BaseService` và implement `execute()`.
 
 ### BaseService (Abstract)
+
 ```python
 class BaseService(ABC):
     @abstractmethod
@@ -121,6 +147,7 @@ class BaseService(ABC):
 ```
 
 ### ScrawlerService
+
 ```python
 class ScrawlerService(BaseService):
     async def execute(self, limit: int = 20) -> list[Article]:
@@ -133,6 +160,7 @@ class ScrawlerService(BaseService):
 ```
 
 ### SynthesizerService
+
 ```python
 class SynthesizerService(BaseService):
     async def execute(self, articles: list[Article]) -> list[Summary]:
@@ -145,6 +173,7 @@ class SynthesizerService(BaseService):
 ```
 
 ### MessengerService
+
 ```python
 class MessengerService(BaseService):
     async def execute(self, summaries: list[Summary]) -> bool:
@@ -156,9 +185,12 @@ class MessengerService(BaseService):
     async def send_messages(self, chat_id: int, messages: list[str]) -> bool: ...
 ```
 
-## Repository Pattern
+---
+
+## 5. Repository Pattern
 
 ### ArticleRepository
+
 ```python
 class ArticleRepository:
     def __init__(self, db_path: str = "data/scrawlnews.db"): ...
@@ -171,6 +203,7 @@ class ArticleRepository:
 ```
 
 ### SummaryRepository
+
 ```python
 class SummaryRepository:
     def __init__(self, db_path: str = "data/scrawlnews.db"): ...
@@ -180,7 +213,11 @@ class SummaryRepository:
     def get_recent(self, days: int = 7) -> list[Summary]: ...
 ```
 
-## Configuration Flow
+---
+
+## 6. Configuration & Execution
+
+### Configuration Flow
 
 ```
 .env file → Pydantic Settings (config.py) → Injected into Services
@@ -206,7 +243,7 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-## Async Execution Model
+### Async Execution Model
 
 ```python
 # main.py
@@ -233,7 +270,11 @@ async def run(self):
     self.repo.cleanup_old(config.retention_days)
 ```
 
-## Error Handling Flow
+---
+
+## 7. Error Handling
+
+### Error Handling Flow
 
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -261,7 +302,7 @@ async def run(self):
    stage     stage     stage
 ```
 
-## Edge Cases Handling
+### Edge Cases Handling
 
 | Case | Detection | Handling |
 |------|-----------|----------|
@@ -276,7 +317,9 @@ async def run(self):
 | Content extraction fail | `trafilatura` returns None | Skip article, log, continue others |
 | Config missing | Pydantic validation error | Exit với clear error message |
 
-## Directory Structure (src/)
+---
+
+## 8. Source Code Structure
 
 ```
 src/
@@ -304,10 +347,189 @@ src/
     └── logging.py          # Structured logging setup
 ```
 
-## Security Considerations
+---
+
+## 9. Security
 
 - **Secrets**: Chỉ qua env vars, không hardcode
 - **API Keys**: Không log, mask trong logs
 - **Telegram Token**: Chỉ dùng server-side
 - **SQLite**: File permissions 600 trên runner
 - **Dependencies**: Pin versions, scan vulnerabilities (`pip-audit`)
+
+---
+
+## 10. Roadmap
+
+### Timeline Overview
+
+| Phase | Thời gian ước tính | Mục tiêu chính | Deliverable |
+|-------|-------------------|----------------|-------------|
+| **Phase 1** | 1-2 tuần | Core pipeline chạy local | `main.py` chạy được end-to-end |
+| **Phase 2** | 1-2 tuần | Production-ready, tested | Code quality, SQLite, tests |
+| **Phase 3** | 3-5 ngày | Auto-deploy trên GitHub Actions | Chạy tự động 4 lần/ngày |
+
+---
+
+### Phase 1: Xây dựng Core (Local Development)
+
+**Mục tiêu**: Pipeline `main.py` chạy được từ fetch → summarize → send Telegram.
+
+#### Tasks
+
+- [ ] **1.1 Project Setup**
+  - [ ] Tạo `requirements.txt` với dependencies
+  - [ ] Tạo `Makefile` (install, run, test, lint)
+  - [ ] Tạo `.env.example` với tất cả env vars
+  - [ ] Cấu trúc `src/` package: `src/main.py`, `src/config.py`, `src/models/`, `src/services/`, `src/repositories/`, `src/utils/`
+
+- [ ] **1.2 Scrawler Service**
+  - [ ] Implement RSS fetch từ Google News (`feedparser`)
+  - [ ] Implement content extraction (`trafilatura`)
+  - [ ] Fallback Playwright scraper (optional, Phase 2)
+  - [ ] Output: list of `Article` dataclass
+
+- [ ] **1.3 Synthesizer Service**
+  - [ ] OpenAI client wrapper (async)
+  - [ ] Prompt template cho summarization
+  - [ ] Batch processing multiple articles
+  - [ ] Structured output parsing (JSON)
+  - [ ] Fallback: raw titles nếu LLM fail
+
+- [ ] **1.4 Messenger Service**
+  - [ ] Telegram Bot client (`python-telegram-bot`)
+  - [ ] Message formatting (MarkdownV2)
+  - [ ] Message splitting (>4096 chars)
+  - [ ] Rate limiting (1 msg/sec)
+
+- [ ] **1.5 Pipeline Orchestration**
+  - [ ] `Pipeline` class trong `src/main.py`
+  - [ ] CLI args: `--dry-run`, `--history`, `--help`
+  - [ ] Logging setup
+  - [ ] End-to-end test local
+
+**Milestone 1**: `python src/main.py` chạy thành công, nhận được newsletter trên Telegram.
+
+---
+
+### Phase 2: Tối ưu & Đóng gói (Production Ready)
+
+**Mục tiêu**: Code sạch, có tests, persistent storage, error handling robust.
+
+#### Tasks
+
+- [ ] **2.1 Configuration System**
+  - [ ] Pydantic Settings (`src/config.py`)
+  - [ ] Validation env vars
+  - [ ] Defaults hợp lý
+
+- [ ] **2.2 SQLite Persistence**
+  - [ ] `ArticleRepository` + `SummaryRepository`
+  - [ ] Schema migration (simple version table)
+  - [ ] Dedup by URL hash
+  - [ ] Cleanup job (retention 7 ngày)
+
+- [ ] **2.3 Error Handling & Resilience**
+  - [ ] Retry với exponential backoff (`tenacity`)
+  - [ ] Circuit breaker cho LLM API
+  - [ ] Graceful degradation (xem ADR-008)
+  - [ ] Structured logging (JSON, levels)
+
+- [ ] **2.4 Testing**
+  - [ ] Unit tests: models, scrawler, synthesizer, messenger
+  - [ ] Integration test: pipeline flow với mocks
+  - [ ] Fixtures cho sample articles
+  - [ ] Coverage target: >80%
+
+- [ ] **2.5 Code Quality**
+  - [ ] Ruff (lint + format)
+  - [ ] MyPy (type checking)
+  - [ ] Pre-commit hooks
+  - [ ] Docstrings cho public APIs
+
+**Milestone 2**: `make test` pass, `make lint` pass, pipeline chạy stable local nhiều lần.
+
+---
+
+### Phase 3: Triển khai (Deployment & Automation)
+
+**Mục tiêu**: Chạy tự động trên GitHub Actions theo cron.
+
+#### Tasks
+
+- [ ] **3.1 GitHub Actions Workflow**
+  - [ ] `.github/workflows/scrawlnews.yml`
+  - [ ] Setup Python, install deps, Playwright browsers
+  - [ ] Secrets: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `LLM_API_KEY`
+  - [ ] Cron: `0 8,12,16,21 * * *` (UTC)
+  - [ ] `workflow_dispatch` cho manual trigger
+
+- [ ] **3.2 CI Pipeline**
+  - [ ] Lint + typecheck trên PR
+  - [ ] Unit + integration tests trên PR
+  - [ ] Build check
+
+- [ ] **3.3 Verification**
+  - [ ] Test run trên GitHub Actions (manual trigger)
+  - [ ] Kiểm tra logs, artifacts
+  - [ ] Verify newsletter nhận được trên Telegram
+  - [ ] Monitor 2-3 runs tự động
+
+**Milestone 3**: GitHub Actions chạy tự động 4 lần/ngày, newsletter đến Telegram đúng giờ.
+
+---
+
+### Phase 4+: Mở rộng (Post-MVP)
+
+| Feature | Effort | Priority |
+|---------|--------|----------|
+| Interactive Telegram Bot | Medium | High |
+| Category Filtering | Low | High |
+| Multi-source (HN, Reddit) | Medium | Medium |
+| Web Dashboard | High | Medium |
+| Cost Tracking | Low | Medium |
+| Audio Newsletter (TTS) | Medium | Low |
+
+---
+
+## 11. Environment Variables
+
+| Variable | Required | Default | Mô tả |
+|----------|----------|---------|-------|
+| `TELEGRAM_BOT_TOKEN` | ✅ | - | Token từ @BotFather |
+| `TELEGRAM_CHAT_ID` | ✅ | - | Chat ID cá nhân hoặc channel |
+| `LLM_API_KEY` | ✅ | - | API key cho OpenAI |
+| `LLM_PROVIDER` | ❌ | `openai` | Provider name |
+| `LLM_MODEL` | ❌ | `gpt-4o-mini` | Model name |
+| `FETCH_LIMIT` | ❌ | `20` | Max articles per run |
+| `SUMMARY_LANG` | ❌ | `vi` | Output language |
+| `RETENTION_DAYS` | ❌ | `7` | Data retention |
+| `LOG_LEVEL` | ❌ | `INFO` | Logging level |
+
+---
+
+## 12. Dependencies (requirements.txt draft)
+
+```txt
+# Core
+feedparser>=6.0.10
+trafilatura>=1.6.0
+openai>=1.0.0
+python-telegram-bot>=20.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+httpx>=0.25.0
+tenacity>=8.2.0
+sqlalchemy>=2.0.0
+
+# Optional: Playwright fallback
+playwright>=1.40.0
+
+# Dev
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+ruff>=0.4.0
+mypy>=1.10.0
+pre-commit>=3.6.0
+```
