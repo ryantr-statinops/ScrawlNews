@@ -219,6 +219,12 @@ Requirements:
 
 ---
 
+### Decision Summary
+
+| Decision | Choice | Reference |
+|----------|--------|-----------|
+| Messenger | Telegram Bot API, Markdown formatting, rate limit 1 msg/sec | ADR-004, ADR-005 |
+
 ## 3. Messenger — Gửi qua Telegram
 
 ### Message Formatting
