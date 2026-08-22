@@ -271,6 +271,12 @@ async def send_telegram_messages(bot, chat_id, messages):
 
 ---
 
+### Decision Summary
+
+| Decision | Choice | Reference |
+|----------|--------|-----------|
+| Orchestration | Single async Python script (`main.py`) với class `Pipeline` | ADR-004 |
+
 ## 4. Pipeline Orchestration
 
 ### main.py Flow
@@ -362,6 +368,12 @@ if __name__ == "__main__":
 ```
 
 ---
+
+### Decision Summary
+
+| Decision | Choice | Reference |
+|----------|--------|-----------|
+| Error handling | Retry 3x + exponential backoff; graceful degradation per component | ADR-008 |
 
 ## 5. Error Handling & Resilience
 
