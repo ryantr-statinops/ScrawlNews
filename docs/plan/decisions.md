@@ -192,3 +192,35 @@ Pipeline không được "chết" khi một component fail.
 - Partial success > total failure
 - User vẫn nhận được thông tin (raw titles) khi LLM fail
 - Telegram fail không làm mất data (có local backup)
+
+---
+
+## ADR-009: LLM Provider — OpenRouter / 9router Options
+
+**Date**: 2025-08-22
+**Status**: Accepted
+
+### Context
+Cần LLM để tóm tắt tin tức. OpenAI gpt-4o-mini trả phí ($0.15/1K tokens). Có nhiều free/cheaper alternatives.
+
+### Options
+| Option | Setup | Cost | Multi-model | Complexity |
+|--------|-------|------|-------------|------------|
+| **A: OpenRouter API** | Chỉ cần API key | Free - $0.15/1K | Manual switch | Thấp |
+| **B: 9router** | Cài Node.js + chạy server local | Free (auto route) | Auto-fallback | Trung bình |
+| **C: Direct OpenAI** | API key trực tiếp | $0.15/1K | Manual switch | Thấp |
+
+### Decision
+- **Phase 1**: Dùng **Option A (OpenRouter)** làm default — đơn giản, không cần server.
+- **Phase 2+**: Có thể chuyển sang **Option B (9router)** nếu cần auto-fallback giữa nhiều providers.
+
+### Rationale
+- OpenRouter có nhiều free models (`google/gemma-2-9b-it`, `meta/llama-3-8b-instruct`)
+- 9router cung cấp auto-fallback + RTK token compression (tiết kiệm 20-40% tokens)
+- Giữ `LLM_API_KEY` env var để backward compatible với OpenAI direct
+- Thêm `OPENROUTER_API_KEY` cho OpenRouter/9router
+
+### Consequences
+- Cần quản lý 2 API keys (`LLM_API_KEY` + `OPENROUTER_API_KEY`)
+- Config phải support switch provider qua `LLM_PROVIDER` env var
+- 9router cần Node.js runtime trên GitHub Actions runner
