@@ -96,6 +96,7 @@ Thư mục `docs/plan/` là **kế hoạch dự án** được tổ chức thàn
 | `TELEGRAM_BOT_TOKEN` | ✅ | - | Token từ @BotFather |
 | `TELEGRAM_CHAT_ID` | ✅ | - | Chat ID cá nhân hoặc channel |
 | `LLM_API_KEY` | ✅ | - | API key cho OpenAI |
+| `OPENROUTER_API_KEY` | ❌ | - | API key cho OpenRouter (dùng nếu chọn provider OpenRouter/9router) |
 | `LLM_PROVIDER` | ❌ | `openai` | Provider name |
 | `LLM_MODEL` | ❌ | `gpt-4o-mini` | Model name |
 | `FETCH_LIMIT` | ❌ | `20` | Max articles per run |
@@ -107,6 +108,7 @@ Thư mục `docs/plan/` là **kế hoạch dự án** được tổ chức thàn
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
 - `LLM_API_KEY`
+- `OPENROUTER_API_KEY`
 
 ### Make Commands
 ```
