@@ -4,6 +4,13 @@ Chi tiết kỹ thuật, testing, setup, và cách sử dụng ScrawlNews. Xem [
 
 ---
 
+### Decision Summary
+
+| Decision | Choice | Reference |
+|----------|--------|-----------|
+| HTML extraction | Trafilatura primary, Readability-lxml fallback, Playwright last resort | ADR-001 |
+| LLM provider | Phase 1: OpenRouter; Phase 2+: có thể chuyển 9router | ADR-009 |
+
 ## 1. Scrawler — Thu thập dữ liệu từ Google News
 
 ### Vấn đề chính
