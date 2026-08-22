@@ -123,6 +123,12 @@ for url in urls:
 
 ---
 
+### Decision Summary
+
+| Decision | Choice | Reference |
+|----------|--------|-----------|
+| LLM provider | Phase 1: OpenRouter API; Phase 2+: có thể chuyển 9router | ADR-009 |
+
 ## 2. Synthesizer — Tóm tắt bằng LLM
 
 ### Option A: Trực tiếp OpenRouter API
