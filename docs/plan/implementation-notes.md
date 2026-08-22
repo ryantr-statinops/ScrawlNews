@@ -47,7 +47,7 @@ Ghi chép quá trình implement ScrawlNews — Changelog & Developer Notes.
 
 **Key Decisions**:
 1. **Data Source**: Google News RSS + trafilatura (primary), Playwright fallback
-2. **LLM**: OpenAI gpt-4o-mini (configurable)
+2. **LLM**: OpenRouter / 9router (Phase 1: OpenRouter; Phase 2+: 9router auto-fallback)
 3. **Storage**: SQLite (file-based, zero-config)
 4. **Orchestration**: Single async Python script (`main.py`)
 5. **Deployment**: GitHub Actions (free, cron support)
