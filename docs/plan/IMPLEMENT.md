@@ -19,7 +19,8 @@ Google News **không có public API miễn phí**. Việc scrape trực tiếp g
 
 ### HTML Content Extraction Libraries
 
-Khi có URL rồi, cần extract nội dung thực sự từ HTML. Ba thư viện Python phổ biến:
+Khi có URL rồi, cần extract nội dung thực sự từ HTML. 
+Để trích xuất dữ liệu ta sử dụng ba thư viện Python phổ biến:
 
 #### 1. Trafilatura (Khuyến nghị)
 
