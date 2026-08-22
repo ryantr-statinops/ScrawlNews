@@ -16,12 +16,14 @@ Cần lấy tin tức từ Google News. Google không cung cấp public API mi�
 3. **Third-party API** (SerpApi, NewsAPI, Tavily) — Trả phí, có rate limit
 
 ### Decision
-Chọn **Option 1 (RSS + trafilatura)** làm primary, **Option 2 (Playwright)** làm fallback.
+Chọn **Option 1 (RSS + trafilatura)** làm primary.
+**Fallback chain**: Nếu trafilatura fail → thử Readability-lxml → cuối cùng là Playwright (Option 2).
 
 ### Rationale
 - RSS ổn định, không bị CAPTCHA, không cần browser
-- trafilatura extract content tốt, xử lý được hầu hết news sites
-- Playwright chỉ dùng khi RSS fail (ví dụ: cấu trúc RSS thay đổi)
+- trafilatura extract content tốt, xử lý được hầu hết news sites (F1=0.909)
+- Readability-lxml làm fallback trung gian (F1=0.801), đơn giản, không cần network request phức tạp
+- Playwright chỉ dùng khi cả hai thư viện trên fail (ví dụ: cấu trúc RSS thay đổi, site cần JS render)
 - Chi phí = 0 (free)
 
 ### Consequences
