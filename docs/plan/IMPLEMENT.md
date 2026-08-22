@@ -407,6 +407,12 @@ async def fetch_with_retry(url: str) -> str:
 
 ---
 
+### Decision Summary
+
+| Decision | Choice | Reference |
+|----------|--------|-----------|
+| Deployment | GitHub Actions cron workflow, 4x daily | ADR-005 |
+
 ## 6. GitHub Actions Deployment
 
 ### Workflow Structure
