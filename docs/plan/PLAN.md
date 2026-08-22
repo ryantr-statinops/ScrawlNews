@@ -30,7 +30,7 @@ Google News RSS → Scrawler → Articles → Synthesizer → Summaries → Mess
 
 - **Platform**: GitHub Actions (free, cron support)
 - **Schedule**: 08:00, 12:00, 16:00, 21:00 UTC daily
-- **Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `LLM_API_KEY`
+- **Secrets**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `LLM_API_KEY`, `OPENROUTER_API_KEY`
 
 ---
 
