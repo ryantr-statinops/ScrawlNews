@@ -13,7 +13,7 @@ Kế hoạch kiến trúc và lộ trình phát triển dự án ScrawlNews.
 | Skill | Vai trò | Công nghệ | Output |
 |-------|--------|-----------|--------|
 | **Scrawler** | Thu thập dữ liệu | Python + RSS (feedparser) + trafilatura | Danh sách articles |
-| **Synthesizer** | Tóm tắt bằng LLM | OpenAI gpt-4o-mini | Tóm tắt ngắn gọn |
+| **Synthesizer** | Tóm tắt bằng LLM | OpenAI / OpenRouter / 9router | Tóm tắt ngắn gọn |
 | **Messenger** | Gửi thông báo | Telegram Bot API | Newsletter trên Telegram |
 
 ### Pipeline
@@ -499,6 +499,7 @@ src/
 | `TELEGRAM_BOT_TOKEN` | ✅ | - | Token từ @BotFather |
 | `TELEGRAM_CHAT_ID` | ✅ | - | Chat ID cá nhân hoặc channel |
 | `LLM_API_KEY` | ✅ | - | API key cho OpenAI |
+| `OPENROUTER_API_KEY` | ❌ | - | API key cho OpenRouter (dùng nếu chọn provider OpenRouter/9router) |
 | `LLM_PROVIDER` | ❌ | `openai` | Provider name |
 | `LLM_MODEL` | ❌ | `gpt-4o-mini` | Model name |
 | `FETCH_LIMIT` | ❌ | `20` | Max articles per run |
