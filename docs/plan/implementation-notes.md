@@ -55,7 +55,7 @@ Ghi chép quá trình implement ScrawlNews — Changelog & Developer Notes.
 7. **Dedup**: SHA256(URL)[:16] as deterministic ID
 8. **Error Handling**: Graceful degradation per component
 
-**Open Questions** (tracked in `technical-deep-dive.md`):
+**Open Questions** (tracked in `IMPLEMENT.md` Section 11):
 - Exact Google News RSS query params for categories
 - trafilatura extraction quality on VN news sites
 - Playwright stealth effectiveness
