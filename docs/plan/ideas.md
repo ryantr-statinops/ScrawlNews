@@ -92,7 +92,7 @@
 ## Research Needed
 
 - [ ] Google News RSS rate limits / reliability ở scale
-- [ ] trafilatura extraction quality trên Vietnamese news sites
+- [ ] trafilatura extraction quality trên Vietnamese news sites; Readability-lxml fallback effectiveness
 - [ ] Playwright stealth plugin effectiveness vs Google News
 - [ ] Telegram Bot API rate limits cho broadcast
 - [ ] SQLite performance với 100k+ records
