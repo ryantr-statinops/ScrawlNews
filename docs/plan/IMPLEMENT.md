@@ -791,6 +791,7 @@ make run
 | `TELEGRAM_BOT_TOKEN` | ✅ | - | Token từ [@BotFather](https://t.me/BotFather) |
 | `TELEGRAM_CHAT_ID` | ✅ | - | Chat ID cá nhân hoặc channel |
 | `LLM_API_KEY` | ✅ | - | API key cho OpenAI |
+| `OPENROUTER_API_KEY` | ❌ | - | API key cho OpenRouter (dùng nếu chọn provider OpenRouter/9router) |
 | `LLM_PROVIDER` | ❌ | `openai` | Provider name |
 | `LLM_MODEL` | ❌ | `gpt-4o-mini` | Model name |
 | `FETCH_LIMIT` | ❌ | `20` | Max articles per run |
