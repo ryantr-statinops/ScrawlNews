@@ -10,8 +10,8 @@ Ghi chép quá trình implement ScrawlNews — Changelog & Developer Notes.
 - [ ] Project scaffolding: `requirements.txt`, `Makefile`, `.env.example`, `src/` structure
 - [ ] Config system: Pydantic Settings
 - [ ] Models: `Article`, `Summary` dataclasses
-- [ ] ScrawlerService: RSS fetch + trafilatura extract
-- [ ] SynthesizerService: OpenAI batch summarization
+- [ ] ScrawlerService: RSS fetch + Trafilatura extract; fallback: Readability-lxml → Playwright
+- [ ] SynthesizerService: OpenRouter/9router batch summarization
 - [ ] MessengerService: Telegram Bot send with formatting
 - [ ] Pipeline orchestration: `main.py` with CLI args
 - [ ] SQLite repositories: ArticleRepo, SummaryRepo
