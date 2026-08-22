@@ -156,7 +156,7 @@ ScrawlNews/
 │       ├── implementation-notes.md
 │       ├── execplan-template.md
 │       └── spec/
-│           └── api.yaml       ← OpenAPI spec (sắp tạo)
+│           └── api.yaml       ← OpenAPI spec
 ├── src/                       ← Chưa tạo (sẽ có khi code)
 ├── tests/                     ← Chưa tạo
 ├── data/                      ← Chưa tạo
