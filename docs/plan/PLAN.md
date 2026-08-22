@@ -12,7 +12,7 @@ Kế hoạch kiến trúc và lộ trình phát triển dự án ScrawlNews.
 
 | Skill | Vai trò | Công nghệ | Output |
 |-------|--------|-----------|--------|
-| **Scrawler** | Thu thập dữ liệu | Python + RSS (feedparser) + trafilatura | Danh sách articles |
+| **Scrawler** | Thu thập dữ liệu | Python + RSS (feedparser) + HTML extractors (Trafilatura/Readability/Newspaper) | Danh sách articles |
 | **Synthesizer** | Tóm tắt bằng LLM | OpenAI / OpenRouter / 9router | Tóm tắt ngắn gọn |
 | **Messenger** | Gửi thông báo | Telegram Bot API | Newsletter trên Telegram |
 
