@@ -33,31 +33,39 @@ Chọn **Option 1 (RSS + trafilatura)** làm primary.
 
 ---
 
-## ADR-002: LLM Provider — OpenAI gpt-4o-mini
+## ADR-002: LLM Provider — OpenRouter / 9router (configurable)
 
 **Date**: 2025-08-21
 **Status**: Accepted
+**Supersedes**: OpenAI gpt-4o-mini direct (now via OpenRouter/9router)
 
 ### Context
-Cần LLM để tóm tắt tin tức. Cân bằng giữa chất lượng, chi phí, tốc độ.
+Cần LLM để tóm tắt tin tức. Cân bằng giữa chất lượng, chi phí, tốc độ. OpenAI gpt-4o-mini trả phí ($0.15/1K tokens).
 
 ### Options
-| Model | Cost/1K tokens (in/out) | Context | Quality |
-|-------|------------------------|---------|---------|
-| gpt-4o-mini | $0.15 / $0.60 | 128K | Tốt |
-| gpt-4o | $2.50 / $10.00 | 128K | Rất tốt |
-| claude-3-haiku | $0.25 / $1.25 | 200K | Tốt |
-| gemini-1.5-flash | $0.075 / $0.30 | 1M | Tốt |
-| Local (llama-3.1-8B) | Free (GPU) | 8K | Trung bình |
+| Option | Setup | Cost | Multi-model | Complexity |
+|--------|-------|------|-------------|------------|
+| **A: OpenRouter API** | Chỉ cần API key | Free - $0.15/1K | Manual switch | Thấp |
+| **B: 9router** | Cài Node.js + chạy server local | Free (auto route) | Auto-fallback | Trung bình |
+| **C: Direct OpenAI** | API key trực tiếp | $0.15/1K | Manual switch | Thấp |
 
 ### Decision
-Chọn **OpenAI gpt-4o-mini** làm default, config được qua `LLM_MODEL` env var.
+- **Phase 1**: Dùng **OpenRouter API** làm default — đơn giản, không cần server.
+- **Phase 2+**: Có thể chuyển sang **9router** nếu cần auto-fallback giữa nhiều providers.
+- Giữ `LLM_API_KEY` env var để backward compatible với OpenAI direct.
+- Thêm `OPENROUTER_API_KEY` cho OpenRouter/9router.
 
 ### Rationale
-- Chi phí rất thấp (~$0.001/batch 20 articles)
-- Chất lượng đủ tốt cho summarization
-- API ổn định, SDK mature
-- Dễ switch sang model khác qua config
+- OpenRouter có nhiều free models (`google/gemma-2-9b-it`, `meta/llama-3-8b-instruct`)
+- 9router cung cấp auto-fallback + RTK token compression (tiết kiệm 20-40% tokens)
+- Chi phí giảm đáng kể so với direct OpenAI
+- Dễ switch provider qua `LLM_PROVIDER` env var
+
+### Consequences
+- Cần quản lý 2 API keys (`LLM_API_KEY` + `OPENROUTER_API_KEY`)
+- Config phải support switch provider qua `LLM_PROVIDER` env var
+- 9router cần Node.js runtime trên GitHub Actions runner
+- Chi phí batch 20 articles: ~$0.0001-0.0002 (OpenRouter) so với ~$0.001 (OpenAI direct)
 
 ---
 
