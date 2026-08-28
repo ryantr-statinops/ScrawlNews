@@ -4,6 +4,7 @@ import Feed from "./pages/Feed";
 import Runs from "./pages/Runs";
 import Config from "./pages/Config";
 import Summaries from "./pages/Summaries";
+import Delivery from "./pages/Delivery";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Feed />
       <Summaries />
       <Runs />
+      <Delivery />
       <Config />
     </div>
   );
