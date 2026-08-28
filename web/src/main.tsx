@@ -5,6 +5,8 @@ import Runs from "./pages/Runs";
 import Config from "./pages/Config";
 import Summaries from "./pages/Summaries";
 import Delivery from "./pages/Delivery";
+import Health from "./pages/Health";
+import Analytics from "./pages/Analytics";
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
       <Summaries />
       <Runs />
       <Delivery />
+      <Health />
+      <Analytics />
       <Config />
     </div>
   );
