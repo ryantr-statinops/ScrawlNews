@@ -1,11 +1,13 @@
 import sqlite3
 from pathlib import Path
+from src.repositories.migrate import run_migrations
 
 
 class PipelineRunRepository:
     def __init__(self, db_url: str = "sqlite:///data/scrawlnews.db"):
         self.db_path = db_url.replace("sqlite:///", "")
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+        run_migrations(self.db_path)
         self._init_db()
 
     def _init_db(self):
