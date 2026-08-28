@@ -1,0 +1,27 @@
+{
+  "permission": {
+    "bash": {
+      "git *": "allow",
+      "git add *": "allow",
+      "git commit *": "allow",
+      "git push *": "allow",
+      "git checkout *": "allow",
+      "git merge *": "allow",
+      "git rebase *": "allow",
+      "git pull *": "allow",
+      "git branch *": "allow",
+      "git reset *": "allow",
+      "git tag *": "allow",
+      "git stash *": "allow",
+      "git log *": "allow",
+      "git diff *": "allow",
+      "git status *": "allow",
+      "git show *": "allow",
+      "git remote *": "allow",
+      "git fetch *": "allow",
+      "git clone *": "allow",
+      "git init *": "allow",
+      "ls *": "allow"
+    }
+  }
+}
