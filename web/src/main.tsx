@@ -3,12 +3,14 @@ import ReactDOM from "react-dom/client";
 import Feed from "./pages/Feed";
 import Runs from "./pages/Runs";
 import Config from "./pages/Config";
+import Summaries from "./pages/Summaries";
 
 function App() {
   return (
     <div style={{ padding: 24, fontFamily: "sans-serif" }}>
       <h1>ScrawlNews Dashboard</h1>
       <Feed />
+      <Summaries />
       <Runs />
       <Config />
     </div>
