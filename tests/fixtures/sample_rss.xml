@@ -1,0 +1,19 @@
+<rss version="2.0">
+  <channel>
+    <item>
+      <title>AI Breakthrough in 2024</title>
+      <link>https://example.com/article1</link>
+      <source>TechCrunch</source>
+    </item>
+    <item>
+      <title>Vietnam Tech Startup Raises $50M</title>
+      <link>https://example.com/article2</link>
+      <source>VnExpress</source>
+    </item>
+    <item>
+      <title>OpenRouter Launches New Free Models</title>
+      <link>https://example.com/article3</link>
+      <source>The Verge</source>
+    </item>
+  </channel>
+</rss>

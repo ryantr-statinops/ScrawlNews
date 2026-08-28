@@ -1,0 +1,29 @@
+[
+  {
+    "id": "abc123def456",
+    "url": "https://example.com/article1",
+    "title": "AI Breakthrough in 2024",
+    "source": "TechCrunch",
+    "content": "Researchers at Stanford developed a new architecture that beats GPT-4 on several benchmarks.",
+    "fetched_at": "2024-01-15T10:00:00",
+    "summarized": 0
+  },
+  {
+    "id": "def456abc123",
+    "url": "https://example.com/article2",
+    "title": "Vietnam Tech Startup Raises $50M",
+    "source": "VnExpress",
+    "content": "Local fintech company expands to Southeast Asia with new funding round led by Sequoia.",
+    "fetched_at": "2024-01-15T09:30:00",
+    "summarized": 0
+  },
+  {
+    "id": "123abc456def",
+    "url": "https://example.com/article3",
+    "title": "OpenRouter Launches New Free Models",
+    "source": "The Verge",
+    "content": "OpenRouter announces three new free LLM models available for developers.",
+    "fetched_at": "2024-01-15T08:00:00",
+    "summarized": 1
+  }
+]

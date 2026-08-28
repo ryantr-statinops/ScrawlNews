@@ -1,0 +1,13 @@
+[
+  {
+    "model": "google/gemma-2-9b-it",
+    "choices": [
+      {
+        "message": {
+          "role": "assistant",
+          "content": "📰 **Daily News Briefing**\n\n🔴 **AI Breakthrough: New Model Beats GPT-4**\nResearchers at Stanford developed a new architecture...\n[Đọc thêm](https://example.com/article1)\n\n🟢 **Vietnam Tech Startup Raises $50M Series B**\nLocal fintech company expands to Southeast Asia...\n[Đọc thêm](https://example.com/article2)"
+        }
+      }
+    ]
+  }
+]
