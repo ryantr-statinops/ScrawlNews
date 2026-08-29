@@ -45,8 +45,10 @@ async def test_build_prompt(sample_articles):
 
 @pytest.mark.asyncio
 async def test_call_llm(mock_openai):
-    mock_openai.chat.completions.create.return_value = AsyncMock(
-        choices=[AsyncMock(message=AsyncMock(content="Test response"))]
+    from unittest.mock import MagicMock
+
+    mock_openai.chat.completions.create = AsyncMock(
+        return_value=MagicMock(choices=[MagicMock(message=MagicMock(content="Test response"))])
     )
     service = SynthesizerService()
     service.client = mock_openai
