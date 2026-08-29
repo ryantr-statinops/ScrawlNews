@@ -1,14 +1,13 @@
-import pytest
-from src.repositories.article_repo import ArticleRepository
-from src.repositories.summary_repo import SummaryRepository
-from src.repositories.run_repo import PipelineRunRepository
 from src.models.article import Article
-from src.models.summary import Summary
 from src.models.run import PipelineRun
+from src.models.summary import Summary
+from src.repositories.article_repo import ArticleRepository
+from src.repositories.run_repo import PipelineRunRepository
+from src.repositories.summary_repo import SummaryRepository
 
 
 def test_database_migration(temp_db):
-    article_repo = ArticleRepository(f"sqlite:///{temp_db}")
+    ArticleRepository(f"sqlite:///{temp_db}")
     import sqlite3
     conn = sqlite3.connect(temp_db)
     row = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='schema_migrations'").fetchone()
