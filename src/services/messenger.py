@@ -40,13 +40,20 @@ class MessengerService(BaseService):
         return messages
 
     async def send_messages(self, chat_id: str, messages: list[str]) -> bool:
-        # Stage 2 stub: avoid real Telegram call in tests, just simulate
         try:
             from telegram import Bot
+            from telegram.error import RetryAfter
 
             bot = Bot(token=settings.telegram_bot_token)
             for msg in messages:
-                await bot.send_message(chat_id=chat_id, text=msg)
+                try:
+                    await bot.send_message(chat_id=chat_id, text=msg)
+                except RetryAfter as e:
+                    retry_after = getattr(e, "retry_after", 0)
+                    if hasattr(retry_after, "total_seconds"):
+                        retry_after = retry_after.total_seconds()
+                    await asyncio.sleep(float(retry_after))
+                    await bot.send_message(chat_id=chat_id, text=msg)
                 await asyncio.sleep(1)
             return True
         except Exception:

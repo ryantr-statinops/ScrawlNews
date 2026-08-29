@@ -71,12 +71,15 @@ def test_split_message_long():
 
 @pytest.mark.asyncio
 async def test_send_messages_rate_limit(mock_telegram_bot):
+    from unittest.mock import MagicMock
+
     from telegram.error import RetryAfter
 
     service = MessengerService()
     mock_telegram_bot.send_message.side_effect = [
         RetryAfter(retry_after=0),
-        AsyncMock(),
+        MagicMock(),
+        MagicMock(),
     ]
     with patch("asyncio.sleep"):
         with patch("src.config.settings.telegram_bot_token", "token"):
