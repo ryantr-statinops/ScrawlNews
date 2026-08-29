@@ -7,6 +7,15 @@ router = APIRouter()
 _config_repo = ConfigRepository(settings.database_url)
 
 
+def _publish_config_change(changed_keys: list[str]) -> None:
+    try:
+        import redis
+        r = redis.from_url(settings.redis_url, socket_connect_timeout=1)
+        r.publish("scrawlnews:config", ",".join(changed_keys))
+    except Exception:
+        pass
+
+
 @router.get("/api/config")
 def get_config():
     db_overrides = _config_repo.get_all()
@@ -29,6 +38,7 @@ def update_config(payload: dict):
         return {"error": f"keys require restart: {', '.join(rejected.keys())}"}
 
     updated: dict[str, str] = {}
+    changed_keys: list[str] = []
     for k, v in payload.items():
         if k in allowed:
             old_value = _config_repo.get(k)
@@ -36,6 +46,7 @@ def update_config(payload: dict):
             _config_repo.set(k, new_value)
             _config_repo.log_change(k, old_value, new_value)
             updated[k] = new_value
+            changed_keys.append(k)
             if k == "fetch_limit":
                 settings.fetch_limit = int(v)
             elif k == "summary_lang":
@@ -44,6 +55,9 @@ def update_config(payload: dict):
                 settings.telegram_enabled = str(v).lower() == "true"
             elif k == "retention_days":
                 settings.retention_days = int(v)
+
+    if changed_keys:
+        _publish_config_change(changed_keys)
 
     return {"updated": updated}
 
