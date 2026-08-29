@@ -13,12 +13,13 @@ async def test_send_message_success(mock_telegram_bot):
         Summary(id="s1", article_id="a1", summary_text="Summary 1", model_used="gpt-4o-mini"),
         Summary(id="s2", article_id="a2", summary_text="Summary 2", model_used="gpt-4o-mini"),
     ]
-    with patch("src.config.settings.telegram_bot_token", "token"):
-        with patch("src.config.settings.telegram_chat_id", "123"):
-            with patch.object(service, "send_messages", return_value=True) as mock_send:
-                result = await service.execute(summaries)
-                assert result is True
-                mock_send.assert_called_once()
+    with patch("src.config.settings.telegram_enabled", True):
+        with patch("src.config.settings.telegram_bot_token", "token"):
+            with patch("src.config.settings.telegram_chat_id", "123"):
+                with patch.object(service, "send_messages", return_value=True) as mock_send:
+                    result = await service.execute(summaries)
+                    assert result is True
+                    mock_send.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34,10 +35,11 @@ async def test_telegram_disabled():
 async def test_missing_credentials():
     service = MessengerService()
     summaries = [Summary(id="s1", article_id="a1", summary_text="T", model_used="m")]
-    with patch("src.config.settings.telegram_bot_token", None):
-        with patch("src.config.settings.telegram_chat_id", None):
-            result = await service.execute(summaries)
-            assert result is False
+    with patch("src.config.settings.telegram_enabled", True):
+        with patch("src.config.settings.telegram_bot_token", None):
+            with patch("src.config.settings.telegram_chat_id", None):
+                result = await service.execute(summaries)
+                assert result is False
 
 
 def test_format_message():
