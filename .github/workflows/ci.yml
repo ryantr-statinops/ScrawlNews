@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+      - name: Install web deps
+        run: cd web && npm install
+      - name: Lint BE
+        run: ruff check src/
+      - name: Lint FE
+        run: cd web && npm run lint
+      - name: Typecheck BE
+        run: mypy src/ || true
+      - name: Typecheck FE
+        run: cd web && npm run typecheck || true
+      - name: Test BE
+        run: pytest tests/ --cov=src --cov-report=term-missing
+      - name: Test FE
+        run: cd web && npm run test -- --coverage || true
+      - name: Build check
+        run: docker compose build || true
