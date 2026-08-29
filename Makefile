@@ -7,7 +7,7 @@ install:
 
 dev:
 	docker compose up -d nginx redis
-	concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "cd web && npm run dev"
+	npx concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "cd web && npm run dev"
 
 worker:
 	celery -A src.worker.celery_app worker --loglevel=info
@@ -24,7 +24,7 @@ test:
 
 lint:
 	ruff check src/
-	cd web && npx eslint src --ext ts,tsx || true
+	cd web && npm run lint
 
 format:
 	ruff format src/
