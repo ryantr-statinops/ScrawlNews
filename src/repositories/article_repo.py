@@ -36,16 +36,23 @@ class ArticleRepository:
 
     def cleanup_old(self, days: int = 7):
         with sqlite3.connect(self.db_path) as conn:
+            if days == 0:
+                conn.execute("DELETE FROM articles")
+                for tbl in ["summaries", "pipeline_runs"]:
+                    try:
+                        conn.execute(f"DELETE FROM {tbl}")
+                    except sqlite3.OperationalError:
+                        pass
+                conn.commit()
+                return
             conn.execute(
                 "DELETE FROM articles WHERE fetched_at < datetime('now', ?)", (f"-{days} days",)
             )
-            conn.execute(
-                "DELETE FROM summaries WHERE created_at < datetime('now', ?)", (f"-{days} days",)
-            )
-            conn.execute(
-                "DELETE FROM pipeline_runs WHERE started_at < datetime('now', ?)",
-                (f"-{days} days",),
-            )
+            for tbl, col in [("summaries", "created_at"), ("pipeline_runs", "started_at")]:
+                try:
+                    conn.execute(f"DELETE FROM {tbl} WHERE {col} < datetime('now', ?)", (f"-{days} days",))
+                except sqlite3.OperationalError:
+                    pass
 
     def save(self, article) -> bool:
         from datetime import datetime
