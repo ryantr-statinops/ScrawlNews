@@ -6,7 +6,24 @@ ALLOWED_HOT_RELOAD_KEYS = {"fetch_limit", "summary_lang", "telegram_enabled", "r
 
 class ConfigRepository:
     def __init__(self, db_url: str = "sqlite:///data/scrawlnews.db"):
+        from pathlib import Path
+        from src.repositories.migrate import run_migrations
+
         self.db_path = db_url.replace("sqlite:///", "")
+        Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+        run_migrations(self.db_path)
+        self._init_tables()
+
+    def _init_tables(self):
+        import sqlite3
+
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
+            )
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS config_history (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL, old_value TEXT, new_value TEXT NOT NULL, changed_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
+            )
 
     def get_all(self) -> dict[str, str]:
         with sqlite3.connect(self.db_path) as conn:
