@@ -95,10 +95,11 @@ Hot reload is limited to fetch_limit, summary_lang, telegram_enabled, retention_
 
 ```
 ScrawlNews/
-├── SKILL/                  # Agent skills, flat SKILL/<skill>/SKILL.md with tags
+├── .agent/SKILL/           # Agent skills, flat .agent/SKILL/<skill>/SKILL.md with tags
 │   ├── README.md
 │   ├── STRUCTURE.md
-│   └── _template/
+│   ├── _template/
+│   └── commit-workflow/
 ├── docs/plan/              # Planning docs
 │   ├── INDEX.md
 │   ├── PLAN.md
@@ -128,8 +129,9 @@ ScrawlNews/
 * docs/plan/IMPLEMENT.md - technical implementation, testing, setup
 * docs/plan/decisions.md - architecture decision records
 * docs/plan/spec/api.yaml - OpenAPI 0.2.0 dashboard endpoints
-* SKILL/README.md - skill organization research for Hermes and Claude
-* SKILL/STRUCTURE.md - flat skill folder structure proposal
+* .agent/SKILL/README.md - skill organization research for Hermes and Claude
+* .agent/SKILL/STRUCTURE.md - flat skill folder structure proposal
+* docs/concepts/ - core concepts per responsibility (01-overview to 06-extensibility)
 
 ## Development
 
