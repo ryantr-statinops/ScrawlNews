@@ -1,4 +1,6 @@
+import pytest
 from src.config import Settings
+from src.repositories.config_repo import ConfigRepository
 
 
 class TestSettings:
@@ -42,3 +44,33 @@ class TestSettings:
         monkeypatch.setenv("UNKNOWN_FIELD", "value")
         settings = Settings()
         assert not hasattr(settings, "unknown_field")
+
+
+class TestConfigRepository:
+    def test_set_and_get(self, temp_db):
+        repo = ConfigRepository(f"sqlite:///{temp_db}")
+        repo.set("fetch_limit", "50")
+        assert repo.get("fetch_limit") == "50"
+
+    def test_set_many(self, temp_db):
+        repo = ConfigRepository(f"sqlite:///{temp_db}")
+        repo.set_many({"fetch_limit": "30", "summary_lang": "en"})
+        assert repo.get("fetch_limit") == "30"
+        assert repo.get("summary_lang") == "en"
+
+    def test_get_all_empty(self, temp_db):
+        repo = ConfigRepository(f"sqlite:///{temp_db}")
+        assert repo.get_all() == {}
+
+    def test_log_change(self, temp_db):
+        repo = ConfigRepository(f"sqlite:///{temp_db}")
+        repo.set("fetch_limit", "20")
+        repo.log_change("fetch_limit", "10", "20")
+        history = repo.get_history(key="fetch_limit")
+        assert len(history) == 1
+        assert history[0]["old_value"] == "10"
+        assert history[0]["new_value"] == "20"
+
+    def test_get_history_empty(self, temp_db):
+        repo = ConfigRepository(f"sqlite:///{temp_db}")
+        assert repo.get_history() == []
