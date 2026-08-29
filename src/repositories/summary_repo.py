@@ -30,6 +30,13 @@ class SummaryRepository:
             )
 
     def save(self, summary):
+        from datetime import datetime
+
+        created = getattr(summary, "created_at", None)
+        if created is None:
+            created = datetime.utcnow().isoformat()
+        elif hasattr(created, "isoformat"):
+            created = created.isoformat()
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO summaries (id, article_id, summary_text, model_used, created_at) VALUES (?, ?, ?, ?, ?)",
@@ -38,7 +45,7 @@ class SummaryRepository:
                     summary.article_id,
                     summary.summary_text,
                     summary.model_used,
-                    getattr(summary, "created_at", None),
+                    created,
                 ),
             )
             conn.commit()
