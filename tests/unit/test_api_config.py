@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from src.api.main import app
 
 client = TestClient(app)
@@ -21,7 +22,9 @@ def test_update_config_allowed_keys():
 
 
 def test_update_config_multiple_keys():
-    response = client.put("/api/config", json={"fetch_limit": 50, "summary_lang": "en", "telegram_enabled": False})
+    response = client.put(
+        "/api/config", json={"fetch_limit": 50, "summary_lang": "en", "telegram_enabled": False}
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["updated"]) == 3

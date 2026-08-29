@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Query
+
 from src.config import settings
 from src.repositories.config_repo import ConfigRepository
 
@@ -10,6 +11,7 @@ _config_repo = ConfigRepository(settings.database_url)
 def _publish_config_change(changed_keys: list[str]) -> None:
     try:
         import redis
+
         r = redis.from_url(settings.redis_url, socket_connect_timeout=1)
         r.publish("scrawlnews:config", ",".join(changed_keys))
     except Exception:
@@ -24,7 +26,10 @@ def get_config():
         "summary_lang": db_overrides.get("summary_lang", settings.summary_lang),
         "llm_provider": settings.llm_provider,
         "llm_model": settings.llm_model,
-        "telegram_enabled": db_overrides.get("telegram_enabled", str(settings.telegram_enabled)).lower() == "true",
+        "telegram_enabled": db_overrides.get(
+            "telegram_enabled", str(settings.telegram_enabled)
+        ).lower()
+        == "true",
         "retention_days": int(db_overrides.get("retention_days", settings.retention_days)),
         "log_level": settings.log_level,
     }

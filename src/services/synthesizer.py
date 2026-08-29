@@ -1,11 +1,12 @@
-from openai import AsyncOpenAI
-from src.services.base import BaseService
-from src.models.article import Article
-from src.models.summary import Summary
-from src.config import settings
 import uuid
 from datetime import datetime
 
+from openai import AsyncOpenAI
+
+from src.config import settings
+from src.models.article import Article
+from src.models.summary import Summary
+from src.services.base import BaseService
 
 SYSTEM_PROMPT = """You are a news summarizer. Given a list of news articles,
 create a concise daily briefing in Vietnamese with:
@@ -13,6 +14,7 @@ create a concise daily briefing in Vietnamese with:
 2. 1-2 sentences per story
 3. Keep it scannable
 """
+
 
 class SynthesizerService(BaseService):
     def __init__(self):
@@ -34,7 +36,9 @@ class SynthesizerService(BaseService):
             return self._fallback(articles)
 
     def build_prompt(self, articles: list[Article]) -> str:
-        articles_text = "\n".join([f"- {a.title} ({a.url}): {a.content[:500] if a.content else ''}" for a in articles])
+        articles_text = "\n".join(
+            [f"- {a.title} ({a.url}): {a.content[:500] if a.content else ''}" for a in articles]
+        )
         return f"{SYSTEM_PROMPT}\n\nSummarize these articles:\n{articles_text}\n\nRequirements: Vietnamese, 150-250 words, include source."
 
     async def call_llm(self, prompt: str) -> str:

@@ -1,7 +1,8 @@
 import asyncio
-from src.services.base import BaseService
-from src.models.summary import Summary
+
 from src.config import settings
+from src.models.summary import Summary
+from src.services.base import BaseService
 
 
 class MessengerService(BaseService):

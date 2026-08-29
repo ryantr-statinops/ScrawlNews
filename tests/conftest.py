@@ -1,27 +1,23 @@
 import json
-import sqlite3
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from src.models.article import Article
-from src.models.summary import Summary
-from src.models.run import PipelineRun
 from src.repositories.article_repo import ArticleRepository
-from src.repositories.summary_repo import SummaryRepository
 from src.repositories.run_repo import PipelineRunRepository
+from src.repositories.summary_repo import SummaryRepository
+from src.services.messenger import MessengerService
 from src.services.scrawler import ScrawlerService
 from src.services.synthesizer import SynthesizerService
-from src.services.messenger import MessengerService
-
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 
 def load_fixture(name: str):
     path = FIXTURES_DIR / name
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 

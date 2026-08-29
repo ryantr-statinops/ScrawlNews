@@ -1,4 +1,3 @@
-import pytest
 from src.config import Settings
 from src.repositories.config_repo import ConfigRepository
 

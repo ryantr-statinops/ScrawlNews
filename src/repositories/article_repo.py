@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+
 from src.repositories.migrate import run_migrations
 
 
@@ -26,14 +27,25 @@ class ArticleRepository:
                 )
                 """
             )
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_articles_fetched_at ON articles(fetched_at DESC)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_articles_summarized ON articles(summarized)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_articles_fetched_at ON articles(fetched_at DESC)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_articles_summarized ON articles(summarized)"
+            )
 
     def cleanup_old(self, days: int = 7):
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute("DELETE FROM articles WHERE fetched_at < datetime('now', ?)", (f"-{days} days",))
-            conn.execute("DELETE FROM summaries WHERE created_at < datetime('now', ?)", (f"-{days} days",))
-            conn.execute("DELETE FROM pipeline_runs WHERE started_at < datetime('now', ?)", (f"-{days} days",))
+            conn.execute(
+                "DELETE FROM articles WHERE fetched_at < datetime('now', ?)", (f"-{days} days",)
+            )
+            conn.execute(
+                "DELETE FROM summaries WHERE created_at < datetime('now', ?)", (f"-{days} days",)
+            )
+            conn.execute(
+                "DELETE FROM pipeline_runs WHERE started_at < datetime('now', ?)",
+                (f"-{days} days",),
+            )
 
     def save(self, article) -> bool:
         with sqlite3.connect(self.db_path) as conn:

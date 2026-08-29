@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from src.api.routes import articles, runs, config, health, summaries, logs, stats
+
+from src.api.routes import articles, config, health, logs, runs, stats, summaries
 
 app = FastAPI(title="ScrawlNews Dashboard", version="0.2.0")
 

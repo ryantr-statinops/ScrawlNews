@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-import sqlite3
+
 from src.config import settings
 from src.repositories.article_repo import ArticleRepository
 

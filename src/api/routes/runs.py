@@ -1,5 +1,7 @@
-from fastapi import APIRouter
 import sqlite3
+
+from fastapi import APIRouter
+
 from src.config import settings
 from src.repositories.run_repo import PipelineRunRepository
 from src.worker.tasks import pipeline_run
@@ -12,7 +14,9 @@ def list_runs(limit: int = 20):
     repo = PipelineRunRepository(settings.database_url)
     with sqlite3.connect(repo.db_path) as conn:
         conn.row_factory = sqlite3.Row
-        rows = conn.execute("SELECT * FROM pipeline_runs ORDER BY started_at DESC LIMIT ?", (limit,)).fetchall()
+        rows = conn.execute(
+            "SELECT * FROM pipeline_runs ORDER BY started_at DESC LIMIT ?", (limit,)
+        ).fetchall()
         return {"runs": [dict(r) for r in rows]}
 
 

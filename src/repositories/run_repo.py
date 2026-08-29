@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+
 from src.repositories.migrate import run_migrations
 
 
@@ -27,7 +28,9 @@ class PipelineRunRepository:
                 )
                 """
             )
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_runs_started_at ON pipeline_runs(started_at DESC)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_runs_started_at ON pipeline_runs(started_at DESC)"
+            )
 
     def create(self, run):
         with sqlite3.connect(self.db_path) as conn:
@@ -57,7 +60,9 @@ class PipelineRunRepository:
     def list_recent(self, limit: int = 20):
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            rows = conn.execute("SELECT * FROM pipeline_runs ORDER BY started_at DESC LIMIT ?", (limit,)).fetchall()
+            rows = conn.execute(
+                "SELECT * FROM pipeline_runs ORDER BY started_at DESC LIMIT ?", (limit,)
+            ).fetchall()
             return [dict(r) for r in rows]
 
     def update_status(self, run_id: str, status: str, **fields):

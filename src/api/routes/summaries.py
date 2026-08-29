@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Query
 import sqlite3
+
+from fastapi import APIRouter, Query
+
 from src.config import settings
 from src.repositories.summary_repo import SummaryRepository
 

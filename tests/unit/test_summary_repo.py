@@ -1,6 +1,4 @@
-import pytest
 from src.models.summary import Summary
-from src.repositories.summary_repo import SummaryRepository
 
 
 def test_save_and_get(summary_repo):

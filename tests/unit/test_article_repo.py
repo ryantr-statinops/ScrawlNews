@@ -1,6 +1,4 @@
-import pytest
 from src.models.article import Article
-from src.repositories.article_repo import ArticleRepository
 
 
 def test_save_and_get(article_repo):

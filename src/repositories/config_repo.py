@@ -1,7 +1,6 @@
 import sqlite3
 from datetime import datetime
 
-
 ALLOWED_HOT_RELOAD_KEYS = {"fetch_limit", "summary_lang", "telegram_enabled", "retention_days"}
 
 

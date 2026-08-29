@@ -1,6 +1,7 @@
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, patch
-from src.models.article import Article
+
 from src.models.summary import Summary
 from src.services.synthesizer import SynthesizerService
 

@@ -1,5 +1,7 @@
-from fastapi import APIRouter
 import sqlite3
+
+from fastapi import APIRouter
+
 from src.config import settings
 from src.repositories.article_repo import ArticleRepository
 
@@ -19,7 +21,9 @@ def get_stats(days: int = 7):
             "SELECT date(created_at) as day, COUNT(*) as count FROM summaries WHERE created_at >= date('now', ?) GROUP BY day ORDER BY day",
             (f"-{days} days",),
         ).fetchall()
-        source_dist = conn.execute("SELECT source, COUNT(*) as count FROM articles GROUP BY source").fetchall()
+        source_dist = conn.execute(
+            "SELECT source, COUNT(*) as count FROM articles GROUP BY source"
+        ).fetchall()
         return {
             "articles_per_day": [dict(r) for r in articles_per_day],
             "summaries_per_day": [dict(r) for r in summaries_per_day],

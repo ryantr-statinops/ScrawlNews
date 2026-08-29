@@ -1,11 +1,12 @@
 import hashlib
-import httpx
-import feedparser
-import trafilatura
 from datetime import datetime
-from src.services.base import BaseService
+
+import feedparser
+import httpx
+import trafilatura
+
 from src.models.article import Article
-from src.config import settings
+from src.services.base import BaseService
 
 
 class ScrawlerService(BaseService):
@@ -13,7 +14,7 @@ class ScrawlerService(BaseService):
         return await self.fetch_rss(limit)
 
     async def fetch_rss(self, limit: int = 20) -> list[Article]:
-        rss_url = f"https://news.google.com/rss/search?q=news&hl=vi&gl=VN&ceid=VN:vi"
+        rss_url = "https://news.google.com/rss/search?q=news&hl=vi&gl=VN&ceid=VN:vi"
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.get(rss_url)
@@ -27,7 +28,11 @@ class ScrawlerService(BaseService):
         for entry in feed.entries[:limit]:
             url = entry.get("link", "")
             title = entry.get("title", "")
-            source = entry.get("source", {}).get("title") if isinstance(entry.get("source"), dict) else None
+            source = (
+                entry.get("source", {}).get("title")
+                if isinstance(entry.get("source"), dict)
+                else None
+            )
             article_id = hashlib.sha256(url.encode()).hexdigest()[:16] if url else ""
             content = await self.extract_content(url) if url else None
             articles.append(

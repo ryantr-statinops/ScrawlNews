@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+
 from src.repositories.migrate import run_migrations
 
 
@@ -24,7 +25,9 @@ class SummaryRepository:
                 )
                 """
             )
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_summaries_article_id ON summaries(article_id)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_summaries_article_id ON summaries(article_id)"
+            )
 
     def save(self, summary):
         with sqlite3.connect(self.db_path) as conn:
@@ -49,7 +52,10 @@ class SummaryRepository:
     def get_by_article(self, article_id: str):
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            rows = conn.execute("SELECT * FROM summaries WHERE article_id = ? ORDER BY created_at DESC", (article_id,)).fetchall()
+            rows = conn.execute(
+                "SELECT * FROM summaries WHERE article_id = ? ORDER BY created_at DESC",
+                (article_id,),
+            ).fetchall()
             return [dict(r) for r in rows]
 
     def get_recent(self, days: int = 7, limit: int = 100):

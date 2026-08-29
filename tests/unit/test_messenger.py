@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from src.models.summary import Summary
 from src.services.messenger import MessengerService
 
@@ -68,6 +70,7 @@ def test_split_message_long():
 @pytest.mark.asyncio
 async def test_send_messages_rate_limit(mock_telegram_bot):
     from telegram.error import RetryAfter
+
     service = MessengerService()
     mock_telegram_bot.send_message.side_effect = [
         RetryAfter(retry_after=0),

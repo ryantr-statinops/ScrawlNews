@@ -1,7 +1,4 @@
-import pytest
-from datetime import datetime
 from src.models.run import PipelineRun
-from src.repositories.run_repo import PipelineRunRepository
 
 
 def test_create_and_get(run_repo):

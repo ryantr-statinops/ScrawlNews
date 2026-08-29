@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Query
 import sqlite3
+
+from fastapi import APIRouter, Query
+
 from src.config import settings
 from src.repositories.article_repo import ArticleRepository
 
@@ -7,7 +9,13 @@ router = APIRouter()
 
 
 @router.get("/api/articles")
-def list_articles(q: str | None = None, source: str | None = None, summarized: int | None = None, limit: int = Query(20, le=100), offset: int = 0):
+def list_articles(
+    q: str | None = None,
+    source: str | None = None,
+    summarized: int | None = None,
+    limit: int = Query(20, le=100),
+    offset: int = 0,
+):
     repo = ArticleRepository(settings.database_url)
     with sqlite3.connect(repo.db_path) as conn:
         conn.row_factory = sqlite3.Row

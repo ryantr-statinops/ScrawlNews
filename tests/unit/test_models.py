@@ -1,7 +1,8 @@
 from datetime import datetime
+
 from src.models.article import Article
-from src.models.summary import Summary
 from src.models.run import PipelineRun
+from src.models.summary import Summary
 
 
 class TestArticleModel:

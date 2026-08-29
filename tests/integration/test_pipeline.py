@@ -1,10 +1,9 @@
-import pytest
-from src.repositories.article_repo import ArticleRepository
-from src.repositories.summary_repo import SummaryRepository
-from src.repositories.run_repo import PipelineRunRepository
 from src.models.article import Article
-from src.models.summary import Summary
 from src.models.run import PipelineRun
+from src.models.summary import Summary
+from src.repositories.article_repo import ArticleRepository
+from src.repositories.run_repo import PipelineRunRepository
+from src.repositories.summary_repo import SummaryRepository
 
 
 def test_full_pipeline_dry_run(temp_db):
