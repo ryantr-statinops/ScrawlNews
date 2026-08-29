@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from src.config import settings
 from src.repositories.config_repo import ConfigRepository
 
@@ -46,3 +46,8 @@ def update_config(payload: dict):
                 settings.retention_days = int(v)
 
     return {"updated": updated}
+
+
+@router.get("/api/config/history")
+def get_config_history(key: str | None = Query(None), limit: int = Query(50, le=200)):
+    return {"history": _config_repo.get_history(key=key, limit=limit)}
