@@ -48,6 +48,13 @@ class ArticleRepository:
             )
 
     def save(self, article) -> bool:
+        from datetime import datetime
+
+        fetched = getattr(article, "fetched_at", None)
+        if fetched is None:
+            fetched = datetime.utcnow().isoformat()
+        elif hasattr(fetched, "isoformat"):
+            fetched = fetched.isoformat()
         with sqlite3.connect(self.db_path) as conn:
             cur = conn.execute(
                 "INSERT OR IGNORE INTO articles (id, url, title, source, raw_html, content, fetched_at, summarized) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -58,7 +65,7 @@ class ArticleRepository:
                     getattr(article, "source", None),
                     getattr(article, "raw_html", None),
                     getattr(article, "content", None),
-                    getattr(article, "fetched_at", None),
+                    fetched,
                     getattr(article, "summarized", 0),
                 ),
             )
