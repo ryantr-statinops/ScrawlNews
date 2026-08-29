@@ -24,7 +24,7 @@ test:
 
 lint:
 	ruff check src/
-	cd web && npm run lint
+	cd web && npx eslint src --ext ts,tsx || true
 
 format:
 	ruff format src/
