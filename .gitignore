@@ -1,1 +1,12 @@
 note.txt
+.env
+data/*.db
+data/*.sqlite
+logs/*.log
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+web/node_modules/
+web/dist/
+.kilo/
