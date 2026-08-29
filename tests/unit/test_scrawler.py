@@ -84,5 +84,5 @@ async def test_execute_calls_fetch_rss():
     service = ScrawlerService()
     with patch.object(service, "fetch_rss", return_value=[]) as mock_fetch:
         result = await service.execute(limit=10)
-        mock_fetch.assert_called_once_with(limit=10)
+        mock_fetch.assert_called_once_with(10)
         assert result == []
