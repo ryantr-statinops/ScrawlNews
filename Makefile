@@ -1,12 +1,12 @@
 .PHONY: install dev worker beat run test lint format typecheck clean
 
 install:
-	pip install -r requirements.txt
+	pip install --break-system-packages -r requirements.txt
 	playwright install chromium || true
 	cd web && npm install
 
 dev:
-	docker compose up -d nginx redis
+	docker-compose up -d nginx redis
 	npx concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "cd web && npm run dev"
 
 worker:
