@@ -8,7 +8,6 @@ celery_app = Celery(
     backend=settings.celery_result_backend,
 )
 
-# Stage 1 stub: no tasks yet, real pipeline_run in Stage 2
 celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],
@@ -16,3 +15,7 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
 )
+
+# Ensure pipeline.run task is registered for worker
+import src.worker.tasks  # noqa: F401
+celery_app.autodiscover_tasks(["src.worker.tasks"])
