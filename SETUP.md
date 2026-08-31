@@ -51,4 +51,4 @@ cd web && npm run test
 ruff check src/
 ```
 
-See docs/plan/INDEX.md for reading guide.
+See docs/README.md for reading guide and documentation map.

@@ -126,5 +126,5 @@ docker-compose down
 
 - README.md - tổng quan
 - SETUP.md - setup ngắn gọn
-- docs/plan/INDEX.md - reading guide
-- docs/concepts/ - core concepts
+- docs/README.md - documentation map and reading guide
+- docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/ - core concepts

@@ -100,13 +100,11 @@ ScrawlNews/
 │   ├── STRUCTURE.md
 │   ├── _template/
 │   └── commit-workflow/
-├── docs/plan/              # Planning docs
-│   ├── INDEX.md
-│   ├── PLAN.md
-│   ├── IMPLEMENT.md
-│   ├── decisions.md
-│   ├── OPEN_QUESTIONS.md
-│   └── spec/api.yaml
+├── docs/                  # Knowledge, execution, guides (see docs/README.md)
+│   ├── README.md
+│   ├── PROJECT_KNOWLEDGE/  # current state, target arch, decisions, domain concepts
+│   ├── EXECUTION/          # active plans, tasks, completed, archived
+│   └── GUIDES/             # setup, testing, deployment
 ├── src/
 │   ├── api/                # FastAPI dashboard
 │   ├── worker/             # Celery Beat and Worker
@@ -124,14 +122,18 @@ ScrawlNews/
 
 ## Documentation
 
-* docs/plan/INDEX.md - reading guide and quick references
-* docs/plan/PLAN.md - architecture, data model, configuration, deployment
-* docs/plan/IMPLEMENT.md - technical implementation, testing, setup
-* docs/plan/decisions.md - architecture decision records
-* docs/plan/spec/api.yaml - OpenAPI 0.2.0 dashboard endpoints
+* docs/README.md - documentation map and reading guide
+* docs/PROJECT_KNOWLEDGE/CURRENT_STATE.md - what is actually built (Stage 1-4 DONE)
+* docs/PROJECT_KNOWLEDGE/TARGET_ARCHITECTURE.md - target architecture
+* docs/PROJECT_KNOWLEDGE/DECISIONS.md - architecture decision records (ADRs)
+* docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/ - core concepts per responsibility
+* docs/EXECUTION/ACTIVE_PLANS/roadmap.md - roadmap (stages)
+* docs/EXECUTION/ACTIVE_PLANS/specs/api.yaml - OpenAPI 0.2.0 dashboard endpoints
+* docs/GUIDES/setup.md - setup and usage
+* docs/GUIDES/testing.md - testing strategy
+* docs/GUIDES/deployment.md - deployment (GitHub Actions, Docker, Nginx)
 * .agent/SKILL/README.md - skill organization research for Hermes and Claude
 * .agent/SKILL/STRUCTURE.md - flat skill folder structure proposal
-* docs/concepts/ - core concepts per responsibility (01-overview to 06-extensibility)
 
 ## Development
 
