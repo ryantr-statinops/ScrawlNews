@@ -26,7 +26,7 @@ Google News RSS -> Scrawler -> Articles -> Synthesizer -> Summaries -> Messenger
 | Synthesizer | OpenAI / OpenRouter / OmniRoute, gpt-4o-mini and free models |
 | Messenger | Telegram Bot API, toggle via telegram_enabled |
 | Dashboard Backend | FastAPI, Celery, Redis, SQLAlchemy, Pydantic Settings |
-| Dashboard Frontend | React 18, TypeScript, Vite, Tailwind, shadcn/ui, TanStack Query, Recharts, SSE |
+| Dashboard Frontend | React 18, TypeScript, Vite, Mantine UI v7, TanStack Router, TanStack Query, ApexCharts, Zustand, SSE (xem `docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/frontend/01-stack.md`) |
 | Gateway | Nginx, reverse proxy /api to FastAPI and / to Vite |
 | CLI | Go, Cobra, newsctl stub |
 | Storage | SQLite file, pure local, mount ./data:/app/data |
