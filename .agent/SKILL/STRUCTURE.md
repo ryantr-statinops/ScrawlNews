@@ -84,7 +84,7 @@ metadata:
 
 **Tags gợi ý cho ScrawlNews:**
 
-*   `scrawler`, `synthesizer`, `messenger`, `dashboard`, `infra`, `pipeline` — theo `docs/plan/PLAN.md:11`
+*   `scrawler`, `synthesizer`, `messenger`, `dashboard`, `infra`, `pipeline` — theo 3 skills + dashboard trong `docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/02-core-engine.md`
 *   `python`, `go`, `nginx`, `react`, `celery`, `redis` — theo stack
 *   Agent search: `skills_list()` filter `tags contains scrawler` hoặc `description contains rss`
 

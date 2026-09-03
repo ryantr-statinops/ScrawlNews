@@ -149,7 +149,7 @@ required_environment_variables:
 |----------|--------|--------|-------------------|
 | **Standard** | agentskills.io + mở rộng hermes metadata | agentskills.io thuần | **agentskills.io** (tương thích cả 2) |
 | **Location** | `~/.hermes/skills/category/skill/` | `~/.claude/skills/skill/` hoặc `.agents/skills/skill/` | `SKILL/<category>/<skill>/` (uppercase theo yêu cầu) + có thể symlink ra `.agents/skills/` để tương thích |
-| **Category** | Bắt buộc | Không bắt buộc | **Có** (để scale, giống docs/plan 3 skills + dashboard) |
+| **Category** | Bắt buộc | Không bắt buộc | **Có** (để scale, giống 3 skills + dashboard trong `docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/02-core-engine.md`) |
 | **Progressive** | 3 levels, `skills_list`/`skill_view` | 3 levels, metadata/instructions/resources | **3 levels** — giữ `SKILL.md` <500 lines |
 | **Trust** | `hermes skills trust` + quarantine scan | Auto load project skills | **Không cần trust gate** (local dev thuần túy) |
 | **Scripts** | `scripts/` + auto passthrough env | `scripts/` chạy via bash, chỉ output | **Giữ** |
@@ -227,7 +227,7 @@ SKILL/
 *   Mỗi skill: `SKILL/<category>/<skill-name>/SKILL.md` với `name` == directory name (lowercase hyphen, 1-64 chars)
 *   `description` phải imperative: `Use when ...` (ví dụ: `Use when fetching Google News RSS or debugging feedparser failures`)
 *   `SKILL.md` giữ <500 lines, chi tiết tách `references/`, script tách `scripts/`
-*   Category gợi ý: `crawler`, `synthesizer`, `messenger`, `dashboard`, `infra` — ánh xạ 1-1 với `docs/plan/PLAN.md:11` 3 skills + dashboard
+*   Category gợi ý: `crawler`, `synthesizer`, `messenger`, `dashboard`, `infra` — ánh xạ 1-1 với 3 skills + dashboard trong `docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/02-core-engine.md`
 
 ### Tương thích
 
