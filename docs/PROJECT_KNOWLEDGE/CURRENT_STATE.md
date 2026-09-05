@@ -71,6 +71,6 @@ ScrawlNews/
 ## References
 
 - [TARGET_ARCHITECTURE.md](TARGET_ARCHITECTURE.md) — kiến trúc đích
-- [DOMAIN_CONCEPTS/](../../DOMAIN_CONCEPTS) — chi tiết từng domain
+- [DOMAIN_CONCEPTS/](DOMAIN_CONCEPTS/) — chi tiết từng domain
 - [EXECUTION/ACTIVE_PLANS/roadmap.md](../EXECUTION/ACTIVE_PLANS/roadmap.md) — kế hoạch theo stage
 - [EXECUTION/COMPLETED/changelog.md](../EXECUTION/COMPLETED/changelog.md) — developer log chi tiết
