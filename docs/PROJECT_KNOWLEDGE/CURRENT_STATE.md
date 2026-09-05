@@ -29,9 +29,9 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - `ConfigRepository` + migrate v2 (settings/config_history) — `afa00a7`
 - Scrawler (feedparser + trafilatura), Synthesizer (OpenRouter batch), Messenger (Telegram toggle) — `65dedb1`..`1f68dd0`
 
-### Frontend (Stage 2–3)
+### Frontend (Stage 2–3, target stack per DECISIONS.md)
 - Vite React 7 pages routing — `web/src/App.tsx:1` `ef147ab`
-- TanStack Query, Recharts, SSE logs — `web/src/lib/api.ts`
+- Mantine UI v7, TanStack Router, TanStack Query, ApexCharts, Zustand, SSE logs — `web/src/lib/api.ts` (xem `DOMAIN_CONCEPTS/frontend/01-stack.md`)
 - 8 Vitest tests pass
 
 ### Verify (Stage 4)
