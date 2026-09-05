@@ -12,8 +12,7 @@
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": false,
-    "noFallthroughCasesInSwitch": true,
-    "types": ["vitest/globals", "jsdom"]
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]
 }
