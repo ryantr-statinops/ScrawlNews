@@ -16,7 +16,7 @@ const rootRoute = createRootRoute({
   ),
 });
 
-function withRoot(path: string, component: React.ComponentType) {
+function withRoot(path: string, component: () => JSX.Element) {
   return createRoute({
     getParentRoute: () => rootRoute,
     path,
