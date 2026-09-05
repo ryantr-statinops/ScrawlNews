@@ -9,5 +9,7 @@ __pycache__/
 .pytest_cache/
 web/node_modules/
 web/dist/
+web-v2/node_modules/
+web-v2/dist/
 celerybeat-schedule*
 .kilo/
