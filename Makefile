@@ -12,7 +12,7 @@ dev:
 	lsof -i :5173 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
 	docker-compose up -d redis
 	docker-compose up -d --no-deps nginx
-	npx concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "cd web && npm run dev"
+	npx concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "cd web && npm run dev" "cd web-v2 && npm run dev"
 
 worker:
 	celery -A src.worker.celery_app worker --loglevel=info
