@@ -4,6 +4,7 @@ install:
 	pip install --break-system-packages -r requirements.txt
 	playwright install chromium || true
 	cd web && npm install
+	cd web-v2 && npm install
 
 dev:
 	docker-compose down 2>/dev/null || true
