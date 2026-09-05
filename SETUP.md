@@ -44,8 +44,8 @@ go run ./cmd/newsctl --help
 ## Verification
 
 ```bash
-docker compose config --quiet
-docker compose build
+docker-compose config
+docker-compose build
 pytest tests/ --cov=src
 cd web && npm run test
 ruff check src/
