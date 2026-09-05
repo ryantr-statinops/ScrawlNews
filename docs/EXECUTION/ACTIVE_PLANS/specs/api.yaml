@@ -1,0 +1,284 @@
+openapi: 3.0.3
+info:
+  title: ScrawlNews Dashboard API
+  version: 0.2.0
+  description: REST API for ScrawlNews Local Monitor Dashboard (FastAPI + Celery + Nginx). Newsbot is a toggle feature (telegram_enabled).
+
+paths:
+  /api/articles:
+    get:
+      summary: List articles (Feed Monitor)
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: source
+          in: query
+          schema: { type: string }
+        - name: summarized
+          in: query
+          schema: { type: boolean }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Articles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+                  articles: { type: array, items: { $ref: '#/components/schemas/Article' } }
+
+  /api/summaries:
+    get:
+      summary: List summaries (Summarization Monitor)
+      parameters:
+        - name: article_id
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Summaries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+                  summaries: { type: array, items: { $ref: '#/components/schemas/Summary' } }
+
+  /api/summaries/{id}:
+    get:
+      summary: Get summary detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Summary' }
+
+  /api/runs:
+    get:
+      summary: List pipeline runs (Pipeline Control + Delivery Monitor)
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Runs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runs: { type: array, items: { $ref: '#/components/schemas/PipelineRun' } }
+    post:
+      summary: Trigger pipeline run (Celery task)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fetch_limit: { type: integer }
+                dry_run: { type: boolean, default: false }
+      responses:
+        '202':
+          description: Task queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run_id: { type: string }
+                  task_id: { type: string }
+                  status: { type: string }
+
+  /api/runs/{id}:
+    get:
+      summary: Get run detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Run
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PipelineRun' }
+
+  /api/tasks/{task_id}:
+    get:
+      summary: Get Celery task status
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Task status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id: { type: string }
+                  status: { type: string }
+                  result: { type: object, nullable: true }
+
+  /api/config:
+    get:
+      summary: Get config (non-secret)
+      responses:
+        '200':
+          description: Config
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Config' }
+    put:
+      summary: Update config (hot-reload fetch_limit, summary_lang, telegram_enabled)
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfigUpdate' }
+      responses:
+        '200':
+          description: Updated
+
+  /api/config/history:
+    get:
+      summary: Get config change history (audit)
+      parameters:
+        - name: key
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history: { type: array, items: { type: object } }
+
+  /api/stats:
+    get:
+      summary: Analytics (articles/day, cost, source distribution)
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 7 }
+      responses:
+        '200':
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articles_per_day: { type: array, items: { type: object } }
+                  summaries_per_day: { type: array, items: { type: object } }
+                  cost_estimate: { type: number }
+                  source_dist: { type: array, items: { type: object } }
+
+  /api/logs/stream:
+    get:
+      summary: SSE stream logs (System/Health)
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /health:
+    get:
+      summary: Health check (DB + Redis)
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  db: { type: string }
+                  redis: { type: string }
+
+components:
+  schemas:
+    Article:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        url: { type: string }
+        source: { type: string }
+        raw_html: { type: string, nullable: true }
+        content: { type: string, nullable: true }
+        fetched_at: { type: string, format: date-time }
+        summarized: { type: integer }
+
+    Summary:
+      type: object
+      properties:
+        id: { type: string }
+        article_id: { type: string }
+        summary_text: { type: string }
+        model_used: { type: string }
+        created_at: { type: string, format: date-time }
+
+    PipelineRun:
+      type: object
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [pending, running, success, failed] }
+        task_id: { type: string, nullable: true }
+        articles_fetched: { type: integer }
+        summaries_generated: { type: integer }
+        telegram_sent: { type: integer }
+        error: { type: string, nullable: true }
+        started_at: { type: string, format: date-time }
+        finished_at: { type: string, format: date-time, nullable: true }
+
+    Config:
+      type: object
+      properties:
+        fetch_limit: { type: integer }
+        summary_lang: { type: string }
+        llm_provider: { type: string }
+        llm_model: { type: string }
+        telegram_enabled: { type: boolean }
+        retention_days: { type: integer }
+        log_level: { type: string }
+
+    ConfigUpdate:
+      type: object
+      properties:
+        fetch_limit: { type: integer }
+        summary_lang: { type: string }
+        telegram_enabled: { type: boolean }
+        retention_days: { type: integer }
