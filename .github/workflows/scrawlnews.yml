@@ -20,7 +20,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           playwright install chromium || true
-          cd web && npm install
+          cd frontend && npm install
       - name: Run pipeline
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
