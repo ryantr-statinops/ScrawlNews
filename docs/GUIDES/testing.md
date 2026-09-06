@@ -79,7 +79,7 @@ pytest tests/integration/
 pytest tests/unit/test_scrawler.py::TestScrawlerService::test_fetch_rss_success -v
 
 # FE
-cd web && npm run test -- --coverage
+cd frontend && npm run test
 ```
 
 ## CI
@@ -87,11 +87,11 @@ cd web && npm run test -- --coverage
 ```yaml
 # .github/workflows/ci.yml
 - pytest tests/ --cov=src --cov-fail-under=80
-- cd web && npm run test -- --coverage
+- cd frontend && npm run test
 - mypy src/
-- cd web && npm run typecheck
+- cd frontend && npm run typecheck
 - ruff check src/
-- cd web && npm run lint
+- cd frontend && npm run lint
 ```
 
 ## Status (2026-08-28)
