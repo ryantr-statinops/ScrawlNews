@@ -58,6 +58,12 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ---
 
+## Stage 5: Product Frontend Cutover (in progress)
+
+- [x] Cutover `web/` → `frontend-legacy/`, `web-v2/` → `frontend/` + repoint compose/nginx/Makefile/CI
+- [x] Lấp feature: Feed search/filter + phân trang, Runs polling + cron note, Delivery stat cards, Analytics cost + donut, Config history, Health error board
+- [ ] Verify `docker-compose up` + `make dev` với `frontend/` mới
+
 ## Stage 5+: Mở rộng (Post-MVP)
 
 | Feature | Effort | Priority |
