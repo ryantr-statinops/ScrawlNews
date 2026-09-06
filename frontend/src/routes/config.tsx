@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, zodResolver } from "@mantine/form";
-import { NumberInput, TextInput, Switch, Button, Stack, Card } from "@mantine/core";
+import { NumberInput, TextInput, Switch, Button, Stack, Card, Table, Title } from "@mantine/core";
 import { z } from "zod";
 import { fetchConfig, updateConfig } from "../lib/api";
 import { PageHeader } from "../components/ui/PageHeader";
@@ -32,6 +32,17 @@ export function ConfigPage() {
     validate: zodResolver(schema),
   });
 
+  const historyQuery = useQuery({
+    queryKey: ["config-history"],
+    queryFn: async () => {
+      const res = await fetch("/api/config/history?limit=20");
+      if (!res.ok) throw new Error(`Failed: ${res.status}`);
+      return res.json();
+    },
+  });
+  const history: { key: string; old_value: string | null; new_value: string; changed_at: string }[] =
+    historyQuery.data?.history ?? [];
+
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState message={(error as Error).message} />;
 
@@ -51,6 +62,31 @@ export function ConfigPage() {
           </Stack>
         </form>
       </Card>
+      <Title order={4} mt="lg" mb="xs">
+        Change history
+      </Title>
+      {history.length > 0 ? (
+        <Table striped highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Key</Table.Th>
+              <Table.Th>Old</Table.Th>
+              <Table.Th>New</Table.Th>
+              <Table.Th>Changed</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {history.map((h, i) => (
+              <Table.Tr key={i}>
+                <Table.Td>{h.key}</Table.Td>
+                <Table.Td>{h.old_value ?? "-"}</Table.Td>
+                <Table.Td>{h.new_value}</Table.Td>
+                <Table.Td>{h.changed_at ? new Date(h.changed_at).toLocaleString() : "-"}</Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      ) : null}
     </div>
   );
 }
