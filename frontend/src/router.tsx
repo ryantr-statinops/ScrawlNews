@@ -1,4 +1,4 @@
-import { createRouter, createRootRoute, createRoute } from "@tanstack/react-router";
+import { createRouter, createRootRoute, createRoute, Outlet } from "@tanstack/react-router";
 import { AppShell } from "./components/layout/AppShell";
 import { FeedPage } from "./routes/index";
 import { SummariesPage } from "./routes/summaries";
@@ -11,7 +11,7 @@ import { ConfigPage } from "./routes/config";
 const rootRoute = createRootRoute({
   component: () => (
     <AppShell>
-      <div id="outlet" />
+      <Outlet />
     </AppShell>
   ),
 });
