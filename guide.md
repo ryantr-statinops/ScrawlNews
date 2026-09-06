@@ -38,8 +38,8 @@ Lưu ý: `cp .env.example` thiếu đích sẽ báo `missing destination`, phả
 pip install --break-system-packages -r requirements.txt
 # hoặc dùng venv nếu có python3-venv: python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 
-# Web deps
-cd web && npm install && cd ..
+# Frontend deps
+cd frontend && npm install && cd ..
 
 # Playwright (optional, cho fallback)
 playwright install chromium || true
