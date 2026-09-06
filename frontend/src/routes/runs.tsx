@@ -1,4 +1,4 @@
-import { Button, Table, Group } from "@mantine/core";
+import { Button, Table, Group, Text } from "@mantine/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchRuns, triggerRun } from "../lib/api";
 import { PageHeader } from "../components/ui/PageHeader";
@@ -13,6 +13,7 @@ export function RunsPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["runs"],
     queryFn: fetchRuns,
+    refetchInterval: 5000,
   });
   const trigger = useMutation({
     mutationFn: () => triggerRun(20),
@@ -24,11 +25,14 @@ export function RunsPage() {
   return (
     <div>
       <Group justify="space-between" mb="md">
-        <PageHeader title="Runs" description="Pipeline runs triggered via Celery" />
+        <PageHeader title="Runs" description="Pipeline runs triggered via Celery (auto-refresh 5s)" />
         <Button onClick={() => trigger.mutate()} loading={trigger.isPending}>
           Run Now
         </Button>
       </Group>
+      <Text size="sm" c="dimmed" mb="md">
+        GitHub Actions cron: 0 8,12,16,21 * * * UTC (primary scheduler). Local Beat is manual-only to avoid overlap.
+      </Text>
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
       {!isLoading && !error && runs.length === 0 ? <EmptyState message="No runs yet" /> : null}
@@ -40,17 +44,23 @@ export function RunsPage() {
               <Table.Th>Status</Table.Th>
               <Table.Th>Articles</Table.Th>
               <Table.Th>Summaries</Table.Th>
+              <Table.Th>Telegram</Table.Th>
+              <Table.Th>Started</Table.Th>
+              <Table.Th>Error</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {runs.map((r) => (
               <Table.Tr key={r.id}>
-                <Table.Td>{r.id.slice(0, 8)}</Table.Td>
+                <Table.Td style={{ fontFamily: "monospace" }}>{r.id.slice(0, 8)}</Table.Td>
                 <Table.Td>
                   <StatusBadge status={r.status} />
                 </Table.Td>
-                <Table.Td>{r.articles_fetched}</Table.Td>
-                <Table.Td>{r.summaries_generated}</Table.Td>
+                <Table.Td>{r.articles_fetched ?? 0}</Table.Td>
+                <Table.Td>{r.summaries_generated ?? 0}</Table.Td>
+                <Table.Td>{r.telegram_sent ? "Yes" : "No"}</Table.Td>
+                <Table.Td>{r.started_at ? new Date(r.started_at).toLocaleString() : "-"}</Table.Td>
+                <Table.Td>{r.error ?? "-"}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
