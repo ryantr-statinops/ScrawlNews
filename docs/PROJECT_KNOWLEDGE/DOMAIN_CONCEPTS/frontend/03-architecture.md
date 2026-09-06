@@ -5,7 +5,7 @@
 ## Folder Structure
 
 ```
-web/src/
+frontend/src/
 ├── main.tsx                 # Entry: providers (Mantine, Query, Router)
 ├── router.tsx               # TanStack Router config
 ├── theme.ts                 # Mantine theme (xem 02-design-tokens)
