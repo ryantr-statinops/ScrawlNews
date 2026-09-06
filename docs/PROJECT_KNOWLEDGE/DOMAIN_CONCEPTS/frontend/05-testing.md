@@ -15,7 +15,7 @@
 ## Structure
 
 ```
-web/src/
+frontend/src/
 ├── __tests__/
 │   ├── Feed.test.tsx
 │   ├── Summaries.test.tsx
@@ -46,7 +46,7 @@ web/src/
 ### Page Component Test
 
 ```typescript
-// web/src/__tests__/Feed.test.tsx
+// frontend/src/__tests__/Feed.test.tsx
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -129,7 +129,7 @@ describe('Feed', () => {
 ### API Lib Test
 
 ```typescript
-// web/src/lib/__tests__/api.test.ts
+// frontend/src/lib/__tests__/api.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fetchArticles, fetchRuns } from '../api';
 
@@ -181,7 +181,7 @@ describe('API', () => {
 ### SSE Hook Test
 
 ```typescript
-// web/src/lib/__tests__/sse.test.ts
+// frontend/src/lib/__tests__/sse.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useLogsStream } from '../sse';
@@ -226,7 +226,7 @@ describe('useLogsStream', () => {
 ### Zustand Store Test
 
 ```typescript
-// web/src/stores/__tests__/themeStore.test.ts
+// frontend/src/stores/__tests__/themeStore.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useThemeStore } from '../themeStore';
 
@@ -259,7 +259,7 @@ describe('useThemeStore', () => {
 ### Form Test (Mantine + Zod)
 
 ```typescript
-// web/src/__tests__/Config.test.tsx
+// frontend/src/__tests__/Config.test.tsx
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
@@ -321,13 +321,13 @@ npm run test:ui
 ```yaml
 # .github/workflows/ci.yml
 - name: Run FE tests
-  run: cd web && npm run test -- --coverage
+  run: cd frontend && npm run test -- --coverage
 
 - name: Lint FE
-  run: cd web && npm run lint
+  run: cd frontend && npm run lint
 
 - name: Typecheck FE
-  run: cd web && npm run typecheck
+  run: cd frontend && npm run typecheck
 ```
 
 ## Best Practices
