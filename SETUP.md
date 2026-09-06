@@ -47,7 +47,7 @@ go run ./cmd/newsctl --help
 docker-compose config
 docker-compose build
 pytest tests/ --cov=src
-cd web && npm run test
+cd frontend && npm run test
 ruff check src/
 ```
 
