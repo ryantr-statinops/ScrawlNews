@@ -1,11 +1,23 @@
-import { AppShell as MantineShell, Burger, Group, Title, ActionIcon } from "@mantine/core";
+import { AppShell as MantineShell, Burger, Group, Title, ActionIcon, NavLink } from "@mantine/core";
 import { Sun, Moon } from "lucide-react";
 import { useDisclosure } from "@mantine/hooks";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useThemeStore } from "../../stores/themeStore";
+
+const navItems = [
+  { to: "/", label: "Feed" },
+  { to: "/summaries", label: "Summaries" },
+  { to: "/runs", label: "Runs" },
+  { to: "/delivery", label: "Delivery" },
+  { to: "/analytics", label: "Analytics" },
+  { to: "/health", label: "Health" },
+  { to: "/config", label: "Config" },
+];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
   const { colorScheme, toggle: toggleTheme } = useThemeStore();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <MantineShell
@@ -24,7 +36,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </ActionIcon>
         </Group>
       </MantineShell.Header>
-      <MantineShell.Navbar p="md">{null}</MantineShell.Navbar>
+      <MantineShell.Navbar p="md">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            label={item.label}
+            component={Link}
+            to={item.to}
+            active={pathname === item.to}
+          />
+        ))}
+      </MantineShell.Navbar>
       <MantineShell.Main>{children}</MantineShell.Main>
     </MantineShell>
   );
