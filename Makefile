@@ -9,8 +9,7 @@ dev:
 	docker-compose down 2>/dev/null || true
 	lsof -i :8000 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
 	lsof -i :5173 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
-	docker-compose up -d redis
-	docker-compose up -d --no-deps nginx
+	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis nginx
 	npx concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "cd frontend && npm run dev"
 
 worker:
