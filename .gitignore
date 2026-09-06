@@ -7,9 +7,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
-web/node_modules/
-web/dist/
-web-v2/node_modules/
-web-v2/dist/
+frontend/node_modules/
+frontend/dist/
+frontend-legacy/node_modules/
+frontend-legacy/dist/
 celerybeat-schedule*
 .kilo/
