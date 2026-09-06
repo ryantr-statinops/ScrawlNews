@@ -1,0 +1,9 @@
+# Dev override: api + web run natively on the host, so nginx uses
+# nginx.dev.conf (host.docker.internal) instead of the compose network.
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis nginx
+services:
+  nginx:
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
