@@ -19,7 +19,7 @@
 | Notification | `@mantine/notifications` | 7 | Toast tích hợp Mantine |
 | Date picker | `@mantine/dates` | 7 | DateRangePicker, Calendar |
 | Realtime | SSE (`EventSource`) | native | Server đã có `/api/logs/stream` |
-| HTTP | Fetch wrapper (`web/src/lib/api.ts`) | native | Đủ dùng, không thêm deps |
+| HTTP | Fetch wrapper (`frontend/src/lib/api.ts`) | native | Đủ dùng, không thêm deps |
 | Data table | Mantine `Table` + custom | 7 | Sort/filter/pagination tự code |
 | Theme | Light + Dark toggle | - | User preference, persist localStorage |
 
