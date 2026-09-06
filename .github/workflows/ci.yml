@@ -20,18 +20,18 @@ jobs:
       - name: Install Python deps
         run: pip install -r requirements.txt
       - name: Install web deps
-        run: cd web && npm install
+        run: cd frontend && npm install
       - name: Lint BE
         run: ruff check src/
       - name: Lint FE
-        run: cd web && npm run lint
+        run: cd frontend && npm run lint
       - name: Typecheck BE
         run: mypy src/ || true
       - name: Typecheck FE
-        run: cd web && npm run typecheck || true
+        run: cd frontend && npm run typecheck || true
       - name: Test BE
         run: pytest tests/ --cov=src --cov-report=term-missing
       - name: Test FE
-        run: cd web && npm run test -- --coverage || true
+        run: cd frontend && npm run test -- --coverage || true
       - name: Build check
         run: docker compose build || true
