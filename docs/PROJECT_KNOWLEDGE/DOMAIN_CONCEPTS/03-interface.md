@@ -59,7 +59,7 @@
 
 - `EXECUTION/ACTIVE_PLANS/specs/api.yaml`
 - `src/api/main.py`, `src/api/routes/`
-- `web/src/pages/`
+- `frontend/src/routes/`
 - `frontend/` — stack, design tokens, architecture, patterns
 - `nginx.conf`
 - `go.mod`, `Makefile`
