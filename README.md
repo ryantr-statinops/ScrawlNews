@@ -112,7 +112,8 @@ ScrawlNews/
 │   ├── repositories/       # Article, Summary, PipelineRun
 │   ├── models/
 │   └── config.py
-├── web/                    # React Vite frontend
+├── frontend/               # React Vite dashboard (Mantine + TanStack Router)
+├── frontend-legacy/        # MVP web archive (react-router + recharts)
 ├── cmd/newsctl/            # Go Cobra stub
 ├── docker-compose.yml
 ├── nginx.conf
@@ -140,7 +141,7 @@ ScrawlNews/
 ```bash
 make install
 make test          # BE pytest
-cd web && npm run test   # FE Vitest
+cd frontend && npm run test   # FE Vitest
 make lint
 make typecheck
 ```
