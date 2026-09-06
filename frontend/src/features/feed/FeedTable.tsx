@@ -5,11 +5,12 @@ export function FeedTable({ articles }: { articles: Article[] }) {
   return (
     <Table striped highlightOnHover>
       <Table.Thead>
-        <Table.Tr>
-          <Table.Th>Title</Table.Th>
-          <Table.Th>Source</Table.Th>
-          <Table.Th>Status</Table.Th>
-        </Table.Tr>
+          <Table.Tr>
+            <Table.Th>Title</Table.Th>
+            <Table.Th>Source</Table.Th>
+            <Table.Th>Fetched</Table.Th>
+            <Table.Th>Status</Table.Th>
+          </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
         {articles.map((a) => (
@@ -20,6 +21,7 @@ export function FeedTable({ articles }: { articles: Article[] }) {
               </Anchor>
             </Table.Td>
             <Table.Td>{a.source ?? "-"}</Table.Td>
+            <Table.Td>{a.fetched_at ? new Date(a.fetched_at).toLocaleString() : "-"}</Table.Td>
             <Table.Td>
               <Badge color={a.summarized ? "green" : "yellow"}>
                 {a.summarized ? "summarized" : "pending"}
