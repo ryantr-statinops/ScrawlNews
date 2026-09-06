@@ -30,7 +30,7 @@
 |---|---|
 | Stack là gì, tại sao chọn | [01-stack.md](01-stack.md) |
 | Color, font, spacing | [02-design-tokens.md](02-design-tokens.md) |
-| Cấu trúc thư mục `web/src/`, routing, state | [03-architecture.md](03-architecture.md) |
+| Cấu trúc thư mục `frontend/src/`, routing, state | [03-architecture.md](03-architecture.md) |
 | SSE, form, chart, error/loading pattern | [04-patterns.md](04-patterns.md) |
 
 Cập nhật: 2026-09-03.
