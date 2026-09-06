@@ -32,7 +32,7 @@ services:
     command: celery -A src.worker.celery_app beat --loglevel=info
     depends_on: [redis]
   web:
-    build: ./web
+    build: ./frontend
     ports: ["5173:5173"]
   nginx:
     image: nginx:alpine
