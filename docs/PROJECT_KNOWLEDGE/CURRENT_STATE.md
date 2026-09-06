@@ -29,9 +29,9 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - `ConfigRepository` + migrate v2 (settings/config_history) — `afa00a7`
 - Scrawler (feedparser + trafilatura), Synthesizer (OpenRouter batch), Messenger (Telegram toggle) — `65dedb1`..`1f68dd0`
 
-### Frontend
-- **MVP (`web/`, đang chạy)**: Vite React 7 pages, react-router-dom, recharts + tailwind, 8 Vitest tests — `web/src/App.tsx:1` `ef147ab`
-- **Product (`web-v2/`, đang dựng)**: Mantine UI v7, TanStack Router, ApexCharts, Zustand, SSE logs — xem `DOMAIN_CONCEPTS/frontend/01-stack.md`. Chạy riêng port 5174, chưa thay `web/`
+### Frontend (product, đã cutover)
+- `frontend/` là web chính: Mantine UI v7, TanStack Router, ApexCharts, Zustand, SSE logs — xem `DOMAIN_CONCEPTS/frontend/01-stack.md`. Chạy `:5173`, nối `docker-compose.yml` + `Makefile` + CI
+- `frontend-legacy/` là MVP cũ archive (react-router-dom + recharts + tailwind), giữ tham khảo, không chạy nữa
 
 ### Verify (Stage 4)
 - `docker compose config` passed với .env
