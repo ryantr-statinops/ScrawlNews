@@ -16,6 +16,7 @@ celery_app.conf.update(
     enable_utc=True,
 )
 
-# Ensure pipeline.run task is registered for worker
-import src.worker.tasks  # noqa: F401
+# Ensure pipeline.run task is registered for worker (bottom import avoids circular import)
+import src.worker.tasks  # noqa: E402, F401
+
 celery_app.autodiscover_tasks(["src.worker.tasks"])
