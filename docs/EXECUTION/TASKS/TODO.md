@@ -5,7 +5,7 @@
 ## High priority
 
 - [ ] **Interactive Telegram Bot** — `/detail <id>`, `/topic tech`, `/settings` (ideas.md #1)
-- [ ] **Category Filtering** — configurable categories, RSS query params, multi-feed merge (ideas.md #2)
+- [x] **Category Filtering** — configurable categories, RSS query params, multi-feed merge (ideas.md #2) — DONE `0ae56821`..`e32485e0` (14 commits, pytest 96 passed)
 - [ ] **Circuit breaker cho LLM API** — retry 3x đã có, thiếu circuit breaker (Technical Debt, High)
 - [ ] **Monitor 2–3 GA runs** sau push, manual trigger qua dashboard `POST /api/runs` (Next Step Stage 4)
 
