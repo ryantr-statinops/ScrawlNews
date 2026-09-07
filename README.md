@@ -110,13 +110,15 @@ ScrawlNews/
 │   ├── api/                # FastAPI dashboard
 │   ├── worker/             # Celery Beat and Worker
 │   ├── services/           # Scrawler, Synthesizer, Messenger
-│   ├── repositories/       # Article, Summary, PipelineRun
+│   ├── repositories/       # Article, Summary, PipelineRun, Config
 │   ├── models/
 │   └── config.py
 ├── frontend/               # React Vite dashboard (Mantine + TanStack Router)
 ├── cmd/newsctl/            # Go Cobra stub
 ├── docker-compose.yml
+├── docker-compose.dev.yml  # Dev override (nginx host routing)
 ├── nginx.conf
+├── nginx.dev.conf          # Dev nginx (host.docker.internal)
 ├── Makefile
 └── data/                   # SQLite volume
 ```
