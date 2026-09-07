@@ -83,13 +83,14 @@ Key variables:
 | FETCH_LIMIT | no | 20 | Max articles per run |
 | SUMMARY_LANG | no | vi | Summary output language |
 | RETENTION_DAYS | no | 7 | Data retention |
+| NEWS_CATEGORIES | no | technology,business,world,science | RSS categories, comma-separated |
 | LOG_LEVEL | no | INFO | Logging level |
 | DATABASE_URL | no | sqlite:///data/scrawlnews.db | SQLite file, pure local |
 | REDIS_URL | no | redis://localhost:6379/0 | Redis for Celery broker, docker uses redis://redis:6379/0 |
 | CELERY_BROKER_URL | no | redis://localhost:6379/0 | Celery broker |
 | CELERY_RESULT_BACKEND | no | redis://localhost:6379/1 | Celery result backend |
 
-Hot reload is limited to fetch_limit, summary_lang, telegram_enabled, retention_days via PUT /api/config. Secrets and connection URLs require restart.
+Hot reload is limited to fetch_limit, summary_lang, telegram_enabled, retention_days, news_categories via PUT /api/config. Secrets and connection URLs require restart.
 
 ## Project Structure
 
