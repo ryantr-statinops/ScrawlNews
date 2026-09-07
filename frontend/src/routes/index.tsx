@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { TextInput, Select, Button, Group, Pagination, Text } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
+import { fetchConfig } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
@@ -12,8 +14,15 @@ const PAGE_SIZE = 20;
 export function FeedPage() {
   const [q, setQ] = useState("");
   const [source, setSource] = useState<string | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [submitted, setSubmitted] = useState({ q: "", source: "" });
+  const [submitted, setSubmitted] = useState({ q: "", source: "", category: "" });
+
+  const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
+  const categories: string[] = String(configQuery.data?.news_categories ?? "technology,business,world,science")
+    .split(",")
+    .map((c: string) => c.trim())
+    .filter(Boolean);
 
   const params: Record<string, string> = {
     limit: String(PAGE_SIZE),
@@ -21,6 +30,7 @@ export function FeedPage() {
   };
   if (submitted.q) params.q = submitted.q;
   if (submitted.source) params.source = submitted.source;
+  if (submitted.category) params.category = submitted.category;
 
   const { data, isLoading, error } = useFeedQuery(params);
   const articles = data?.articles ?? [];
@@ -30,7 +40,7 @@ export function FeedPage() {
 
   const search = () => {
     setPage(1);
-    setSubmitted({ q, source: source ?? "" });
+    setSubmitted({ q, source: source ?? "", category: category ?? "" });
   };
 
   return (
@@ -49,6 +59,13 @@ export function FeedPage() {
           data={sources}
           value={source}
           onChange={setSource}
+        />
+        <Select
+          placeholder="All categories"
+          clearable
+          data={categories}
+          value={category}
+          onChange={setCategory}
         />
         <Button onClick={search} loading={isLoading}>
           Search
