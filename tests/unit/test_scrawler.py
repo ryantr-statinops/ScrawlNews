@@ -83,6 +83,15 @@ async def test_fetch_playwright_fallback_stub():
 async def test_execute_calls_fetch_rss():
     service = ScrawlerService()
     with patch.object(service, "fetch_rss", return_value=[]) as mock_fetch:
-        result = await service.execute(limit=10)
-        mock_fetch.assert_called_once_with(10)
+        result = await service.execute(limit=10, categories=["tech"])
+        mock_fetch.assert_called_once_with(10, category="tech")
+        assert result == []
+
+
+@pytest.mark.asyncio
+async def test_execute_merges_categories():
+    service = ScrawlerService()
+    with patch.object(service, "fetch_rss", return_value=[]) as mock_fetch:
+        result = await service.execute(limit=10, categories=["tech", "business"])
+        assert mock_fetch.call_count == 2
         assert result == []
