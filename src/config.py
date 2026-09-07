@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     fetch_limit: int = 20
     summary_lang: str = "vi"
     retention_days: int = 7
+    news_categories: str = "technology,business,world,science"
+
+    @property
+    def news_categories_list(self) -> list[str]:
+        return [c.strip().lower() for c in self.news_categories.split(",") if c.strip()]
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
