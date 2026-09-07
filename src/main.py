@@ -1,7 +1,5 @@
 import argparse
-import asyncio
 
-from src.config import settings
 from src.worker.tasks import pipeline_run
 
 
