@@ -26,7 +26,15 @@ def test_trigger_run_with_fetch_limit():
         mock.return_value.id = "task123"
         r = client.post("/api/runs?fetch_limit=50")
         assert r.status_code == 200
-        mock.assert_called_once_with(50, False)
+        mock.assert_called_once_with(50, False, None)
+
+
+def test_trigger_run_with_categories():
+    with patch("src.api.routes.runs.pipeline_run.delay") as mock:
+        mock.return_value.id = "task123"
+        r = client.post("/api/runs?categories=tech,business")
+        assert r.status_code == 200
+        mock.assert_called_once_with(None, False, ["tech", "business"])
 
 
 def test_list_runs():
