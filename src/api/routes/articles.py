@@ -12,6 +12,7 @@ router = APIRouter()
 def list_articles(
     q: str | None = None,
     source: str | None = None,
+    category: str | None = None,
     summarized: int | None = None,
     limit: int = Query(20, le=100),
     offset: int = 0,
@@ -27,6 +28,9 @@ def list_articles(
         if source:
             sql += " AND source=?"
             params.append(source)
+        if category:
+            sql += " AND category=?"
+            params.append(category)
         if summarized is not None:
             sql += " AND summarized=?"
             params.append(summarized)
