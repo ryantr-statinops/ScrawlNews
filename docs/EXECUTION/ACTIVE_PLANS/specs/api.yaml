@@ -277,6 +277,7 @@ components:
         llm_model: { type: string }
         telegram_enabled: { type: boolean }
         retention_days: { type: integer }
+        news_categories: { type: string }
         log_level: { type: string }
 
     ConfigUpdate:
@@ -286,3 +287,4 @@ components:
         summary_lang: { type: string }
         telegram_enabled: { type: boolean }
         retention_days: { type: integer }
+        news_categories: { type: string }
