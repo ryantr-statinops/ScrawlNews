@@ -8,6 +8,7 @@ class Article:
     url: str
     title: str
     source: str | None = None
+    category: str | None = None
     raw_html: str | None = None
     content: str | None = None
     fetched_at: datetime | None = None
