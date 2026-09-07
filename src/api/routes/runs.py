@@ -21,8 +21,13 @@ def list_runs(limit: int = 20):
 
 
 @router.post("/api/runs")
-def trigger_run(fetch_limit: int | None = None, dry_run: bool = False):
-    task = pipeline_run.delay(fetch_limit, dry_run)
+def trigger_run(
+    fetch_limit: int | None = None,
+    dry_run: bool = False,
+    categories: str | None = None,
+):
+    cats = [c.strip() for c in categories.split(",") if c.strip()] if categories else None
+    task = pipeline_run.delay(fetch_limit, dry_run, cats)
     return {"task_id": task.id, "status": "pending", "run_id": task.id}
 
 
