@@ -113,7 +113,6 @@ ScrawlNews/
 │   ├── models/
 │   └── config.py
 ├── frontend/               # React Vite dashboard (Mantine + TanStack Router)
-├── frontend-legacy/        # MVP web archive (react-router + recharts)
 ├── cmd/newsctl/            # Go Cobra stub
 ├── docker-compose.yml
 ├── nginx.conf
