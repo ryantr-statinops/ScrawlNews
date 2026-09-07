@@ -31,13 +31,20 @@ def get_config():
         ).lower()
         == "true",
         "retention_days": int(db_overrides.get("retention_days", settings.retention_days)),
+        "news_categories": db_overrides.get("news_categories", settings.news_categories),
         "log_level": settings.log_level,
     }
 
 
 @router.put("/api/config")
 def update_config(payload: dict):
-    allowed = {"fetch_limit", "summary_lang", "telegram_enabled", "retention_days"}
+    allowed = {
+        "fetch_limit",
+        "summary_lang",
+        "telegram_enabled",
+        "retention_days",
+        "news_categories",
+    }
     rejected = {k: v for k, v in payload.items() if k not in allowed}
     if rejected:
         return {"error": f"keys require restart: {', '.join(rejected.keys())}"}
@@ -60,6 +67,8 @@ def update_config(payload: dict):
                 settings.telegram_enabled = str(v).lower() == "true"
             elif k == "retention_days":
                 settings.retention_days = int(v)
+            elif k == "news_categories":
+                settings.news_categories = str(v)
 
     if changed_keys:
         _publish_config_change(changed_keys)
