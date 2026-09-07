@@ -31,7 +31,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 
 ### Frontend (product, đã cutover)
 - `frontend/` là web chính: Mantine UI v7, TanStack Router, ApexCharts, Zustand, SSE logs — xem `DOMAIN_CONCEPTS/frontend/01-stack.md`. Chạy `:5173`, nối `docker-compose.yml` + `Makefile` + CI
-- `frontend-legacy/` là MVP cũ archive (react-router-dom + recharts + tailwind), giữ tham khảo, không chạy nữa
+- MVP cũ (`web/` react-router-dom + recharts + tailwind) đã xóa sau cutover (`8593dd5f`), xem lại qua git history nếu cần
 
 ### Verify (Stage 4)
 - `docker compose config` passed với .env
