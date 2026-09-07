@@ -20,6 +20,7 @@ class ArticleRepository:
                     url TEXT UNIQUE NOT NULL,
                     title TEXT NOT NULL,
                     source TEXT,
+                    category TEXT,
                     raw_html TEXT,
                     content TEXT,
                     fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -33,6 +34,7 @@ class ArticleRepository:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_articles_summarized ON articles(summarized)"
             )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category)")
 
     def cleanup_old(self, days: int = 7):
         with sqlite3.connect(self.db_path) as conn:
@@ -64,12 +66,13 @@ class ArticleRepository:
             fetched = fetched.isoformat()
         with sqlite3.connect(self.db_path) as conn:
             cur = conn.execute(
-                "INSERT OR IGNORE INTO articles (id, url, title, source, raw_html, content, fetched_at, summarized) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT OR IGNORE INTO articles (id, url, title, source, category, raw_html, content, fetched_at, summarized) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     article.id,
                     article.url,
                     article.title,
                     getattr(article, "source", None),
+                    getattr(article, "category", None),
                     getattr(article, "raw_html", None),
                     getattr(article, "content", None),
                     fetched,
