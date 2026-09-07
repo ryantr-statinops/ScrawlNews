@@ -13,7 +13,12 @@ from src.worker.celery_app import celery_app
 
 
 @celery_app.task(bind=True, max_retries=3, name="pipeline.run")
-def pipeline_run(self, fetch_limit: int | None = None, dry_run: bool = False):
+def pipeline_run(
+    self,
+    fetch_limit: int | None = None,
+    dry_run: bool = False,
+    categories: list[str] | None = None,
+):
     run_id = str(uuid.uuid4())
     repo = PipelineRunRepository(settings.database_url)
     # create pending
@@ -31,7 +36,7 @@ def pipeline_run(self, fetch_limit: int | None = None, dry_run: bool = False):
     try:
         limit = fetch_limit or settings.fetch_limit
         scrawler = ScrawlerService()
-        articles = asyncio.run(scrawler.execute(limit=limit))
+        articles = asyncio.run(scrawler.execute(limit=limit, categories=categories))
         # save articles
         article_repo = ArticleRepository(settings.database_url)
         new_articles = []
@@ -41,12 +46,13 @@ def pipeline_run(self, fetch_limit: int | None = None, dry_run: bool = False):
 
                 with sqlite3.connect(article_repo.db_path) as conn:
                     conn.execute(
-                        "INSERT OR IGNORE INTO articles (id, url, title, source, content, fetched_at, summarized) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT OR IGNORE INTO articles (id, url, title, source, category, content, fetched_at, summarized) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                         (
                             a.id,
                             a.url,
                             a.title,
                             a.source,
+                            getattr(a, "category", None),
                             a.content,
                             a.fetched_at.isoformat() if a.fetched_at else None,
                             0,
