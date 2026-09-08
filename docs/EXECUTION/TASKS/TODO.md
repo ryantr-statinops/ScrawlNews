@@ -6,8 +6,8 @@
 
 - [ ] **Interactive Telegram Bot** — `/detail <id>`, `/topic tech`, `/settings` (ideas.md #1)
 - [x] **Category Filtering** — configurable categories, RSS query params, multi-feed merge (ideas.md #2) — DONE `0ae56821`..`e32485e0` (14 commits, pytest 96 passed)
-- [ ] **Circuit breaker cho LLM API** — retry 3x đã có, thiếu circuit breaker (Technical Debt, High)
-- [ ] **Monitor 2–3 GA runs** sau push, manual trigger qua dashboard `POST /api/runs` (Next Step Stage 4)
+- [x] **Circuit breaker cho LLM API** — retry 3x đã có, thiếu circuit breaker (Technical Debt, High) — DONE `0bdf5477`..`e297f746` (6 commits: breaker state machine, LLM + Telegram, health endpoint)
+- [ ] **Monitor 2–3 GA runs** sau push, manual trigger qua dashboard `POST /api/runs` (Next Step Stage 4) — infra sẵn `3ec5dc83` (`GET /api/runs/summary`), còn chờ chạy prod
 
 ## Medium priority
 
