@@ -6,6 +6,8 @@ from fastapi import APIRouter
 
 from src.config import settings
 from src.repositories.article_repo import ArticleRepository
+from src.services.messenger import _telegram_breaker
+from src.services.synthesizer import _llm_breaker
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -25,4 +27,12 @@ def health():
         r.ping()
     except redis.RedisError:
         redis_status = "unavailable (Stage 1-2 stub)"
-    return {"status": "ok", "db": db_status, "redis": redis_status}
+    return {
+        "status": "ok",
+        "db": db_status,
+        "redis": redis_status,
+        "circuit_breakers": {
+            "llm": _llm_breaker.to_dict(),
+            "telegram": _telegram_breaker.to_dict(),
+        },
+    }
