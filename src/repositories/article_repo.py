@@ -122,3 +122,12 @@ class ArticleRepository:
                 (f"-{days} days", limit),
             ).fetchall()
             return [dict(r) for r in rows]
+
+    def get_recent_by_category(self, category: str, days: int = 7, limit: int = 20):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM articles WHERE category = ? AND fetched_at >= datetime('now', ?) ORDER BY fetched_at DESC LIMIT ?",
+                (category, f"-{days} days", limit),
+            ).fetchall()
+            return [dict(r) for r in rows]
