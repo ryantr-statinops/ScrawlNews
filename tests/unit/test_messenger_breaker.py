@@ -1,9 +1,9 @@
 import pytest
 
+from src.config import settings
 from src.models.summary import Summary
 from src.services.messenger import MessengerService, _telegram_breaker
 from src.utils.errors import ConfigError, MessengerError
-from src.config import settings
 
 
 @pytest.fixture

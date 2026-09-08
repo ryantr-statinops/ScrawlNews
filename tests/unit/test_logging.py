@@ -1,7 +1,7 @@
 import json
 import logging
 
-from src.utils.logging import JSONFormatter, setup_logging
+from src.utils.logging import setup_logging
 
 
 def test_json_formatter_emits_valid_json(capfd):

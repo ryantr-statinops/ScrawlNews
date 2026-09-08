@@ -40,8 +40,15 @@ def isolated_backend(monkeypatch, tmp_path):
         raise AssertionError("Tests must mock network calls")
 
     monkeypatch.setattr(socket.socket, "connect", no_network)
+    from src.services.messenger import _telegram_breaker
+    from src.services.synthesizer import _llm_breaker
+
+    _llm_breaker.reset()
+    _telegram_breaker.reset()
     with patch("redis.from_url"):
         yield
+    _llm_breaker.reset()
+    _telegram_breaker.reset()
 
 
 def load_fixture(name: str):

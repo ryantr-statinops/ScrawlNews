@@ -1,7 +1,7 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
-from openai import APIConnectionError, APIStatusError
+from openai import APIConnectionError
 
 from src.services.synthesizer import SynthesizerService, _llm_breaker
 from src.utils.errors import SynthesizerError
@@ -21,9 +21,6 @@ async def test_llm_breaker_opens_after_repeated_failures():
     svc.client.chat.completions.create.side_effect = APIConnectionError(
         request=AsyncMock()
     )
-    from src.models.article import Article
-
-    articles = [Article(id="a1", url="https://x.com", title="T")]
     for _ in range(5):
         with pytest.raises(SynthesizerError, match="LLM transport failed"):
             await svc.call_llm("prompt")
