@@ -1,9 +1,11 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from src.api.routes import articles, config, health, logs, runs, stats, summaries
+from src.config import settings
 from src.utils.errors import (
     ConfigError,
     MessengerError,
@@ -12,10 +14,20 @@ from src.utils.errors import (
     ScrawlError,
     SynthesizerError,
 )
+from src.utils.logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="ScrawlNews Dashboard", version="0.2.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    setup_logging(settings.log_level)
+    logger.info("Dashboard started")
+    yield
+    logger.info("Dashboard shutting down")
+
+
+app = FastAPI(title="ScrawlNews Dashboard", version="0.2.0", lifespan=lifespan)
 
 
 @app.exception_handler(ScrawlError)

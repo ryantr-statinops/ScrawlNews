@@ -1,6 +1,16 @@
 from celery import Celery
+from celery.signals import worker_process_init
 
 from src.config import settings
+
+
+def _setup_celery_logging(**_kwargs):
+    from src.utils.logging import setup_logging
+
+    setup_logging(settings.log_level)
+
+
+worker_process_init.connect(_setup_celery_logging)
 
 celery_app = Celery(
     "scrawlnews",
