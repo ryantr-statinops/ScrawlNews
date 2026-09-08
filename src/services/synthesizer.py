@@ -8,6 +8,7 @@ from src.config import settings
 from src.models.article import Article
 from src.models.summary import Summary
 from src.services.base import BaseService
+from src.utils.circuit_breaker import CircuitBreaker
 from src.utils.errors import ConfigError, SynthesizerError
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,8 @@ create a concise daily briefing in Vietnamese with:
 2. 1-2 sentences per story
 3. Keep it scannable
 """
+
+_llm_breaker = CircuitBreaker("llm", failure_threshold=5, cooldown_seconds=60)
 
 
 class SynthesizerService(BaseService):
@@ -49,6 +52,8 @@ class SynthesizerService(BaseService):
     async def call_llm(self, prompt: str) -> str:
         if self.client is None:
             raise ConfigError("LLM credentials are missing")
+        if not _llm_breaker.allow_request():
+            raise SynthesizerError("LLM circuit breaker is open", retryable=False)
         try:
             resp = await self.client.chat.completions.create(
                 model=settings.llm_model,
@@ -56,14 +61,18 @@ class SynthesizerService(BaseService):
                 max_tokens=800,
             )
         except APIConnectionError as exc:
+            _llm_breaker.record_failure()
             raise SynthesizerError("LLM transport failed", retryable=True) from exc
         except APIStatusError as exc:
+            _llm_breaker.record_failure()
             raise SynthesizerError(
                 "LLM request rejected",
                 retryable=exc.status_code in (408, 409, 429) or exc.status_code >= 500,
             ) from exc
         if not resp.choices or not resp.choices[0].message.content:
+            _llm_breaker.record_failure()
             raise SynthesizerError("LLM returned no summary")
+        _llm_breaker.record_success()
         return resp.choices[0].message.content
 
     def parse_response(self, response: str, articles: list[Article]) -> list[Summary]:
