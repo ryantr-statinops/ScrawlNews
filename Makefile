@@ -1,4 +1,4 @@
-.PHONY: install dev worker beat run test lint format typecheck clean
+.PHONY: install dev worker beat bot run test lint format typecheck clean
 
 install:
 	pip install --break-system-packages -r requirements.txt
@@ -10,13 +10,16 @@ dev:
 	lsof -i :8000 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
 	lsof -i :5173 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
 	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --no-deps redis nginx
-	npx concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "cd frontend && npm run dev"
+	npx concurrently "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload" "celery -A src.worker.celery_app worker --loglevel=info" "celery -A src.worker.celery_app beat --loglevel=info" "python -m src.bot_entrypoint" "cd frontend && npm run dev"
 
 worker:
 	celery -A src.worker.celery_app worker --loglevel=info
 
 beat:
 	celery -A src.worker.celery_app beat --loglevel=info
+
+bot:
+	python -m src.bot_entrypoint
 
 run:
 	python src/main.py --dry-run
