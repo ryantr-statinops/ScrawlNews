@@ -17,10 +17,18 @@ logger = logging.getLogger(__name__)
 
 class ScrawlerService(BaseService):
     async def execute(self, limit: int = 20, categories: list[str] | None = None) -> list[Article]:
-        cats = categories or settings.news_categories_list
+        cats = categories or self._configured_categories()
         if len(cats) <= 1:
             return await self.fetch_rss(limit, category=cats[0] if cats else None)
         return await self.fetch_categories(cats, limit)
+
+    def _configured_categories(self) -> list[str]:
+        from src.repositories.config_repo import ConfigRepository
+
+        override = ConfigRepository(settings.database_url).get("news_categories")
+        if override:
+            return [c.strip().lower() for c in override.split(",") if c.strip()]
+        return settings.news_categories_list
 
     async def fetch_categories(self, categories: list[str], limit: int = 20) -> list[Article]:
         limit_each = max(1, limit // max(1, len(categories)))
