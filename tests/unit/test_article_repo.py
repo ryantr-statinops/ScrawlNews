@@ -1,3 +1,7 @@
+import sqlite3
+
+import pytest
+
 from src.models.article import Article
 
 
@@ -63,4 +67,10 @@ def test_cleanup_old(article_repo):
     article = Article(id="a1", url="https://a.com", title="A")
     article_repo.save(article)
     article_repo.cleanup_old(days=0)
+    assert article_repo.count() == 0
+
+
+def test_invalid_article_is_not_silently_ignored(article_repo):
+    with pytest.raises(sqlite3.IntegrityError, match="NOT NULL constraint failed"):
+        article_repo.save(Article(id="invalid", url="https://example.test/invalid", title=None))
     assert article_repo.count() == 0

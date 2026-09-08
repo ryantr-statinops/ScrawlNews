@@ -52,7 +52,9 @@ class ArticleRepository:
             )
             for tbl, col in [("summaries", "created_at"), ("pipeline_runs", "started_at")]:
                 try:
-                    conn.execute(f"DELETE FROM {tbl} WHERE {col} < datetime('now', ?)", (f"-{days} days",))
+                    conn.execute(
+                        f"DELETE FROM {tbl} WHERE {col} < datetime('now', ?)", (f"-{days} days",)
+                    )
                 except sqlite3.OperationalError:
                     pass
 
@@ -66,7 +68,7 @@ class ArticleRepository:
             fetched = fetched.isoformat()
         with sqlite3.connect(self.db_path) as conn:
             cur = conn.execute(
-                "INSERT OR IGNORE INTO articles (id, url, title, source, category, raw_html, content, fetched_at, summarized) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO articles (id, url, title, source, category, raw_html, content, fetched_at, summarized) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING",
                 (
                     article.id,
                     article.url,
