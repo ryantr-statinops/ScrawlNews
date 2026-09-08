@@ -1,5 +1,7 @@
 import argparse
+import logging
 
+from src.utils.logging import setup_logging
 from src.worker.tasks import pipeline_run
 
 
@@ -9,9 +11,9 @@ def main():
     parser.add_argument("--limit", type=int, default=None, help="fetch limit override")
     args = parser.parse_args()
 
-    # Run pipeline directly without Celery for CLI
+    setup_logging("INFO")
     result = pipeline_run(args.limit, dry_run=args.dry_run)
-    print(result)
+    logging.getLogger("cli").info("Pipeline finished", extra={"result": result})
 
 
 if __name__ == "__main__":
