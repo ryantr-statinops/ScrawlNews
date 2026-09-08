@@ -84,6 +84,7 @@ Key variables:
 | SUMMARY_LANG | no | vi | Summary output language |
 | RETENTION_DAYS | no | 7 | Data retention |
 | NEWS_CATEGORIES | no | technology,business,world,science | RSS categories, comma-separated |
+| SCHEDULE_INTERVAL_HOURS | no | 24 | Briefing interval for beat scheduler |
 | LOG_LEVEL | no | INFO | Logging level |
 | DATABASE_URL | no | sqlite:///data/scrawlnews.db | SQLite file, pure local |
 | REDIS_URL | no | redis://localhost:6379/0 | Redis for Celery broker, docker uses redis://redis:6379/0 |
@@ -108,8 +109,8 @@ ScrawlNews/
 │   └── GUIDES/             # setup, testing, deployment
 ├── src/
 │   ├── api/                # FastAPI dashboard
-│   ├── worker/             # Celery Beat and Worker
-│   ├── services/           # Scrawler, Synthesizer, Messenger
+│   ├── worker/             # Celery Beat and Worker + dynamic scheduler
+│   ├── services/           # Scrawler, Synthesizer, Messenger, Telegram Bot
 │   ├── repositories/       # Article, Summary, PipelineRun, Config
 │   ├── models/
 │   └── config.py
