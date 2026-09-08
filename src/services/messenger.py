@@ -26,7 +26,10 @@ class MessengerService(BaseService):
         parts = self.split_message(text)
         try:
             result = await self.send_messages(settings.telegram_chat_id, parts)
-            _telegram_breaker.record_success()
+            if result:
+                _telegram_breaker.record_success()
+            else:
+                _telegram_breaker.record_failure()
             return result
         except MessengerError:
             _telegram_breaker.record_failure()
