@@ -24,6 +24,7 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
+    beat_scheduler="src.worker.scheduler:ConfigurableScheduler",
 )
 
 # Ensure pipeline.run task is registered for worker (bottom import avoids circular import)
