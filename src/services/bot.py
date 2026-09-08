@@ -53,12 +53,32 @@ async def cmd_detail(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     await update.effective_message.reply_text("\n".join(lines), disable_web_page_preview=True)
 
 
+async def cmd_topic(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not context.args:
+        await update.effective_message.reply_text("Usage: /topic <category>")
+        return
+    category = context.args[0].strip().lower()
+    article_repo = ArticleRepository(settings.database_url)
+    articles = article_repo.get_recent_by_category(category, limit=10)
+    if not articles:
+        await update.effective_message.reply_text(f"No articles for category '{category}'.")
+        return
+    lines = [f"*Latest {category} news:*"]
+    for a in articles:
+        title = a["title"][:80]
+        lines.append(f"- {title} — /detail {a['id']}")
+    await update.effective_message.reply_text(
+        "\n".join(lines), disable_web_page_preview=True
+    )
+
+
 def build_bot_app(token: str | None = None) -> Application:
     bot_token = token or settings.telegram_bot_token
     app = Application.builder().token(bot_token).build()
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(CommandHandler("detail", cmd_detail))
+    app.add_handler(CommandHandler("topic", cmd_topic))
     return app
 
 
