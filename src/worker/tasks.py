@@ -115,7 +115,9 @@ def pipeline_run(
             "summaries_generated": summaries_generated,
         }
     except Exception as exc:
-        logger.exception("Pipeline failed at %s (run %s)", stage, run_id)
+        logger.exception(
+            "Pipeline failed", extra={"run_id": run_id, "stage": stage}
+        )
         retryable = (
             isinstance(exc, ScrawlError)
             and exc.retryable
@@ -141,7 +143,9 @@ def pipeline_run(
                 finished_at=None if retryable else datetime.utcnow().isoformat(),
             )
         except Exception as state_error:
-            logger.exception("Unable to persist pipeline failure (run %s)", run_id)
+            logger.exception(
+                "Unable to persist pipeline failure", extra={"run_id": run_id, "stage": stage}
+            )
             raise exc from state_error
         if retryable:
             try:
@@ -160,7 +164,10 @@ def pipeline_run(
             except Retry:
                 raise
             except Exception:
-                logger.exception("Unable to schedule pipeline retry (run %s)", run_id)
+                logger.exception(
+                    "Unable to schedule pipeline retry",
+                    extra={"run_id": run_id, "stage": stage},
+                )
                 repo.update_status(
                     run_id,
                     "failed",
