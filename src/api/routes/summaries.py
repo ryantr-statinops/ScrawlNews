@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query
 
 from src.config import settings
 from src.repositories.summary_repo import SummaryRepository
+from src.utils.errors import NotFoundError
 
 router = APIRouter()
 
@@ -32,5 +33,5 @@ def get_summary(summary_id: str):
         conn.row_factory = sqlite3.Row
         row = conn.execute("SELECT * FROM summaries WHERE id=?", (summary_id,)).fetchone()
         if not row:
-            return {"error": "not found"}
+            raise NotFoundError("Summary not found")
         return dict(row)

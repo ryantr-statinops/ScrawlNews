@@ -32,6 +32,6 @@ def test_update_config_multiple_keys():
 
 def test_update_config_disallowed_key():
     response = client.put("/api/config", json={"llm_api_key": "secret"})
-    assert response.status_code == 200
+    assert response.status_code == 400
     data = response.json()
-    assert "error" in data
+    assert data == {"error": "Invalid configuration"}

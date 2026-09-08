@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from src.config import settings
 from src.repositories.run_repo import PipelineRunRepository
+from src.utils.errors import ScrawlError
 from src.worker.tasks import pipeline_run
 
 router = APIRouter()
@@ -36,4 +37,8 @@ def get_task(task_id: str):
     from src.worker.celery_app import celery_app
 
     result = celery_app.AsyncResult(task_id)
-    return {"task_id": task_id, "status": result.status, "result": result.result}
+    status = result.status
+    value = result.result
+    if status in {"FAILURE", "RETRY"}:
+        value = {"error": value.public_message if isinstance(value, ScrawlError) else "Task failed"}
+    return {"task_id": task_id, "status": status, "result": value}

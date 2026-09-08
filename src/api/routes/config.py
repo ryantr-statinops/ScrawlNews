@@ -1,8 +1,13 @@
+import logging
+
+import redis
 from fastapi import APIRouter, Query
 
 from src.config import settings
 from src.repositories.config_repo import ConfigRepository
+from src.utils.errors import ConfigError
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 _config_repo = ConfigRepository(settings.database_url)
@@ -10,12 +15,10 @@ _config_repo = ConfigRepository(settings.database_url)
 
 def _publish_config_change(changed_keys: list[str]) -> None:
     try:
-        import redis
-
         r = redis.from_url(settings.redis_url, socket_connect_timeout=1)
         r.publish("scrawlnews:config", ",".join(changed_keys))
-    except Exception:
-        pass
+    except redis.RedisError:
+        logger.warning("Config saved but change notification unavailable", exc_info=True)
 
 
 @router.get("/api/config")
@@ -47,7 +50,23 @@ def update_config(payload: dict):
     }
     rejected = {k: v for k, v in payload.items() if k not in allowed}
     if rejected:
-        return {"error": f"keys require restart: {', '.join(rejected.keys())}"}
+        raise ConfigError("Requested keys require restart")
+
+    # Validate the whole request before changing persisted or in-memory settings.
+    for key, value in payload.items():
+        if key in {"fetch_limit", "retention_days"}:
+            try:
+                if isinstance(value, bool) or not isinstance(value, (str, int)):
+                    raise ValueError("Expected an integer")
+                if int(value) < (1 if key == "fetch_limit" else 0):
+                    raise ValueError("Integer out of range")
+            except ValueError as exc:
+                raise ConfigError("Invalid numeric configuration") from exc
+        elif key == "telegram_enabled":
+            if str(value).lower() not in {"true", "false"}:
+                raise ConfigError("Invalid Telegram toggle")
+        elif not isinstance(value, str):
+            raise ConfigError("Expected a configuration string")
 
     updated: dict[str, str] = {}
     changed_keys: list[str] = []
