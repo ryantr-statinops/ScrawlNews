@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     summary_lang: str = "vi"
     retention_days: int = 7
     news_categories: str = "technology,business,world,science"
+    schedule_interval_hours: int = 24
 
     @property
     def news_categories_list(self) -> list[str]:

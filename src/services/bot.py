@@ -5,6 +5,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 
 from src.config import settings
 from src.repositories.article_repo import ArticleRepository
+from src.repositories.config_repo import ConfigRepository
 from src.repositories.summary_repo import SummaryRepository
 
 logger = logging.getLogger(__name__)
@@ -72,6 +73,24 @@ async def cmd_topic(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
+async def cmd_settings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    config_repo = ConfigRepository(settings.database_url)
+    overrides = config_repo.get_all()
+    categories = overrides.get("news_categories", settings.news_categories)
+    frequency = overrides.get("schedule_interval_hours", str(settings.schedule_interval_hours))
+    telegram_enabled = overrides.get("telegram_enabled", str(settings.telegram_enabled))
+    text = (
+        "Current settings:\n"
+        f"- Categories: {categories}\n"
+        f"- Frequency: every {frequency}h\n"
+        f"- Telegram: {'on' if telegram_enabled.lower() == 'true' else 'off'}\n\n"
+        "Change with:\n"
+        "/settings categories <a,b,c>\n"
+        "/settings frequency <hours>"
+    )
+    await update.effective_message.reply_text(text)
+
+
 def build_bot_app(token: str | None = None) -> Application:
     bot_token = token or settings.telegram_bot_token
     app = Application.builder().token(bot_token).build()
@@ -79,6 +98,7 @@ def build_bot_app(token: str | None = None) -> Application:
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(CommandHandler("detail", cmd_detail))
     app.add_handler(CommandHandler("topic", cmd_topic))
+    app.add_handler(CommandHandler("settings", cmd_settings))
     return app
 
 
