@@ -1,9 +1,12 @@
 import json
+import socket
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from src.config import Settings, settings
 from src.models.article import Article
 from src.repositories.article_repo import ArticleRepository
 from src.repositories.run_repo import PipelineRunRepository
@@ -12,7 +15,33 @@ from src.services.messenger import MessengerService
 from src.services.scrawler import ScrawlerService
 from src.services.synthesizer import SynthesizerService
 
+# API config initializes its repository during collection. Never touch the local DB.
+_collection_db = TemporaryDirectory(prefix="scrawlnews-tests-")
+settings.database_url = f"sqlite:///{_collection_db.name}/collection.db"
+
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
+
+@pytest.fixture(autouse=True)
+def isolated_backend(monkeypatch, tmp_path):
+    from src.api.routes import config
+    from src.repositories.config_repo import ConfigRepository
+
+    monkeypatch.setitem(Settings.model_config, "env_file", None)
+    for name in Settings.model_fields:
+        monkeypatch.delenv(name.upper(), raising=False)
+    defaults = Settings()
+    for name in Settings.model_fields:
+        monkeypatch.setattr(settings, name, getattr(defaults, name))
+    monkeypatch.setattr(settings, "database_url", f"sqlite:///{tmp_path}/backend.db")
+    monkeypatch.setattr(config, "_config_repo", ConfigRepository(settings.database_url))
+
+    def no_network(*args, **kwargs):
+        raise AssertionError("Tests must mock network calls")
+
+    monkeypatch.setattr(socket.socket, "connect", no_network)
+    with patch("redis.from_url"):
+        yield
 
 
 def load_fixture(name: str):
@@ -60,7 +89,7 @@ def mock_openai():
 @pytest.fixture
 def mock_telegram_bot():
     bot = AsyncMock()
-    with patch("telegram.Bot") as mock:
+    with patch("src.services.messenger.Bot") as mock:
         mock.return_value = bot
         yield bot
 

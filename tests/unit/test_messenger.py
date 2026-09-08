@@ -1,9 +1,10 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from src.models.summary import Summary
 from src.services.messenger import MessengerService
+from src.utils.errors import ConfigError
 
 
 @pytest.mark.asyncio
@@ -38,8 +39,8 @@ async def test_missing_credentials():
     with patch("src.config.settings.telegram_enabled", True):
         with patch("src.config.settings.telegram_bot_token", None):
             with patch("src.config.settings.telegram_chat_id", None):
-                result = await service.execute(summaries)
-                assert result is False
+                with pytest.raises(ConfigError, match="credentials are missing"):
+                    await service.execute(summaries)
 
 
 def test_format_message():

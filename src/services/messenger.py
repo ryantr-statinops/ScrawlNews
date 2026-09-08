@@ -1,8 +1,12 @@
 import asyncio
 
+from telegram import Bot
+from telegram.error import BadRequest, NetworkError, RetryAfter, TelegramError
+
 from src.config import settings
 from src.models.summary import Summary
 from src.services.base import BaseService
+from src.utils.errors import ConfigError, MessengerError
 
 
 class MessengerService(BaseService):
@@ -12,7 +16,7 @@ class MessengerService(BaseService):
         if not summaries:
             return True
         if not settings.telegram_bot_token or not settings.telegram_chat_id:
-            return False
+            raise ConfigError("Telegram is enabled but credentials are missing")
         text = self.format_message(summaries)
         parts = self.split_message(text)
         return await self.send_messages(settings.telegram_chat_id, parts)
@@ -41,9 +45,6 @@ class MessengerService(BaseService):
 
     async def send_messages(self, chat_id: str, messages: list[str]) -> bool:
         try:
-            from telegram import Bot
-            from telegram.error import RetryAfter
-
             bot = Bot(token=settings.telegram_bot_token)
             for msg in messages:
                 try:
@@ -56,5 +57,10 @@ class MessengerService(BaseService):
                     await bot.send_message(chat_id=chat_id, text=msg)
                 await asyncio.sleep(1)
             return True
-        except Exception:
-            return False
+        except TelegramError as exc:
+            # BadRequest inherits NetworkError but is not a transient failure.
+            raise MessengerError(
+                "Telegram request failed",
+                retryable=isinstance(exc, (NetworkError, RetryAfter))
+                and not isinstance(exc, BadRequest),
+            ) from exc

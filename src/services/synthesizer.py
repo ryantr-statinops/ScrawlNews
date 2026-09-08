@@ -1,12 +1,16 @@
+import logging
 import uuid
 from datetime import datetime
 
-from openai import AsyncOpenAI
+from openai import APIConnectionError, APIStatusError, AsyncOpenAI
 
 from src.config import settings
 from src.models.article import Article
 from src.models.summary import Summary
 from src.services.base import BaseService
+from src.utils.errors import ConfigError, SynthesizerError
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a news summarizer. Given a list of news articles,
 create a concise daily briefing in Vietnamese with:
@@ -28,12 +32,13 @@ class SynthesizerService(BaseService):
         if not self.client:
             # fallback raw titles
             return self._fallback(articles)
+        prompt = self.build_prompt(articles)
         try:
-            prompt = self.build_prompt(articles)
             text = await self.call_llm(prompt)
-            return self.parse_response(text, articles)
-        except Exception:
+        except SynthesizerError:
+            logger.warning("Summarization unavailable; retaining titles", exc_info=True)
             return self._fallback(articles)
+        return self.parse_response(text, articles)
 
     def build_prompt(self, articles: list[Article]) -> str:
         articles_text = "\n".join(
@@ -42,12 +47,24 @@ class SynthesizerService(BaseService):
         return f"{SYSTEM_PROMPT}\n\nSummarize these articles:\n{articles_text}\n\nRequirements: Vietnamese, 150-250 words, include source."
 
     async def call_llm(self, prompt: str) -> str:
-        resp = await self.client.chat.completions.create(
-            model=settings.llm_model,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=800,
-        )
-        return resp.choices[0].message.content or ""
+        if self.client is None:
+            raise ConfigError("LLM credentials are missing")
+        try:
+            resp = await self.client.chat.completions.create(
+                model=settings.llm_model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=800,
+            )
+        except APIConnectionError as exc:
+            raise SynthesizerError("LLM transport failed", retryable=True) from exc
+        except APIStatusError as exc:
+            raise SynthesizerError(
+                "LLM request rejected",
+                retryable=exc.status_code in (408, 409, 429) or exc.status_code >= 500,
+            ) from exc
+        if not resp.choices or not resp.choices[0].message.content:
+            raise SynthesizerError("LLM returned no summary")
+        return resp.choices[0].message.content
 
     def parse_response(self, response: str, articles: list[Article]) -> list[Summary]:
         # Stage 2 stub: one summary per article from response chunks

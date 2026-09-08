@@ -1,8 +1,10 @@
 from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 
 from src.services.scrawler import ScrawlerService
+from src.utils.errors import ScrawlerError
 
 
 @pytest.mark.asyncio
@@ -39,9 +41,11 @@ async def test_fetch_rss_network_error():
     with patch("httpx.AsyncClient") as mock:
         client = AsyncMock()
         mock.return_value.__aenter__.return_value = client
-        client.get.side_effect = Exception("Network error")
-        with pytest.raises(Exception):
+        client.get.side_effect = httpx.ConnectError("Network error")
+        with pytest.raises(ScrawlerError) as caught:
             await service.fetch_rss(limit=5)
+        assert caught.value.retryable is True
+        assert caught.value.__cause__ is client.get.side_effect
 
 
 @pytest.mark.asyncio

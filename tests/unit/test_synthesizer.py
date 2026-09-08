@@ -1,6 +1,8 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
+import httpx
 import pytest
+from openai import APIConnectionError
 
 from src.models.summary import Summary
 from src.services.synthesizer import SynthesizerService
@@ -15,19 +17,22 @@ async def test_summarize_empty_list():
 
 @pytest.mark.asyncio
 async def test_summarize_batch(mock_openai, sample_articles):
-    mock_openai.chat.completions.create.return_value = AsyncMock(
-        choices=[AsyncMock(message=AsyncMock(content="Summary text"))]
+    mock_openai.chat.completions.create = AsyncMock(
+        return_value=MagicMock(choices=[MagicMock(message=MagicMock(content="Summary text"))])
     )
     service = SynthesizerService()
     service.client = mock_openai
     result = await service.execute(sample_articles)
     assert len(result) == len(sample_articles)
     assert all(isinstance(s, Summary) for s in result)
+    assert all(s.summary_text == "Summary text" and s.model_used != "fallback" for s in result)
 
 
 @pytest.mark.asyncio
 async def test_llm_error_fallback(mock_openai, sample_articles):
-    mock_openai.chat.completions.create.side_effect = Exception("API error")
+    mock_openai.chat.completions.create = AsyncMock(
+        side_effect=APIConnectionError(request=httpx.Request("POST", "https://example.test"))
+    )
     service = SynthesizerService()
     service.client = mock_openai
     result = await service.execute(sample_articles)
