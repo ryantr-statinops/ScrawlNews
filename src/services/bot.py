@@ -75,6 +75,17 @@ async def cmd_topic(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def cmd_settings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     config_repo = ConfigRepository(settings.database_url)
+    if context.args:
+        key, value = _parse_settings_args(context.args)
+        if key is None:
+            await update.effective_message.reply_text(
+                "Unknown setting. Use /settings categories <a,b,c> or /settings frequency <hours>"
+            )
+            return
+        config_repo.set(key, value)
+        _publish_config_change([key])
+        await update.effective_message.reply_text(f"Updated {key} = {value}")
+        return
     overrides = config_repo.get_all()
     categories = overrides.get("news_categories", settings.news_categories)
     frequency = overrides.get("schedule_interval_hours", str(settings.schedule_interval_hours))
@@ -89,6 +100,32 @@ async def cmd_settings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/settings frequency <hours>"
     )
     await update.effective_message.reply_text(text)
+
+
+def _parse_settings_args(args: list[str]) -> tuple[str | None, str | None]:
+    subcommand = args[0].lower()
+    value = " ".join(args[1:]).strip()
+    if subcommand == "categories" and value:
+        return "news_categories", value
+    if subcommand == "frequency" and value:
+        try:
+            hours = int(value)
+        except ValueError:
+            return None, None
+        if hours <= 0:
+            return None, None
+        return "schedule_interval_hours", str(hours)
+    return None, None
+
+
+def _publish_config_change(keys: list[str]) -> None:
+    try:
+        import redis
+
+        r = redis.from_url(settings.redis_url, socket_connect_timeout=1)
+        r.publish("scrawlnews:config", ",".join(keys))
+    except Exception:
+        logger.warning("Config change notification unavailable", exc_info=True)
 
 
 def build_bot_app(token: str | None = None) -> Application:
