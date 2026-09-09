@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { TextInput, Select, Button, Group, Pagination, Text } from "@mantine/core";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TextInput, Select, Button, Group, Pagination, Text, NumberInput } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
-import { fetchConfig } from "../lib/api";
+import { fetchConfig, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
@@ -12,13 +12,26 @@ import { EmptyState } from "../components/ui/EmptyState";
 const PAGE_SIZE = 20;
 
 export function FeedPage() {
+  const queryClient = useQueryClient();
   const [q, setQ] = useState("");
   const [source, setSource] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [submitted, setSubmitted] = useState({ q: "", source: "", category: "" });
+  const [runLimit, setRunLimit] = useState<number | string>("");
 
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
+  const configuredFetchLimit = Number(configQuery.data?.fetch_limit ?? 20);
+  const updateFeed = useMutation({
+    mutationFn: () => triggerRun(
+      runLimit === "" ? configuredFetchLimit : Number(runLimit),
+      category ? [category] : undefined,
+    ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["runs"] });
+      queryClient.invalidateQueries({ queryKey: ["articles"] });
+    },
+  });
   const categories: string[] = String(configQuery.data?.news_categories ?? "technology,business,world,science")
     .split(",")
     .map((c: string) => c.trim())
@@ -45,7 +58,23 @@ export function FeedPage() {
 
   return (
     <div>
-      <PageHeader title="Feed" description="Latest articles from Google News RSS" />
+      <Group justify="space-between" mb="md" align="end">
+        <PageHeader title="Feed" description="Latest articles from configured news sources" />
+        <Group align="end">
+          <NumberInput
+            label="Articles per update"
+            min={1}
+            max={100}
+            value={runLimit}
+            placeholder={String(configuredFetchLimit)}
+            onChange={setRunLimit}
+            w={150}
+          />
+          <Button onClick={() => updateFeed.mutate()} loading={updateFeed.isPending}>
+            Update feed
+          </Button>
+        </Group>
+      </Group>
       <Group mb="md">
         <TextInput
           placeholder="Search..."
