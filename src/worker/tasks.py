@@ -13,11 +13,13 @@ from src.repositories.article_repo import ArticleRepository
 from src.repositories.digest_repo import DigestRepository
 from src.repositories.run_repo import PipelineRunRepository
 from src.repositories.summary_repo import SummaryRepository
+from src.repositories.telemetry_repo import TelemetryRepository
 from src.services.digest_service import DigestService
 from src.services.messenger import MessengerService
 from src.services.scrawler import ScrawlerService
 from src.services.synthesizer import SynthesizerService
 from src.utils.errors import MessengerError, NotFoundError, ScrawlError
+from src.utils.telemetry import track_stage
 from src.worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -35,6 +37,7 @@ def pipeline_run(
     checkpoint = dict(_checkpoint or {})
     run_id = checkpoint.setdefault("run_id", self.request.id or str(uuid.uuid4()))
     repo = PipelineRunRepository(settings.database_url)
+    telemetry = TelemetryRepository(settings.database_url)
     if _checkpoint is None:
         repo.create(
             PipelineRun(
@@ -58,14 +61,18 @@ def pipeline_run(
         new_articles: list[Article] = []
         if "article_ids" not in checkpoint:
             stage = "fetch"
-            articles = asyncio.run(
-                ScrawlerService().execute(
-                    limit=fetch_limit or settings.fetch_limit, categories=categories
+            with track_stage(telemetry, run_id, stage) as event:
+                articles = asyncio.run(
+                    ScrawlerService().execute(
+                        limit=fetch_limit or settings.fetch_limit, categories=categories
+                    )
                 )
-            )
+                event["item_count"] = len(articles)
             articles_fetched = len(articles)
             stage = "save articles"
-            new_articles = [a for a in articles if article_repo.save(a)]
+            with track_stage(telemetry, run_id, stage) as event:
+                new_articles = [a for a in articles if article_repo.save(a)]
+                event["item_count"] = len(new_articles)
             checkpoint["article_ids"] = [a.id for a in new_articles]
         elif "summary_ids" not in checkpoint:
             stage = "load articles"
@@ -78,14 +85,18 @@ def pipeline_run(
 
         if "summary_ids" not in checkpoint:
             stage = "synthesize"
-            summaries = (
-                asyncio.run(SynthesizerService().execute(new_articles)) if new_articles else []
-            )
+            with track_stage(telemetry, run_id, stage) as event:
+                summaries = (
+                    asyncio.run(SynthesizerService().execute(new_articles)) if new_articles else []
+                )
+                event["item_count"] = len(summaries)
             stage = "save summaries"
-            for summary in summaries:
-                summary_repo.save(summary)
-                article_repo.mark_summarized(summary.article_id)
-                summaries_generated += 1
+            with track_stage(telemetry, run_id, stage) as event:
+                for summary in summaries:
+                    summary_repo.save(summary)
+                    article_repo.mark_summarized(summary.article_id)
+                    summaries_generated += 1
+                event["item_count"] = len(summaries)
             checkpoint["summary_ids"] = [s.id for s in summaries]
         else:
             stage = "load summaries"
@@ -102,30 +113,34 @@ def pipeline_run(
 
         if "digest_ids" not in checkpoint:
             stage = "digest"
-            digest_repo = DigestRepository(settings.database_url)
-            digest_ids: list[str] = []
-            by_category: dict[str, list[Article]] = {}
-            for article in new_articles:
-                by_category.setdefault(article.category or "uncategorized", []).append(article)
-            summaries_by_article = {summary.article_id: summary for summary in summaries}
-            for category, category_articles in by_category.items():
-                category_summaries = [
-                    summaries_by_article[article.id]
-                    for article in category_articles
-                    if article.id in summaries_by_article
-                ]
-                digest = asyncio.run(
-                    DigestService().execute(category, category_articles, category_summaries)
-                )
-                digest_repo.save(digest, [article.id for article in category_articles])
-                digest_ids.append(digest.id)
+            with track_stage(telemetry, run_id, stage) as event:
+                digest_repo = DigestRepository(settings.database_url)
+                digest_ids: list[str] = []
+                by_category: dict[str, list[Article]] = {}
+                for article in new_articles:
+                    by_category.setdefault(article.category or "uncategorized", []).append(article)
+                summaries_by_article = {summary.article_id: summary for summary in summaries}
+                for category, category_articles in by_category.items():
+                    category_summaries = [
+                        summaries_by_article[article.id]
+                        for article in category_articles
+                        if article.id in summaries_by_article
+                    ]
+                    digest = asyncio.run(
+                        DigestService().execute(category, category_articles, category_summaries)
+                    )
+                    digest_repo.save(digest, [article.id for article in category_articles])
+                    digest_ids.append(digest.id)
+                event["item_count"] = len(digest_ids)
             checkpoint["digest_ids"] = digest_ids
 
         if summaries and not dry_run and settings.telegram_enabled:
             stage = "deliver"
-            if not asyncio.run(MessengerService().execute(summaries)):
-                raise MessengerError("Messenger reported unsuccessful delivery")
-            telegram_sent = 1
+            with track_stage(telemetry, run_id, stage) as event:
+                if not asyncio.run(MessengerService().execute(summaries)):
+                    raise MessengerError("Messenger reported unsuccessful delivery")
+                telegram_sent = 1
+                event["item_count"] = len(summaries)
 
         stage = "finish"
         repo.update_status(
