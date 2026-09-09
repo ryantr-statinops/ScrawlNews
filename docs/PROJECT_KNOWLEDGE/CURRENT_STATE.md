@@ -15,7 +15,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 | Stage 3: Full 6 Features | Đủ 6 nhóm + FE/BE 77 passed + quality | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
 | Stage 4: Polish + Deploy | Nginx parity verify + GA + SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
 | Stage 5: Product Frontend Cutover | Frontend mới + Telegram bot + category filtering + circuit breaker | ✅ Implemented; local runtime verified |
-| Analytics Command Center | 5 tab News Intelligence + Operations, telemetry 30 ngày | ✅ Implemented; regression/runtime verification in progress |
+| Analytics Command Center | 5 tab News Intelligence + Operations, telemetry 30 ngày | ✅ Implemented; regression/runtime verified |
 
 ## Trạng thái kỹ thuật hiện tại
 
@@ -43,6 +43,8 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - `docker-compose config` passed với .env
 - `go run ./cmd/newsctl --help` ok — `6a7392c`
 - `pytest tests/unit -q` = 77 passed, `pytest tests/integration -q` = 10 passed, `ruff` passed
+- Analytics API live qua Docker: 6 endpoint mới trả HTTP 200; dry-run xác nhận pipeline/source/LLM telemetry và Content freshness với timestamp có timezone.
+- Analytics regression: service/API contract/drill-down tests passed; `mypy src/` passed.
 
 ## Cấu trúc source thực tế
 
