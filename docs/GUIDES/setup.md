@@ -30,6 +30,11 @@ cp .env.example .env
 # 4. Test
 make test
 
+# Agent: request an action, then approve it with the returned correlation_id
+curl -X POST http://localhost/api/agent/run \
+  -H 'Content-Type: application/json' -d '{"request":"backup"}'
+curl -X POST http://localhost/api/agent/approve/<correlation_id>
+
 # 5. Run — 2 cách 1 terminal
 # Docker (có Nginx + Redis):
 docker-compose up -d --build # → http://localhost (Nginx), :8000/docs (API)
@@ -78,6 +83,16 @@ Hot reload chỉ 4 vars (`fetch_limit`, `summary_lang`, `telegram_enabled`, `ret
 | `make lint` | Ruff lint + format check |
 | `make typecheck` | MyPy |
 | `make clean` | Xóa cache, data, logs |
+| `make backup` | Tạo SQLite backup nhất quán trong `backups/` |
+| `make restore BACKUP=...` | Khôi phục SQLite sau khi tạo safety backup |
+
+Dependency audit:
+
+```bash
+pip-audit -r requirements.txt
+```
+
+Agent dashboard: mở `http://localhost/agent`. Các action yêu cầu approval; hiện `backup` chạy sau approval và pipeline chỉ chạy ở chế độ `dry_run`.
 
 ## Usage (Run Modes)
 
