@@ -1,5 +1,5 @@
 def test_agent_run_exposes_dry_run_and_audit(api_client):
-    response = api_client.post("/agent/run", json={"request": "backup"})
+    response = api_client.post("/api/agent/run", json={"request": "backup"})
 
     assert response.status_code == 200
     body = response.json()
@@ -8,7 +8,7 @@ def test_agent_run_exposes_dry_run_and_audit(api_client):
     assert body["verification"]["status"] == "skipped"
 
     correlation_id = body["decision"]["correlation_id"]
-    audit_response = api_client.get(f"/agent/audit/{correlation_id}")
+    audit_response = api_client.get(f"/api/agent/audit/{correlation_id}")
 
     assert audit_response.status_code == 200
     assert [event["phase"] for event in audit_response.json()["events"]] == [
@@ -18,14 +18,14 @@ def test_agent_run_exposes_dry_run_and_audit(api_client):
         "verify",
     ]
 
-    approval_response = api_client.post(f"/agent/approve/{correlation_id}")
+    approval_response = api_client.post(f"/api/agent/approve/{correlation_id}")
     assert approval_response.status_code == 200
     approval_body = approval_response.json()
     assert approval_body["correlation_id"] == correlation_id
     assert approval_body["status"] == "completed"
     assert approval_body["executed"] is True
     assert approval_body["backup_path"].endswith(".db")
-    assert api_client.post(f"/agent/approve/{correlation_id}").status_code == 409
+    assert api_client.post(f"/api/agent/approve/{correlation_id}").status_code == 409
 
 
 def test_agent_approval_queues_pipeline_dry_run(api_client, monkeypatch):
@@ -36,10 +36,10 @@ def test_agent_approval_queues_pipeline_dry_run(api_client, monkeypatch):
         "src.worker.tasks.pipeline_run.delay",
         lambda **kwargs: FakeTask(),
     )
-    response = api_client.post("/agent/run", json={"request": "refresh"})
+    response = api_client.post("/api/agent/run", json={"request": "refresh"})
     correlation_id = response.json()["decision"]["correlation_id"]
 
-    approval = api_client.post(f"/agent/approve/{correlation_id}")
+    approval = api_client.post(f"/api/agent/approve/{correlation_id}")
 
     assert approval.status_code == 200
     assert approval.json() == {
