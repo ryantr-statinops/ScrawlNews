@@ -10,8 +10,10 @@ from src.models.article import Article
 from src.models.run import PipelineRun
 from src.models.summary import Summary
 from src.repositories.article_repo import ArticleRepository
+from src.repositories.digest_repo import DigestRepository
 from src.repositories.run_repo import PipelineRunRepository
 from src.repositories.summary_repo import SummaryRepository
+from src.services.digest_service import DigestService
 from src.services.messenger import MessengerService
 from src.services.scrawler import ScrawlerService
 from src.services.synthesizer import SynthesizerService
@@ -53,6 +55,7 @@ def pipeline_run(
         repo.update_status(run_id, "running", finished_at=None)
         article_repo = ArticleRepository(settings.database_url)
         summary_repo = SummaryRepository(settings.database_url)
+        new_articles: list[Article] = []
         if "article_ids" not in checkpoint:
             stage = "fetch"
             articles = asyncio.run(
@@ -91,6 +94,31 @@ def pipeline_run(
                 if row is None:
                     raise NotFoundError("Retry summary no longer exists")
                 summaries.append(Summary(**row))
+            for article_id in checkpoint["article_ids"]:
+                row = article_repo.get_by_id(article_id)
+                if row is not None:
+                    new_articles.append(Article(**row))
+
+        if "digest_ids" not in checkpoint:
+            stage = "digest"
+            digest_repo = DigestRepository(settings.database_url)
+            digest_ids: list[str] = []
+            by_category: dict[str, list[Article]] = {}
+            for article in new_articles:
+                by_category.setdefault(article.category or "uncategorized", []).append(article)
+            summaries_by_article = {summary.article_id: summary for summary in summaries}
+            for category, category_articles in by_category.items():
+                category_summaries = [
+                    summaries_by_article[article.id]
+                    for article in category_articles
+                    if article.id in summaries_by_article
+                ]
+                digest = asyncio.run(
+                    DigestService().execute(category, category_articles, category_summaries)
+                )
+                digest_repo.save(digest, [article.id for article in category_articles])
+                digest_ids.append(digest.id)
+            checkpoint["digest_ids"] = digest_ids
 
         if summaries and not dry_run and settings.telegram_enabled:
             stage = "deliver"
