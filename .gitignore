@@ -7,6 +7,7 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
+.venv/
 frontend/node_modules/
 frontend/dist/
 frontend-legacy/node_modules/
