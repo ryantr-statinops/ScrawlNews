@@ -1,12 +1,12 @@
 # Current State — Project đang thực sự như thế nào
 
-> Cập nhật: 2026-08-28. Tất cả Stage 1–4 đã DONE. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
+> Cập nhật: 2026-09-09. Stage 1–4 và phần lớn Stage 5 đã hoàn tất. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
 
 ## Purpose
 
 ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service chính chạy local (1 terminal); newsbot (thu thập → tóm tắt → Telegram) chỉ là 1 feature toggle (`telegram_enabled`).
 
-## Đã build được gì (Stage 1–4 DONE)
+## Đã build được gì
 
 | Stage | Mục tiêu | Status |
 |-------|----------|--------|
@@ -14,12 +14,13 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 | Stage 2: Dashboard MVP | 3 page core + Celery pipeline + BE/FE test cơ bản | ✅ Done `3668fe2`..`45e1851` |
 | Stage 3: Full 6 Features | Đủ 6 nhóm + FE/BE 77 passed + quality | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
 | Stage 4: Polish + Deploy | Nginx parity verify + GA + SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
+| Stage 5: Product Frontend Cutover | Frontend mới + Telegram bot + category filtering + circuit breaker | ✅ Implemented; local runtime verified |
 
 ## Trạng thái kỹ thuật hiện tại
 
 ### Infra (Stage 1)
 - `docker-compose.yml` 6 services: api + worker + beat + redis + web + nginx — `014cc6d`
-- `nginx.conf` routing `/api → :8000`, `/ → :5173`, SSE buffering off — `49c0969`
+- `nginx.conf` routing `/api → :8000`, `/ → :5173`, SSE buffering off — `49c0969`, `1e18b382`
 - `Dockerfile` python:3.11-slim — `976ebda`
 - `.github/workflows` cron `0 8,12,16,21 * * *` + CI — `0f328aa`..`60b8bba`
 
@@ -55,17 +56,18 @@ ScrawlNews/
 │   ├── api/                # FastAPI app + routes/
 │   ├── worker/             # celery_app, tasks
 │   └── utils/              # retry, formatter, logging
-├── web/                    # React Vite 7 pages + App.tsx
+├── frontend/               # React Vite dashboard chính
 ├── tests/                  # unit (77) + integration (10)
 └── data/ logs/             # SQLite volume + logs (gitignored)
 ```
 
 ## Known limitations (chưa làm)
 
-- Circuit breaker cho LLM API chưa implement ( tracked in [EXECUTION/COMPLETED/changelog.md](../EXECUTION/COMPLETED/changelog.md) Technical Debt)
 - Prometheus metrics chưa có
 - `pip-audit` chưa chạy trong CI
-- Interactive Telegram bot, category filtering, multi-source chưa làm (xem [EXECUTION/ARCHIVED/ideas.md](../EXECUTION/ARCHIVED/ideas.md))
+- Multi-source, detailed cost tracking và structured summarization chưa làm.
+- Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
+- Backend pytest vẫn cần điều tra hiện tượng treo khi chạy theo batch; local Docker dashboard đã chạy được.
 
 ## References
 
