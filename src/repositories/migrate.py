@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 MIGRATIONS = {
     1: """
@@ -38,6 +38,8 @@ MIGRATIONS = {
     CREATE INDEX IF NOT EXISTS idx_agent_audit_correlation
         ON agent_audit_events(correlation_id, created_at DESC);
     """,
+    5: """
+    """
     # v3 is applied in Python (see run_migrations): add category column
     # only when the articles table already exists (fresh DBs get it via _init_db)
 }
@@ -54,6 +56,8 @@ def run_migrations(db_path: str):
         for version in range(current_version + 1, SCHEMA_VERSION + 1):
             if version == 3:
                 _migrate_v3_add_category(conn)
+            elif version == 5:
+                _migrate_v5_add_published_at(conn)
             elif version in MIGRATIONS:
                 conn.executescript(MIGRATIONS[version])
             else:
@@ -70,3 +74,13 @@ def _migrate_v3_add_category(conn):
     if "category" not in cols:
         conn.execute("ALTER TABLE articles ADD COLUMN category TEXT")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category)")
+
+
+def _migrate_v5_add_published_at(conn):
+    tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+    if "articles" not in tables:
+        return
+    cols = [r[1] for r in conn.execute("PRAGMA table_info(articles)")]
+    if "published_at" not in cols:
+        conn.execute("ALTER TABLE articles ADD COLUMN published_at DATETIME")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles(published_at DESC)")
