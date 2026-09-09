@@ -4,7 +4,7 @@ Local Monitor Dashboard for news. The dashboard is the primary service running l
 
 ## Overview
 
-ScrawlNews aggregates news from Google News RSS, extracts full content, summarizes via LLM, and delivers results. All operations are observable through a local dashboard with pipeline control, delivery monitoring, health checks, and analytics.
+ScrawlNews aggregates news from Google News RSS and custom RSS/Atom sources, extracts full content, summarizes via LLM, and delivers results. All operations are observable through a local dashboard with pipeline control, delivery monitoring, health checks, and an Analytics Command Center.
 
 Pipeline:
 
@@ -103,6 +103,18 @@ Hot reload supports fetch_limit, summary_lang, telegram_enabled, retention_days,
 ## Feed workflow
 
 Feed is the main local dashboard. Use **Update feed** to run the pipeline without opening Runs, filter articles by query/category/source/date, and open an article row for extracted content. Settings contains the fetch limit, schedule, locale, health and source manager. Sources are RSS/Atom URLs from the built-in catalog or user-added feeds; the Source Manager can test and enable/disable them. Topic digests are generated per category after a successful run when summaries are available.
+
+## Analytics Command Center
+
+Analytics has five workspaces sharing a `1h`–`30d` time window and category, source, provider and model filters:
+
+- **Overview** — current-vs-previous KPI, operational alerts, news velocity and category/source snapshots.
+- **Content** — category movement, source diversity and article freshness.
+- **Pipeline** — run success, throughput, median/P95 timing and stage errors.
+- **Sources** — fetch health, article yield, duplicate rate and latency by source.
+- **AI Usage** — input/output/total tokens, request failures and latency by provider, model and operation.
+
+Analytics filters are reflected in the URL. KPI, table and chart drill-downs open records in place and link to Feed or Runs where applicable. Pipeline, source-fetch and LLM telemetry is best-effort and retained for 30 days independently of article retention. Historical articles created before telemetry migration still appear in Content totals, but historical stage/source/LLM measurements cannot be reconstructed.
 
 ## Project Structure
 
