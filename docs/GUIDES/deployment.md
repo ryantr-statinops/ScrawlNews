@@ -5,13 +5,13 @@
 ## Overview
 
 - **Primary scheduler**: GitHub Actions cron `0 8,12,16,21 * * * UTC` chạy pipeline không cần dashboard.
-- **Local monitor**: `docker compose up` (api + worker + beat + redis + web + nginx) hoặc `make dev` (uvicorn + celery + vite, parity Nginx).
+- **Local monitor**: `docker-compose up` (api + worker + beat + redis + web + nginx) hoặc `make dev` (uvicorn + celery + vite, parity Nginx).
 - **Cost**: $0/tháng (Redis/Nginx local, GA free).
 
 ## Local Dashboard (Nginx + Celery, ADR-011/012)
 
 ```yaml
-# docker-compose.yml (1 terminal: docker compose up)
+# docker-compose.yml (1 terminal: docker-compose up)
 services:
   redis:
     image: redis:7-alpine
@@ -55,7 +55,7 @@ server {
 
 ```bash
 # Make dev (parity Nginx trong Docker):
-make dev   # docker compose --profile dev up nginx redis -d + concurrently uvicorn + celery worker/beat + vite
+make dev   # docker-compose dev services + concurrently uvicorn + celery worker/beat + vite
 make worker
 make beat
 go run ./cmd/newsctl --help   # Cobra stub
@@ -98,7 +98,7 @@ Secrets: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `LLM_API_KEY`, `OPENROUTER_AP
 | OmniRoute host: Fly.io | 3 shared VMs, 256MB RAM | ✅ Free, ổn định |
 | Render | Free web, 512MB | ⚠️ Spin-down 15min |
 | Railway | — | ❌ $5/tháng |
-| Database: SQLite local | File-based | ✅ Stage 1–4 (thuần local) |
+| Database: SQLite local | File-based | ✅ Current local architecture |
 | Turso | 5GB free | ✅ Nếu cần remote (Phase 2+) |
 
 ## Deployment Architecture (tổng, DB thuần local)
@@ -110,7 +110,7 @@ GitHub Actions (free) → cron 4 lần/ngày → pipeline → OmniRoute → Open
 
 ## Verify Checklist (Stage 4)
 
-- [ ] `docker compose config` passed với .env
+- [x] `docker-compose config` passed với .env
 - [ ] `make dev` parity Nginx ok
 - [ ] `go run ./cmd/newsctl --help` ok
 - [ ] `pytest` + `npm run test` green

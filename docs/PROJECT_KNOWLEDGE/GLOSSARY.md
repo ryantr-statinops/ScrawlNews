@@ -184,7 +184,7 @@
 | **throughput** | Số operations per second, ScrawlNews thấp (personal use) |
 | **latency** | Thời gian từ request → response, ~30-60s per run |
 | **retry-after** | HTTP header hoặc Telegram field, sleep trước khi retry |
-| **circuit breaker** | Pattern chống cascade failure, chưa implement (TODO) |
+| **circuit breaker** | Pattern chống cascade failure, đã áp dụng cho LLM và Telegram |
 | **rate limit** | Giới hạn requests/time, dùng slowapi |
 | **TTL** | Time-to-live, dùng cho retention_days |
 | **bottleneck** | Stage chậm nhất, thường là LLM call |

@@ -1,12 +1,13 @@
 # IN PROGRESS — Task đang thực hiện
 
-> Các task hiện đang được làm. Cập nhật khi bắt đầu/buông task.
+> Cập nhật: 2026-09-09. Các task đang được làm cho Local Release 1.0.
 
-## Hiện tại (2026-08-28)
+## Hiện tại
 
-- [ ] **Monitor GitHub Actions runs** — theo dõi 2–3 lần chạy GA tự động sau push, xác nhận pipeline chạy không lỗi và Telegram nhận (nếu `telegram_enabled=true`).
-  - Manual trigger test: dashboard `POST /api/runs` → xem `GET /api/tasks/{id}` và SSE `/api/logs/stream`.
-  - Verify: SQLite `data/scrawlnews.db` có articles/summaries mới.
+- [ ] Ổn định pytest khi chạy toàn bộ suite; collection hiện thành công nhưng runtime còn treo.
+- [ ] Chuẩn hóa MyPy theo Python 3.11.
+- [ ] Xử lý graceful khi Telegram disabled hoặc token không hợp lệ.
+- [ ] Chạy 2–3 local pipeline runs với API key hợp lệ.
 
 ## Quy tắc
 

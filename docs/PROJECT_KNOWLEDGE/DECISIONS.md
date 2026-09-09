@@ -298,10 +298,10 @@ Ban đầu newsbot (fetch → summarize → Telegram) là service chính. Nhu c�
 ### Decision
 Chọn **Option A** theo yêu cầu user:
 - **Backend**: FastAPI + Celery + Redis (broker + result backend), giữ toàn bộ `Scrawler/Synthesizer/Messenger` Python (Pydantic Settings mở rộng `redis_url`, `celery_broker_url`, `telegram_enabled` toggle).
-- **Frontend**: React 18 + TypeScript + Vite + Mantine UI v7 + TanStack Router + TanStack Query + ApexCharts + Zustand + SSE (`web/`). Xem [DOMAIN_CONCEPTS/frontend/01-stack.md](DOMAIN_CONCEPTS/frontend/01-stack.md) để biết chi tiết.
+- **Frontend**: React 18 + TypeScript + Vite + Mantine UI v7 + TanStack Router + TanStack Query + ApexCharts + Zustand + SSE (`frontend/`). Xem [DOMAIN_CONCEPTS/frontend/01-stack.md](DOMAIN_CONCEPTS/frontend/01-stack.md) để biết chi tiết.
 - **Gateway**: Nginx (thay Traefik cho đơn giản, Go-base infra không cần Go service).
 - **Scheduler**: Giữ GitHub Actions cron `0 8,12,16,21 * * * UTC` làm primary, Celery Beat chỉ cho local manual trigger / dev schedule. Newsbot là feature `telegram_enabled` on/off.
-- **Dev DX**: Hỗ trợ cả `docker compose up` (api + worker + beat + redis + web + nginx) và `make dev` (concurrently uvicorn + celery + vite).
+- **Dev DX**: Hỗ trợ cả `docker-compose up` (api + worker + beat + redis + web + nginx) và `make dev` (concurrently uvicorn + celery + vite).
 
 ### Rationale
 - Celery + Redis cho task async, retry 3x, poll `task_id`, Beat schedule — cần cho Pipeline Control (Run Now, history, retry) và 6 feature dashboard; APScheduler in-process sẽ chết khi uvicorn restart.
@@ -362,7 +362,7 @@ Stage 3 cần persist `PUT /api/config` 4 vars hot-reload + audit history, và w
 3. **Web lint flat** — `eslint.config.js` với `eslint-plugin-react` etc, thay `eslint src --ext`
 
 ### Decision
-Chọn **Option 1 + 3**: Thêm `src/repositories/config_repo.py` + `migrate.py` v2 `settings`/`config_history` + `GET /api/config/history` + Redis `scrawlnews:config` publish (`src/api/routes/config.py:11`); web `eslint src` flat với plugins `eslint-plugin-react` etc (`web/package.json:12`).
+Chọn **Option 1 + 3**: Thêm `src/repositories/config_repo.py` + `migrate.py` v2 `settings`/`config_history` + `GET /api/config/history` + Redis `scrawlnews:config` publish (`src/api/routes/config.py:11`); frontend dùng ESLint flat với plugins React.
 
 ### Rationale
 - Persist survive restart, audit cho hot-reload, temp_db isolation cho tests (`tests/unit/test_config.py:1` isolation)

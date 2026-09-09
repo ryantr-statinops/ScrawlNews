@@ -38,10 +38,13 @@ One terminal local hosting with Nginx parity for both Docker and non-Docker mode
 Docker (recommended):
 
 ```bash
-docker compose up
+docker-compose up -d --build
 # http://localhost
 # http://localhost:8000/docs
 ```
+
+Telegram is optional for the local dashboard. Set `TELEGRAM_ENABLED=false` in
+`.env` when no valid Telegram bot credentials are available.
 
 Local without Docker (parity via Nginx in Docker):
 
@@ -127,7 +130,7 @@ ScrawlNews/
 ## Documentation
 
 * docs/README.md - documentation map and reading guide
-* docs/PROJECT_KNOWLEDGE/CURRENT_STATE.md - what is actually built (Stage 1-4 DONE)
+* docs/PROJECT_KNOWLEDGE/CURRENT_STATE.md - what is actually built and verified
 * docs/PROJECT_KNOWLEDGE/TARGET_ARCHITECTURE.md - target architecture
 * docs/PROJECT_KNOWLEDGE/DECISIONS.md - architecture decision records (ADRs)
 * docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/ - core concepts per responsibility

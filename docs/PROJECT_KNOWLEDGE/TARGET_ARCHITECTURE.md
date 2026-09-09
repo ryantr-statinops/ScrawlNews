@@ -1,6 +1,6 @@
 # Target Architecture — Project muốn trở thành như thế nào
 
-> Kiến trúc đích của ScrawlNews. Phần lớn đã implement ở Stage 1–4; phần "Future" là hướng phát triển.
+> Kiến trúc đích của ScrawlNews. Phần lớn đã implement; phần "Future" là hướng phát triển.
 
 ## System Blocks (Dashboard-first, ADR-011)
 
@@ -66,13 +66,13 @@ Tổng chi phí: $0/tháng (Redis/Nginx local, không hosting)
 
 | Option | Lệnh | Pros | Cons |
 |--------|------|------|------|
-| docker compose | `docker compose up` | Reproducible, có Nginx + Redis | Cần Docker |
+| docker-compose | `docker-compose up` | Reproducible, có Nginx + Redis | Cần Docker |
 | make dev | `make dev` | Không Docker, concurrently uvicorn+celery+vite | Phụ thuộc local Python/Node |
 
 ### Hosting / DB Options (tham khảo)
 
 - **OmniRoute host**: Fly.io free tier (3 shared VMs, 256MB RAM) — ADR-010
-- **Database**: SQLite local cho Stage 1–4; Turso chỉ nếu cần remote (ADR-010)
+- **Database**: SQLite local; Turso chỉ nếu cần remote (ADR-010)
 
 ## Future (Stage 5+)
 

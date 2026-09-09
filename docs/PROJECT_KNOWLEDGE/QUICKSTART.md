@@ -103,9 +103,9 @@ make dev               # Chạy dashboard
 make run               # Chạy pipeline 1 lần (CLI)
 make test              # Chạy tests
 make lint              # Lint code
-docker compose up      # Chạy full Docker stack
-docker compose down    # Stop Docker
-docker compose logs    # Xem logs
+docker-compose up -d --build # Chạy full Docker stack
+docker-compose down          # Stop Docker
+docker-compose logs          # Xem logs
 ```
 
 ## Cấu trúc nhanh
@@ -118,8 +118,8 @@ ScrawlNews/
 │   ├── repositories/   # SQLite access
 │   ├── worker/         # Celery tasks
 │   └── config.py       # Settings
-├── web/                # Frontend (React)
-│   └── src/pages/      # 7 dashboard pages
+├── frontend/           # Frontend (React)
+│   └── src/routes/      # Dashboard routes
 ├── docs/               # Documentation
 ├── data/               # SQLite database
 ├── logs/               # Application logs

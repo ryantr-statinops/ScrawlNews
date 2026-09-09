@@ -103,7 +103,7 @@ Run start                                         End
 |------|------|--------|
 | `data/scrawlnews.db` | ~500KB-1MB/month | +1MB/month |
 | `logs/*.log` | ~10MB/month | +10MB/month (rotate) |
-| `web/node_modules` | ~150MB | Stable |
+| `frontend/node_modules` | ~150MB | Stable |
 | Docker images | ~500MB | Stable |
 
 ## Scaling Considerations
