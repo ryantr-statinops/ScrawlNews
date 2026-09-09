@@ -41,3 +41,29 @@ export async function updateConfig(payload: Record<string, unknown>) {
   });
   return res.json();
 }
+
+export async function fetchSources(query = "") {
+  const res = await fetch(`/api/sources${query ? `?q=${encodeURIComponent(query)}` : ""}`);
+  if (!res.ok) throw new Error(`Failed to fetch sources: ${res.status}`);
+  return res.json();
+}
+
+export async function updateSource(id: string, payload: Record<string, unknown>) {
+  const res = await fetch(`/api/sources/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`Failed to update source: ${res.status}`);
+  return res.json();
+}
+
+export async function createSource(payload: Record<string, unknown>) {
+  const res = await fetch("/api/sources", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`Failed to create source: ${res.status}`);
+  return res.json();
+}

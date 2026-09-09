@@ -67,6 +67,8 @@ def create_source(payload: dict):
 def update_source(source_id: str, payload: dict):
     existing = _repo().get(source_id)
     if existing is None:
+        existing = next((source.__dict__.copy() for source in DEFAULT_SOURCES if source.id == source_id), None)
+    if existing is None:
         raise HTTPException(status_code=404, detail="Source not found")
     url = str(payload.get("url", existing["url"])).strip()
     if not _is_custom_url(url):
