@@ -1,6 +1,7 @@
-import { Button, Table, Group, Text } from "@mantine/core";
+import { useState } from "react";
+import { Button, NumberInput, Table, Group, Text } from "@mantine/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchRuns, triggerRun } from "../lib/api";
+import { fetchConfig, fetchRuns, triggerRun } from "../lib/api";
 import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
@@ -10,13 +11,17 @@ import type { PipelineRun } from "../types/api";
 
 export function RunsPage() {
   const queryClient = useQueryClient();
+  const [fetchLimit, setFetchLimit] = useState<number | string>("");
+  const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
+  const configuredFetchLimit = Number(configQuery.data?.fetch_limit ?? 20);
+  const selectedFetchLimit = fetchLimit === "" ? configuredFetchLimit : Number(fetchLimit);
   const { data, isLoading, error } = useQuery({
     queryKey: ["runs"],
     queryFn: fetchRuns,
     refetchInterval: 5000,
   });
   const trigger = useMutation({
-    mutationFn: () => triggerRun(20),
+    mutationFn: () => triggerRun(selectedFetchLimit),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["runs"] }),
   });
 
@@ -26,6 +31,15 @@ export function RunsPage() {
     <div>
       <Group justify="space-between" mb="md">
         <PageHeader title="Runs" description="Pipeline runs triggered via Celery (auto-refresh 5s)" />
+        <NumberInput
+          label="Fetch limit"
+          min={1}
+          max={100}
+          value={fetchLimit}
+          placeholder={String(configuredFetchLimit)}
+          onChange={setFetchLimit}
+          w={130}
+        />
         <Button onClick={() => trigger.mutate()} loading={trigger.isPending}>
           Run Now
         </Button>
