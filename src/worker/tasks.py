@@ -32,16 +32,15 @@ def _record_source_events(
     new_articles: list[Article],
 ) -> None:
     for source_event in getattr(scrawler, "fetch_events", []):
-        new_count = sum(
-            1
-            for article in new_articles
-            if article.source == source_event["source_name"]
-            or article.category == source_event["category"]
-        )
+        event_urls = set(source_event.get("article_urls", []))
+        new_count = sum(article.url in event_urls for article in new_articles)
+        stored_event = {
+            key: value for key, value in source_event.items() if key != "article_urls"
+        }
         try:
             telemetry.record_source_fetch(
                 run_id=run_id,
-                **source_event,
+                **stored_event,
                 new_count=new_count,
                 duplicate_count=max(0, source_event["fetched_count"] - new_count),
             )
