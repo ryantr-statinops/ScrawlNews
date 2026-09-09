@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from typing import Literal
 from uuid import uuid4
 
-AgentStatus = Literal["ready", "blocked", "completed", "failed"]
+AgentStatus = Literal["ready", "pending_approval", "blocked", "completed", "failed"]
 ActionKind = Literal["pipeline_dry_run", "database_backup"]
 
 
