@@ -101,7 +101,9 @@ def pipeline_run(
             stage = "synthesize"
             with track_stage(telemetry, run_id, stage) as event:
                 summaries = (
-                    asyncio.run(SynthesizerService().execute(new_articles)) if new_articles else []
+                    asyncio.run(SynthesizerService().execute(new_articles, run_id=run_id))
+                    if new_articles
+                    else []
                 )
                 event["item_count"] = len(summaries)
             stage = "save summaries"
@@ -141,7 +143,9 @@ def pipeline_run(
                         if article.id in summaries_by_article
                     ]
                     digest = asyncio.run(
-                        DigestService().execute(category, category_articles, category_summaries)
+                        DigestService().execute(
+                            category, category_articles, category_summaries, run_id=run_id
+                        )
                     )
                     digest_repo.save(digest, [article.id for article in category_articles])
                     digest_ids.append(digest.id)

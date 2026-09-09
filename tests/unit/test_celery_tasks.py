@@ -61,7 +61,7 @@ def test_pipeline_run_success(worker):
         "summaries_generated": 1,
     }
     fetch.assert_awaited_once_with(limit=5, categories=["tech"])
-    synthesize.assert_awaited_once_with(fetch.return_value)
+    synthesize.assert_awaited_once_with(fetch.return_value, run_id="task-1")
     deliver.assert_awaited_once_with(synthesize.return_value)
     retry.assert_not_called()
     run = saved_run()

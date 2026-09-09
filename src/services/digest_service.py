@@ -12,7 +12,13 @@ class DigestService:
     def __init__(self):
         self.synthesizer = SynthesizerService()
 
-    async def execute(self, category: str, articles: list[Article], summaries: list[Summary]) -> Digest:
+    async def execute(
+        self,
+        category: str,
+        articles: list[Article],
+        summaries: list[Summary],
+        run_id: str | None = None,
+    ) -> Digest:
         summary_text = "\n".join(f"- {item.summary_text}" for item in summaries)
         fallback = "\n".join(f"- {article.title}" for article in articles)
         digest_text = fallback
@@ -23,7 +29,9 @@ class DigestService:
             try:
                 digest_text = await self.synthesizer.call_llm(
                     f"Create a concise Vietnamese news digest for the {category} topic.\n"
-                    f"Summaries:\n{summary_text}\nLimit to 5 key points."
+                    f"Summaries:\n{summary_text}\nLimit to 5 key points.",
+                    operation="topic_digest",
+                    run_id=run_id,
                 )
                 model = settings.llm_model
             except Exception:
