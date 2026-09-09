@@ -10,7 +10,7 @@ from src.config import settings
 from src.repositories.agent_audit_repo import AgentAuditRepository
 from src.repositories.article_repo import ArticleRepository
 
-router = APIRouter(prefix="/api/agent", tags=["agent"])
+router = APIRouter(prefix="/agent", tags=["agent"])
 
 
 class AgentRequest(BaseModel):
