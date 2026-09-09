@@ -35,7 +35,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - MVP cũ (`web/` react-router-dom + recharts + tailwind) đã xóa sau cutover (`8593dd5f`), xem lại qua git history nếu cần
 
 ### Verify (Stage 4)
-- `docker compose config` passed với .env
+- `docker-compose config` passed với .env
 - `go run ./cmd/newsctl --help` ok — `6a7392c`
 - `pytest tests/unit -q` = 77 passed, `pytest tests/integration -q` = 10 passed, `ruff` passed
 
