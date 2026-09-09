@@ -104,7 +104,7 @@ def test_pipeline_sources_and_ai_usage_aggregate_telemetry(tmp_path):
         conn.execute(
             """INSERT INTO pipeline_runs
             (id, status, articles_fetched, started_at, finished_at)
-            VALUES ('run-1', 'success', 4, '2026-09-09T11:00:00', '2026-09-09T11:00:10')"""
+            VALUES ('run-1', 'success', 4, '2026-09-09 11:00:00', '2026-09-09 11:00:10')"""
         )
         conn.executemany(
             """INSERT INTO pipeline_stage_events
