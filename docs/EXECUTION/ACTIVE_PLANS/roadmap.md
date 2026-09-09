@@ -11,19 +11,19 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 | Stage | Mục tiêu | Deliverable | Status |
 |-------|----------|-------------|--------|
 | **Stage 1: Foundation** | Scaffold + config + DB thuần local + Go stub | `docker-compose.yml` + `nginx.conf` + `go.mod` + `src/config.py` + `pipeline_runs` migration | ✅ Done `014cc6d`..`c774e8f` |
-| **Stage 2: Dashboard MVP** | 3 feature core + BE/FE test cơ bản | `src/api/` + `src/worker/` + `web/` Feed/Runs/Config + SSE | ✅ Done `3668fe2`..`45e1851` |
+| **Stage 2: Dashboard MVP** | 3 feature core + BE/FE test cơ bản | `src/api/` + `src/worker/` + `frontend/` Feed/Runs/Config + SSE | ✅ Done `3668fe2`..`45e1851` |
 | **Stage 3: Full 6 Features** | Đủ 6 nhóm + FE/BE 77 passed + quality | Summaries/Delivery/Health/Analytics + Ruff/MyPy | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
 | **Stage 4: Polish + Deploy** | Parity + GA verify | `make dev` Nginx parity + GA cron + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
 
 **DB thuần local**: Stage 1–4 đều dùng `SQLite file` `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
-**Testing FE+BE**: Stage 2–3 đều có Vitest + Pytest — 77 passed + 10 integration.
+**Testing FE+BE**: Có Vitest + Pytest; test batch backend hiện còn cần điều tra.
 
 ---
 
 ## Stage 1: Foundation (Scaffold) — DONE `014cc6d`..`c774e8f`
 
 - [x] `requirements.txt` (+celery[redis], redis, fastapi, uvicorn, pydantic-settings) — `d2f6f41`
-- [x] `web/package.json` (Vite React TS + TanStack Query + Recharts + Tailwind + Vitest) — `38e924d`
+- [x] `frontend/package.json` (Vite React TS + Mantine + TanStack Router + Vitest) — current frontend
 - [x] `docker-compose.yml` + `nginx.conf` (`/api → :8000`, `/ → :5173`, SSE off) — `014cc6d`, `49c0969`
 - [x] `Makefile` (install, dev, worker, beat, test, lint) — `13af427`, `cedfbd8`
 - [x] `.env.example` (REDIS_URL, CELERY_*, TELEGRAM_ENABLED, DATABASE_URL) — `a5f1700`
@@ -43,10 +43,10 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Stage 3: Full 6 Features + Quality — DONE 2026-08-28
 
-- [x] Web đủ 6 nhóm (Summaries, Delivery, Health, Analytics) — 43 commits, `web/src/App.tsx`
+- [x] Frontend đủ 6 nhóm (Summaries, Delivery, Health, Analytics) — `frontend/src/routes/`
 - [x] Config hot-reload hạn chế 4 vars + persist DB + history — `src/repositories/config_repo.py`, `migrate.py` v2
 - [x] SQLite persistence (ArticleRepo, SummaryRepo, PipelineRunRepo) + dedup + cleanup 7 ngày
-- [x] Tests full FE+BE 77 passed + 10 integration, ruff passed, web lint flat — `b9d0e2c`
+- [x] Ruff, frontend lint/typecheck/build đã kiểm tra; backend batch test còn pending
 - [x] Code quality: Ruff, MyPy, pre-commit, ESLint flat — `06b7813`, `b9d0e2c`
 
 ## Stage 4: Polish + Deploy — DONE 2026-08-28
@@ -60,7 +60,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Stage 5: Product Frontend Cutover — IMPLEMENTED
 
-- [x] Cutover `web/` → `frontend-legacy/`, `web-v2/` → `frontend/` + repoint compose/nginx/Makefile/CI
+- [x] Cutover frontend cũ sang frontend mới và repoint compose/nginx/Makefile/CI
 - [x] Lấp feature: Feed search/filter + phân trang, Runs polling + cron note, Delivery stat cards, Analytics cost + donut, Config history, Health error board
 - [x] Verify `docker-compose up` với `frontend/` mới; dashboard local mở tại `http://localhost`
 
