@@ -4,7 +4,20 @@ export interface Article {
   url: string;
   source: string | null;
   fetched_at: string | null;
+  published_at?: string | null;
   summarized: number;
+}
+
+export interface Digest {
+  id: string;
+  category: string;
+  title: string;
+  digest_text: string;
+  article_count: number;
+  model_used: string;
+  status: string;
+  error: string | null;
+  created_at: string | null;
 }
 
 export interface Summary {
