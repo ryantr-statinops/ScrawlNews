@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 MIGRATIONS = {
     1: """
@@ -126,6 +126,14 @@ MIGRATIONS = {
     );
     CREATE INDEX IF NOT EXISTS idx_llm_events_time ON llm_usage_events(occurred_at DESC);
     CREATE INDEX IF NOT EXISTS idx_llm_events_model ON llm_usage_events(model, occurred_at DESC)
+    """,
+    9: """
+    ALTER TABLE source_fetch_events ADD COLUMN category TEXT;
+    ALTER TABLE source_fetch_events ADD COLUMN country TEXT;
+    CREATE INDEX IF NOT EXISTS idx_source_events_category
+        ON source_fetch_events(category, occurred_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_source_events_country
+        ON source_fetch_events(country, occurred_at DESC);
     """,
     # v3 is applied in Python (see run_migrations): add category column
     # only when the articles table already exists (fresh DBs get it via _init_db)
