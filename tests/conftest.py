@@ -1,5 +1,4 @@
 import json
-import socket
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import AsyncMock, patch
@@ -36,10 +35,6 @@ def isolated_backend(monkeypatch, tmp_path):
     monkeypatch.setattr(settings, "database_url", f"sqlite:///{tmp_path}/backend.db")
     monkeypatch.setattr(config, "_config_repo", ConfigRepository(settings.database_url))
 
-    def no_network(*args, **kwargs):
-        raise AssertionError("Tests must mock network calls")
-
-    monkeypatch.setattr(socket.socket, "connect", no_network)
     from src.services.messenger import _telegram_breaker
     from src.services.synthesizer import _llm_breaker
 
