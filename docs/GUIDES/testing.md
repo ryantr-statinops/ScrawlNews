@@ -39,7 +39,7 @@ tests/                          # BE (pytest)
     ├── test_database.py        # thuần local SQLite tmp
     └── test_api_integration.py
 
-web/                             # FE (Vitest)
+frontend/                         # FE (Vitest)
 └── src/__tests__/
     ├── Feed.test.tsx
     ├── Summaries.test.tsx
@@ -96,8 +96,8 @@ cd frontend && npm run test
 
 ## Status (2026-08-28)
 
-- BE: 77 unit passed, 10 integration passed
-- FE: 8 Vitest tests passed
+- BE: collection succeeds; full batch run still requires investigation
+- FE: current Vitest suite passes
 - ruff passed, web lint flat (`eslint src`)
 
 ## Notes
