@@ -1,6 +1,6 @@
 # Current State — Project đang thực sự như thế nào
 
-> Cập nhật: 2026-09-09. Stage 1–5 và Feed product upgrade đã được triển khai từng commit. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
+> Cập nhật: 2026-09-09. Stage 1–5, Feed product upgrade và Analytics Command Center đã được triển khai từng commit. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
 
 ## Purpose
 
@@ -15,6 +15,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 | Stage 3: Full 6 Features | Đủ 6 nhóm + FE/BE 77 passed + quality | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
 | Stage 4: Polish + Deploy | Nginx parity verify + GA + SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
 | Stage 5: Product Frontend Cutover | Frontend mới + Telegram bot + category filtering + circuit breaker | ✅ Implemented; local runtime verified |
+| Analytics Command Center | 5 tab News Intelligence + Operations, telemetry 30 ngày | ✅ Implemented; regression/runtime verification in progress |
 
 ## Trạng thái kỹ thuật hiện tại
 
@@ -30,9 +31,12 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - `ConfigRepository` + migrate v2 (settings/config_history) — `afa00a7`
 - Scrawler (feedparser + trafilatura), Synthesizer (OpenRouter batch), Messenger (Telegram toggle) — `65dedb1`..`1f68dd0`
 - Feed upgrade: publication-time filtering, source registry/API, multi-source fetch, topic digests, inline update and daily multi-time scheduler — xem git history sau `d6073895`
+- Analytics API: overview/content/pipeline/sources/AI usage/drill-down; current-vs-previous comparison cho `1h`, `4h`, `12h`, `24h`, `7d`, `30d` — `8c9b4f98`..`07ce9b93`
+- Telemetry additive schema v9: pipeline stage timing, source yield/duplicate/region và LLM tokens/latency/status; cleanup tự động sau 30 ngày — `0fd00f6e`..`32c5d7fe`
 
 ### Frontend (product, đã cutover)
 - `frontend/` là web chính: Mantine UI v7, TanStack Router, ApexCharts, Zustand, SSE logs — xem `DOMAIN_CONCEPTS/frontend/01-stack.md`. Chạy `:5173`, nối `docker-compose.yml` + `Makefile` + CI
+- Analytics là Command Center 5 tab dùng shared URL filters, KPI delta, responsive/theme-aware charts và drawer drill-down — `9bc36dc7`..`547385c5`
 - MVP cũ (`web/` react-router-dom + recharts + tailwind) đã xóa sau cutover (`8593dd5f`), xem lại qua git history nếu cần
 
 ### Verify (Stage 4)
@@ -52,8 +56,8 @@ ScrawlNews/
 │   ├── main.py             # Legacy CLI + Pipeline class
 │   ├── config.py           # Pydantic Settings (ADR-011)
 │   ├── models/             # article, summary, run
-│   ├── services/           # base, scrawler, synthesizer, messenger
-│   ├── repositories/       # article_repo, summary_repo, run_repo, config_repo, migrate
+│   ├── services/           # pipeline services + analytics query service
+│   ├── repositories/       # domain repositories + telemetry_repo + migrations
 │   ├── api/                # FastAPI app + routes/
 │   ├── worker/             # celery_app, tasks
 │   └── utils/              # retry, formatter, logging
@@ -67,7 +71,8 @@ ScrawlNews/
 - Prometheus metrics chưa có
 - `pip-audit` chưa chạy trong CI
 - Source discovery hiện tìm trong catalog/local registry; chưa tự động khám phá nguồn Internet.
-- Detailed cost tracking và structured summarization chưa làm.
+- Analytics chưa quy đổi token thành chi phí tiền tệ; provider price tables thay đổi nên đây là chủ ý trong scope hiện tại.
+- Dữ liệu trước schema telemetry không thể hồi dựng stage/source/LLM metrics chính xác.
 - Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
 - Backend pytest vẫn cần điều tra hiện tượng treo khi chạy theo batch; local Docker dashboard đã chạy được.
 
