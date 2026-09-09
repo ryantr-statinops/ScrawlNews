@@ -88,7 +88,6 @@ services:
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost/api
-    profiles: ["full"]
 
   nginx:
     image: nginx:alpine
