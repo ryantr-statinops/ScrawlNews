@@ -26,3 +26,30 @@ export interface PipelineRun {
   started_at: string;
   finished_at: string | null;
 }
+
+export interface AgentDecision {
+  status: string;
+  reason: string;
+  action: { kind: string; dry_run: boolean } | null;
+  correlation_id: string;
+}
+
+export interface AgentVerification {
+  status: string;
+  message: string;
+  correlation_id: string;
+}
+
+export interface AgentRunResponse {
+  decision: AgentDecision;
+  verification: AgentVerification;
+}
+
+export interface AgentAuditEvent {
+  id: number;
+  correlation_id: string;
+  phase: string;
+  status: string;
+  message: string;
+  created_at: string;
+}
