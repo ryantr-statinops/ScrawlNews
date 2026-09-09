@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 MIGRATIONS = {
     1: """
@@ -56,8 +56,7 @@ MIGRATIONS = {
     );
     CREATE INDEX IF NOT EXISTS idx_sources_enabled ON sources(enabled);
     CREATE INDEX IF NOT EXISTS idx_sources_category ON sources(category)
-    """
-    ,
+    """,
     7: """
     CREATE TABLE IF NOT EXISTS digests (
         id TEXT PRIMARY KEY,
@@ -79,7 +78,55 @@ MIGRATIONS = {
         FOREIGN KEY(digest_id) REFERENCES digests(id),
         FOREIGN KEY(article_id) REFERENCES articles(id)
     )
-    """
+    """,
+    8: """
+    CREATE TABLE IF NOT EXISTS pipeline_stage_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT NOT NULL,
+        stage TEXT NOT NULL,
+        status TEXT NOT NULL,
+        duration_ms INTEGER NOT NULL DEFAULT 0,
+        item_count INTEGER,
+        error_class TEXT,
+        started_at DATETIME NOT NULL,
+        finished_at DATETIME NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_stage_events_run ON pipeline_stage_events(run_id, started_at);
+    CREATE INDEX IF NOT EXISTS idx_stage_events_time ON pipeline_stage_events(started_at DESC);
+
+    CREATE TABLE IF NOT EXISTS source_fetch_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT,
+        source_id TEXT NOT NULL,
+        source_name TEXT NOT NULL,
+        status TEXT NOT NULL,
+        fetched_count INTEGER NOT NULL DEFAULT 0,
+        new_count INTEGER NOT NULL DEFAULT 0,
+        duplicate_count INTEGER NOT NULL DEFAULT 0,
+        latency_ms INTEGER NOT NULL DEFAULT 0,
+        error TEXT,
+        occurred_at DATETIME NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_source_events_time ON source_fetch_events(occurred_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_source_events_source ON source_fetch_events(source_id, occurred_at DESC);
+
+    CREATE TABLE IF NOT EXISTS llm_usage_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT,
+        operation TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        input_tokens INTEGER NOT NULL DEFAULT 0,
+        output_tokens INTEGER NOT NULL DEFAULT 0,
+        total_tokens INTEGER NOT NULL DEFAULT 0,
+        latency_ms INTEGER NOT NULL DEFAULT 0,
+        status TEXT NOT NULL,
+        error TEXT,
+        occurred_at DATETIME NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_llm_events_time ON llm_usage_events(occurred_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_llm_events_model ON llm_usage_events(model, occurred_at DESC)
+    """,
     # v3 is applied in Python (see run_migrations): add category column
     # only when the articles table already exists (fresh DBs get it via _init_db)
 }
