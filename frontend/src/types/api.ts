@@ -3,6 +3,8 @@ export interface Article {
   title: string;
   url: string;
   source: string | null;
+  category?: string | null;
+  content?: string | null;
   fetched_at: string | null;
   published_at?: string | null;
   summarized: number;

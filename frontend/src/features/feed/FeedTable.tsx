@@ -1,7 +1,7 @@
 import { Table, Anchor, Badge } from "@mantine/core";
 import type { Article } from "../../types/api";
 
-export function FeedTable({ articles }: { articles: Article[] }) {
+export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelect?: (article: Article) => void }) {
   return (
     <Table striped highlightOnHover>
       <Table.Thead>
@@ -16,7 +16,7 @@ export function FeedTable({ articles }: { articles: Article[] }) {
         {articles.map((a) => (
           <Table.Tr key={a.id}>
             <Table.Td>
-              <Anchor href={a.url} target="_blank" rel="noreferrer">
+              <Anchor href={a.url} target="_blank" rel="noreferrer" onClick={() => onSelect?.(a)}>
                 {a.title}
               </Anchor>
             </Table.Td>
