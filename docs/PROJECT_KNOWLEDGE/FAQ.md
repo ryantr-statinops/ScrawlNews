@@ -15,9 +15,9 @@ make dev               # Chạy dashboard qua Nginx
 
 Xem chi tiết: [docs/GUIDES/setup.md](../GUIDES/setup.md).
 
-### `make dev` và `docker compose up` khác gì?
+### `make dev` và `docker-compose up` khác gì?
 
-| | `make dev` | `docker compose up` |
+| | `make dev` | `docker-compose up` |
 |---|---|---|
 | **Backend** | uvicorn native | Docker |
 | **Worker/Beat** | celery native | Docker |
@@ -36,7 +36,7 @@ LLM_PROVIDER=openrouter
 LLM_MODEL=meta/llama-3-8b-instruct    # thay vì google/gemma-2-9b-it
 ```
 
-Restart: `make dev` (hoặc `docker compose restart api worker`).
+Restart: `make dev` (hoặc `docker-compose restart api worker`).
 
 ## Pipeline
 
@@ -101,7 +101,7 @@ Mặc định dashboard **polling 5s**. Nếu cần real-time hơn, dùng SSE (�
 
 ### Đổi port 5173?
 
-Sửa `web/vite.config.ts`:
+Sửa `frontend/vite.config.ts`:
 ```typescript
 export default defineConfig({
   server: { port: 3000 },
@@ -163,9 +163,9 @@ Hoặc dùng venv.
 ### Docker compose không start
 
 ```bash
-docker compose logs nginx   # Xem log container
-docker compose ps           # Status
-docker compose config       # Validate config
+docker-compose logs nginx   # Xem log container
+docker-compose ps           # Status
+docker-compose config       # Validate config
 ```
 
 ## Architecture
