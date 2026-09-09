@@ -37,6 +37,7 @@ def test_list_articles_with_category_filter(temp_db):
     with patch("src.api.routes.articles.settings.database_url", f"sqlite:///{temp_db}"):
         response = client.get("/api/articles?category=tech")
     assert response.status_code == 200
+    assert response.json()["count"] == 1
     articles = response.json()["articles"]
     assert len(articles) == 1
     assert articles[0]["id"] == "c1"
