@@ -176,6 +176,33 @@ def test_retry_exhaustion_retains_original_failure(worker):
     assert saved_run()["finished_at"]
 
 
+def test_failed_source_fetch_is_still_recorded(worker):
+    failed_source = type("FailedSource", (), {})()
+    failed_source.execute = AsyncMock(side_effect=ScrawlerError("offline"))
+    failed_source.fetch_events = [
+        {
+            "source_id": "source-1",
+            "source_name": "Source One",
+            "category": "technology",
+            "country": "VN",
+            "status": "failed",
+            "fetched_count": 0,
+            "latency_ms": 250,
+            "error": "ScrawlerError",
+        }
+    ]
+    with patch("src.worker.tasks.ScrawlerService", return_value=failed_source):
+        with pytest.raises(ScrawlerError):
+            pipeline_run.run()
+
+    db_path = settings.database_url.replace("sqlite:///", "")
+    with sqlite3.connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT status, category, country FROM source_fetch_events"
+        ).fetchone()
+    assert row == ("failed", "technology", "VN")
+
+
 @pytest.mark.parametrize(
     "stage,error",
     [

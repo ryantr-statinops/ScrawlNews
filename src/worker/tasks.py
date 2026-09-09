@@ -25,6 +25,30 @@ from src.worker.celery_app import celery_app
 logger = logging.getLogger(__name__)
 
 
+def _record_source_events(
+    telemetry: TelemetryRepository,
+    scrawler: ScrawlerService,
+    run_id: str,
+    new_articles: list[Article],
+) -> None:
+    for source_event in getattr(scrawler, "fetch_events", []):
+        new_count = sum(
+            1
+            for article in new_articles
+            if article.source == source_event["source_name"]
+            or article.category == source_event["category"]
+        )
+        try:
+            telemetry.record_source_fetch(
+                run_id=run_id,
+                **source_event,
+                new_count=new_count,
+                duplicate_count=max(0, source_event["fetched_count"] - new_count),
+            )
+        except Exception:
+            logger.warning("Unable to record source fetch telemetry", exc_info=True)
+
+
 @celery_app.task(bind=True, max_retries=3, name="pipeline.run")
 def pipeline_run(
     self,
@@ -58,6 +82,8 @@ def pipeline_run(
 
     telegram_sent = 0
     stage = "initialize"
+    scrawler: ScrawlerService | None = None
+    source_events_recorded = False
     try:
         repo.update_status(run_id, "running", finished_at=None)
         article_repo = ArticleRepository(settings.database_url)
@@ -78,19 +104,8 @@ def pipeline_run(
             with track_stage(telemetry, run_id, stage) as event:
                 new_articles = [a for a in articles if article_repo.save(a)]
                 event["item_count"] = len(new_articles)
-            for source_event in getattr(scrawler, "fetch_events", []):
-                new_count = sum(
-                    1
-                    for article in new_articles
-                    if article.source == source_event["source_name"]
-                    or article.category == source_event["category"]
-                )
-                telemetry.record_source_fetch(
-                    run_id=run_id,
-                    **source_event,
-                    new_count=new_count,
-                    duplicate_count=max(0, source_event["fetched_count"] - new_count),
-                )
+            _record_source_events(telemetry, scrawler, run_id, new_articles)
+            source_events_recorded = True
             checkpoint["article_ids"] = [a.id for a in new_articles]
         elif "summary_ids" not in checkpoint:
             stage = "load articles"
@@ -181,6 +196,8 @@ def pipeline_run(
             "summaries_generated": summaries_generated,
         }
     except Exception as exc:
+        if scrawler is not None and not source_events_recorded:
+            _record_source_events(telemetry, scrawler, run_id, [])
         logger.exception(
             "Pipeline failed", extra={"run_id": run_id, "stage": stage}
         )
