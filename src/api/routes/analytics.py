@@ -39,8 +39,10 @@ def pipeline(window: Window = "24h"):
 
 
 @router.get("/sources")
-def sources(window: Window = "24h", category: str | None = None):
-    return _service().sources(window, category)
+def sources(
+    window: Window = "24h", category: str | None = None, country: str | None = None
+):
+    return _service().sources(window, category, country)
 
 
 @router.get("/ai-usage")

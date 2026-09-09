@@ -478,17 +478,27 @@ class AnalyticsService:
             (datetime.fromisoformat(row["finished_at"]) - datetime.fromisoformat(row["started_at"])).total_seconds(),
         )
 
-    def sources(self, window: str = "24h", category: str | None = None) -> dict:
+    def sources(
+        self, window: str = "24h", category: str | None = None, country: str | None = None
+    ) -> dict:
         period = self.period(window)
         start, end = self._bounds(period)
         with self._connect() as conn:
+            clauses = []
+            params: list[object] = [start, end]
+            if category:
+                clauses.append("s.category = ?")
+                params.append(category)
+            if country:
+                clauses.append("s.country = ?")
+                params.append(country)
             rows = conn.execute(
                 "SELECT e.*, s.category, s.country FROM source_fetch_events e "
                 "LEFT JOIN sources s ON s.id = e.source_id "
                 "WHERE e.occurred_at >= ? AND e.occurred_at < ? "
-                + ("AND s.category = ? " if category else "")
+                + ("AND " + " AND ".join(clauses) + " " if clauses else "")
                 + "ORDER BY e.occurred_at DESC",
-                (start, end, category) if category else (start, end),
+                params,
             ).fetchall()
         grouped: dict[str, list[sqlite3.Row]] = defaultdict(list)
         for row in rows:
