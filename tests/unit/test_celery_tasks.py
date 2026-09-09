@@ -19,7 +19,7 @@ from src.utils.errors import (
     ScrawlerError,
     SynthesizerError,
 )
-from src.worker.tasks import pipeline_run
+from src.worker.tasks import _record_source_events, pipeline_run
 
 
 @pytest.fixture
@@ -201,6 +201,31 @@ def test_failed_source_fetch_is_still_recorded(worker):
             "SELECT status, category, country FROM source_fetch_events"
         ).fetchone()
     assert row == ("failed", "technology", "VN")
+
+
+def test_source_yield_uses_urls_when_categories_overlap():
+    from src.repositories.telemetry_repo import TelemetryRepository
+    from src.services.scrawler import ScrawlerService
+
+    scrawler = ScrawlerService()
+    scrawler.fetch_events = [
+        {"source_id": "one", "source_name": "One", "category": "technology", "country": "VN", "status": "success", "fetched_count": 1, "article_urls": ["https://one"], "latency_ms": 1, "error": None},
+        {"source_id": "two", "source_name": "Two", "category": "technology", "country": "VN", "status": "success", "fetched_count": 1, "article_urls": ["https://two"], "latency_ms": 1, "error": None},
+    ]
+    telemetry = TelemetryRepository(settings.database_url)
+
+    _record_source_events(
+        telemetry,
+        scrawler,
+        "run-1",
+        [Article(id="a2", url="https://two", title="Two", category="technology")],
+    )
+
+    with sqlite3.connect(telemetry.db_path) as conn:
+        rows = conn.execute(
+            "SELECT source_id, new_count, duplicate_count FROM source_fetch_events ORDER BY source_id"
+        ).fetchall()
+    assert rows == [("one", 0, 1), ("two", 1, 0)]
 
 
 @pytest.mark.parametrize(

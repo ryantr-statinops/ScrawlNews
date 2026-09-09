@@ -111,6 +111,7 @@ class ScrawlerService(BaseService):
                     "country": source.get("country") or settings.news_country,
                     "status": "failed",
                     "fetched_count": 0,
+                    "article_urls": [],
                     "latency_ms": round((perf_counter() - started) * 1000),
                     "error": type(exc).__name__,
                 }
@@ -124,6 +125,7 @@ class ScrawlerService(BaseService):
                 "country": source.get("country") or settings.news_country,
                 "status": "success",
                 "fetched_count": len(articles),
+                "article_urls": [article.url for article in articles],
                 "latency_ms": round((perf_counter() - started) * 1000),
                 "error": None,
             }
