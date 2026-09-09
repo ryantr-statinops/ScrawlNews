@@ -5,13 +5,13 @@
 ## Overview
 
 - **Primary scheduler**: GitHub Actions cron `0 8,12,16,21 * * * UTC` chạy pipeline không cần dashboard.
-- **Local monitor**: `docker compose up` (api + worker + beat + redis + web + nginx) hoặc `make dev` (uvicorn + celery + vite, parity Nginx).
+- **Local monitor**: `docker-compose up` (api + worker + beat + redis + web + nginx) hoặc `make dev` (uvicorn + celery + vite, parity Nginx).
 - **Cost**: $0/tháng (Redis/Nginx local, GA free).
 
 ## Local Dashboard (Nginx + Celery, ADR-011/012)
 
 ```yaml
-# docker-compose.yml (1 terminal: docker compose up)
+# docker-compose.yml (1 terminal: docker-compose up)
 services:
   redis:
     image: redis:7-alpine
