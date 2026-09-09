@@ -57,7 +57,7 @@ export function AiUsageTab({ filters }: { filters: AnalyticsFiltersState }) {
       </SimpleGrid>
       <Card withBorder mb="md" role="button" tabIndex={0} aria-label="Inspect LLM calls" onKeyDown={(event) => { if (event.key === "Enter") inspectCalls(); }} onClick={inspectCalls} style={{ cursor: "pointer" }}>
         <Title order={4} mb="sm">Token usage trend</Title>
-        <BarChart categories={trend.map((row) => row.timestamp)} series={trend.map((row) => row.input_tokens)} secondarySeries={trend.map((row) => row.output_tokens)} seriesName="input tokens" secondarySeriesName="output tokens" />
+        {trend.length ? <BarChart categories={trend.map((row) => row.timestamp)} series={trend.map((row) => row.input_tokens)} secondarySeries={trend.map((row) => row.output_tokens)} seriesName="input tokens" secondarySeriesName="output tokens" /> : <Text c="dimmed" py="xl" ta="center">No LLM usage telemetry yet. Token usage appears after the next summarized run.</Text>}
       </Card>
       <SimpleGrid cols={{ base: 1, xl: 3 }}>
         <Breakdown title="Providers" dimension="provider" rows={providers} onSelect={setSelection} />

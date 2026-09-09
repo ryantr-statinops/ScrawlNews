@@ -31,7 +31,7 @@ export function PipelineTab({ filters }: { filters: AnalyticsFiltersState }) {
       </SimpleGrid>
       <Card withBorder mb="md">
         <Title order={4} mb="sm">Stage duration</Title>
-        <BarChart categories={stages.map((stage) => stage.stage)} series={stages.map((stage) => stage.median_seconds)} secondarySeries={stages.map((stage) => stage.p95_seconds)} seriesName="median seconds" secondarySeriesName="p95 seconds" />
+        {stages.length ? <BarChart categories={stages.map((stage) => stage.stage)} series={stages.map((stage) => stage.median_seconds)} secondarySeries={stages.map((stage) => stage.p95_seconds)} seriesName="median seconds" secondarySeriesName="p95 seconds" /> : <Text c="dimmed" py="xl" ta="center">No stage telemetry yet. The next pipeline run will establish timing baselines.</Text>}
       </Card>
       <SimpleGrid cols={{ base: 1, xl: 2 }}>
         <Card withBorder>
