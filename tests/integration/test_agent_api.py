@@ -3,7 +3,7 @@ def test_agent_run_exposes_dry_run_and_audit(api_client):
 
     assert response.status_code == 200
     body = response.json()
-    assert body["decision"]["status"] == "ready"
+    assert body["decision"]["status"] == "pending_approval"
     assert body["decision"]["action"]["dry_run"] is True
     assert body["verification"]["status"] == "skipped"
 
