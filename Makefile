@@ -1,4 +1,4 @@
-.PHONY: install dev worker beat bot run test lint format typecheck clean
+.PHONY: install dev worker beat bot run test lint format typecheck backup restore clean
 
 install:
 	pip install --break-system-packages -r requirements.txt
@@ -38,6 +38,13 @@ format:
 typecheck:
 	mypy src/
 	cd frontend && npm run typecheck
+
+backup:
+	python3 scripts/db.py backup
+
+restore:
+	@test -n "$(BACKUP)" || (echo "Usage: make restore BACKUP=backups/file.db"; exit 1)
+	python3 scripts/db.py restore "$(BACKUP)"
 
 clean:
 	rm -rf .pytest_cache .ruff_cache frontend/node_modules frontend/dist data/scrawlnews.db logs/*.log
