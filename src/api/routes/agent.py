@@ -1,7 +1,7 @@
 import sqlite3
 
 import redis
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from src.agent.engine import AgentEngine
@@ -54,3 +54,20 @@ def run_agent(payload: AgentRequest):
 def get_agent_audit(correlation_id: str):
     events = AgentAuditRepository(settings.database_url).list_for_correlation(correlation_id)
     return {"correlation_id": correlation_id, "events": events}
+
+
+@router.post("/approve/{correlation_id}")
+def approve_agent_action(correlation_id: str):
+    audit = AgentAuditRepository(settings.database_url)
+    events = audit.list_for_correlation(correlation_id)
+    if not events:
+        raise HTTPException(status_code=404, detail="Agent decision not found")
+    if any(event["phase"] == "approval" for event in events):
+        raise HTTPException(status_code=409, detail="Agent action was already approved")
+    pending = any(
+        event["phase"] == "act" and event["status"] == "pending_approval" for event in events
+    )
+    if not pending:
+        raise HTTPException(status_code=409, detail="Agent decision is not awaiting approval")
+    audit.record(correlation_id, "approval", "approved", "Explicit approval recorded")
+    return {"correlation_id": correlation_id, "status": "approved", "executed": False}
