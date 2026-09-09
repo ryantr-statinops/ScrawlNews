@@ -487,13 +487,14 @@ class AnalyticsService:
             clauses = []
             params: list[object] = [start, end]
             if category:
-                clauses.append("s.category = ?")
+                clauses.append("COALESCE(e.category, s.category) = ?")
                 params.append(category)
             if country:
-                clauses.append("s.country = ?")
+                clauses.append("COALESCE(e.country, s.country) = ?")
                 params.append(country)
             rows = conn.execute(
-                "SELECT e.*, s.category, s.country FROM source_fetch_events e "
+                "SELECT e.*, COALESCE(e.category, s.category) AS resolved_category, "
+                "COALESCE(e.country, s.country) AS resolved_country FROM source_fetch_events e "
                 "LEFT JOIN sources s ON s.id = e.source_id "
                 "WHERE e.occurred_at >= ? AND e.occurred_at < ? "
                 + ("AND " + " AND ".join(clauses) + " " if clauses else "")
@@ -513,8 +514,8 @@ class AnalyticsService:
                 {
                     "source_id": source_id,
                     "source_name": events[0]["source_name"],
-                    "category": events[0]["category"],
-                    "country": events[0]["country"],
+                    "category": events[0]["resolved_category"],
+                    "country": events[0]["resolved_country"],
                     "fetches": len(events),
                     "success_rate": round(len(successes) / len(events) * 100, 1),
                     "fetched": fetched,
