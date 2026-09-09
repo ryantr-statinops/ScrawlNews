@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from src.api.routes import articles, config, health, logs, runs, stats, summaries
+from src.api.routes import agent, articles, config, health, logs, runs, stats, summaries
 from src.config import settings
 from src.utils.errors import (
     ConfigError,
@@ -52,3 +52,4 @@ app.include_router(health.router)
 app.include_router(summaries.router)
 app.include_router(logs.router)
 app.include_router(stats.router)
+app.include_router(agent.router)
