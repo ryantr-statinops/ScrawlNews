@@ -10,31 +10,26 @@ def make_scheduler():
 
 def test_scheduler_uses_config_override():
     config_repo = ConfigRepository(settings.database_url)
-    config_repo.set("schedule_interval_hours", "6")
+    config_repo.set("schedule_times", "06:30,18:00")
     scheduler = make_scheduler()
     schedule = scheduler.get_schedule()
-    entry = schedule["pipeline.run"]
-    from celery.schedules import schedule as interval_schedule
-
-    assert isinstance(entry.schedule, interval_schedule)
-    assert entry.schedule.run_every.total_seconds() == 6 * 3600
+    assert set(schedule) == {"pipeline.run.0", "pipeline.run.1"}
+    assert schedule["pipeline.run.0"].schedule.hour == {6}
+    assert schedule["pipeline.run.0"].schedule.minute == {30}
 
 
 def test_scheduler_defaults_to_settings():
     scheduler = make_scheduler()
     schedule = scheduler.get_schedule()
-    entry = schedule["pipeline.run"]
-    assert entry.schedule.run_every.total_seconds() == settings.schedule_interval_hours * 3600
+    assert set(schedule) == {"pipeline.run.0", "pipeline.run.1", "pipeline.run.2"}
+    assert schedule["pipeline.run.0"].schedule.hour == {8}
 
 
 def test_scheduler_keeps_existing_entries():
-    from celery.schedules import schedule as interval_schedule
-
     existing = {"other": "entry"}
     scheduler = ConfigurableScheduler(
         app=celery_app, schedule=existing, max_interval=300, lazy=True
     )
     schedule = scheduler.get_schedule()
     assert schedule["other"] == "entry"
-    assert "pipeline.run" in schedule
-    assert isinstance(schedule["pipeline.run"].schedule, interval_schedule)
+    assert "pipeline.run.0" in schedule
