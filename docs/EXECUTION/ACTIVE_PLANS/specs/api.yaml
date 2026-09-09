@@ -209,7 +209,7 @@ paths:
 
   /api/stats:
     get:
-      summary: Analytics (articles/day, cost, source distribution)
+      summary: Legacy analytics response (kept for compatibility)
       parameters:
         - name: days
           in: query
@@ -226,6 +226,83 @@ paths:
                   summaries_per_day: { type: array, items: { type: object } }
                   cost_estimate: { type: number }
                   source_dist: { type: array, items: { type: object } }
+
+  /api/analytics/overview:
+    get:
+      summary: Command Center KPI, alerts, trend and snapshots
+      parameters:
+        - $ref: '#/components/parameters/AnalyticsWindow'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/SourceFilter'
+        - $ref: '#/components/parameters/ProviderFilter'
+        - $ref: '#/components/parameters/ModelFilter'
+      responses:
+        '200': { $ref: '#/components/responses/AnalyticsResponse' }
+
+  /api/analytics/content:
+    get:
+      summary: News velocity, category/source movement and freshness
+      parameters:
+        - $ref: '#/components/parameters/AnalyticsWindow'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/SourceFilter'
+      responses:
+        '200': { $ref: '#/components/responses/AnalyticsResponse' }
+
+  /api/analytics/pipeline:
+    get:
+      summary: Run throughput, success, duration, stage timing and errors
+      parameters:
+        - $ref: '#/components/parameters/AnalyticsWindow'
+      responses:
+        '200': { $ref: '#/components/responses/AnalyticsResponse' }
+
+  /api/analytics/sources:
+    get:
+      summary: Source health, yield, duplicate rate and latency
+      parameters:
+        - $ref: '#/components/parameters/AnalyticsWindow'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - name: country
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/AnalyticsResponse' }
+
+  /api/analytics/ai-usage:
+    get:
+      summary: Token usage and latency by provider, model and operation
+      parameters:
+        - $ref: '#/components/parameters/AnalyticsWindow'
+        - $ref: '#/components/parameters/ProviderFilter'
+        - $ref: '#/components/parameters/ModelFilter'
+      responses:
+        '200': { $ref: '#/components/responses/AnalyticsResponse' }
+
+  /api/analytics/drilldown:
+    get:
+      summary: Detail records for an Analytics selection
+      parameters:
+        - name: kind
+          in: query
+          required: true
+          schema: { type: string, enum: [articles, runs, stages, sources, llm] }
+        - $ref: '#/components/parameters/AnalyticsWindow'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/SourceFilter'
+        - $ref: '#/components/parameters/ProviderFilter'
+        - $ref: '#/components/parameters/ModelFilter'
+        - name: run_id
+          in: query
+          schema: { type: string }
+        - name: operation
+          in: query
+          schema: { type: string, enum: [article_summary, topic_digest] }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50, minimum: 1, maximum: 100 }
+      responses:
+        '200': { $ref: '#/components/responses/AnalyticsResponse' }
 
   /api/logs/stream:
     get:
@@ -253,7 +330,50 @@ paths:
                   redis: { type: string }
 
 components:
+  parameters:
+    AnalyticsWindow:
+      name: window
+      in: query
+      schema: { type: string, enum: [1h, 4h, 12h, 24h, 7d, 30d], default: 24h }
+    CategoryFilter:
+      name: category
+      in: query
+      schema: { type: string }
+    SourceFilter:
+      name: source_id
+      in: query
+      schema: { type: string }
+    ProviderFilter:
+      name: provider
+      in: query
+      schema: { type: string }
+    ModelFilter:
+      name: model
+      in: query
+      schema: { type: string }
+  responses:
+    AnalyticsResponse:
+      description: Analytics payload with current and previous non-overlapping periods
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              period: { type: object }
+              kpis:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/ComparisonMetric'
   schemas:
+    ComparisonMetric:
+      type: object
+      required: [current, previous, delta, delta_percent]
+      properties:
+        current: { type: number }
+        previous: { type: number }
+        delta: { type: number }
+        delta_percent: { type: number, nullable: true }
+
     Article:
       type: object
       properties:
@@ -261,9 +381,11 @@ components:
         title: { type: string }
         url: { type: string }
         source: { type: string }
+        category: { type: string, nullable: true }
         raw_html: { type: string, nullable: true }
         content: { type: string, nullable: true }
         fetched_at: { type: string, format: date-time }
+        published_at: { type: string, format: date-time, nullable: true }
         summarized: { type: integer }
 
     Summary:
