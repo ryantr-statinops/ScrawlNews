@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 MIGRATIONS = {
     1: """
@@ -39,6 +39,23 @@ MIGRATIONS = {
         ON agent_audit_events(correlation_id, created_at DESC);
     """,
     5: """
+    """,
+    6: """
+    CREATE TABLE IF NOT EXISTS sources (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        url TEXT UNIQUE NOT NULL,
+        category TEXT,
+        country TEXT NOT NULL DEFAULT 'VN',
+        city TEXT,
+        enabled INTEGER NOT NULL DEFAULT 1,
+        last_status TEXT,
+        last_error TEXT,
+        last_checked_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_sources_enabled ON sources(enabled);
+    CREATE INDEX IF NOT EXISTS idx_sources_category ON sources(category)
     """
     # v3 is applied in Python (see run_migrations): add category column
     # only when the articles table already exists (fresh DBs get it via _init_db)
