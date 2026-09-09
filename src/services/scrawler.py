@@ -3,6 +3,7 @@ import calendar
 import hashlib
 import logging
 from datetime import UTC, datetime
+from time import perf_counter
 
 import feedparser
 import httpx
@@ -29,12 +30,17 @@ def _entry_datetime(entry) -> datetime | None:
 
 class ScrawlerService(BaseService):
     async def execute(self, limit: int = 20, categories: list[str] | None = None) -> list[Article]:
+        self.fetch_events: list[dict] = []
         configured_sources = self._configured_sources()
         if configured_sources:
             return await self.fetch_sources(configured_sources, limit)
         cats = categories or self._configured_categories()
         if len(cats) <= 1:
-            return await self.fetch_rss(limit, category=cats[0] if cats else None)
+            category = cats[0] if cats else "news"
+            return await self._fetch_with_event(
+                {"id": f"google-{category}", "name": f"Google News · {category}", "category": category},
+                limit,
+            )
         return await self.fetch_categories(cats, limit)
 
     def _configured_sources(self) -> list[dict]:
@@ -64,13 +70,7 @@ class ScrawlerService(BaseService):
         limit_each = max(1, limit // max(1, len(sources)))
         results = await asyncio.gather(
             *[
-                self.fetch_rss(
-                    limit_each,
-                    query=source["category"] or source["name"],
-                    category=source["category"],
-                    source_url=source["url"],
-                    source_name=source["name"],
-                )
+                self._fetch_with_event(source, limit_each)
                 for source in sources
             ],
             return_exceptions=True,
@@ -89,6 +89,42 @@ class ScrawlerService(BaseService):
             raise ScrawlerError("All configured news sources failed")
         return articles
 
+    async def _fetch_with_event(self, source: dict, limit: int) -> list[Article]:
+        started = perf_counter()
+        try:
+            articles = await self.fetch_rss(
+                limit,
+                query=source.get("category") or source["name"],
+                category=source.get("category"),
+                source_url=source.get("url"),
+                source_name=source["name"] if source.get("url") else None,
+            )
+        except ScrawlerError as exc:
+            self.fetch_events.append(
+                {
+                    "source_id": source["id"],
+                    "source_name": source["name"],
+                    "category": source.get("category"),
+                    "status": "failed",
+                    "fetched_count": 0,
+                    "latency_ms": round((perf_counter() - started) * 1000),
+                    "error": type(exc).__name__,
+                }
+            )
+            raise
+        self.fetch_events.append(
+            {
+                "source_id": source["id"],
+                "source_name": source["name"],
+                "category": source.get("category"),
+                "status": "success",
+                "fetched_count": len(articles),
+                "latency_ms": round((perf_counter() - started) * 1000),
+                "error": None,
+            }
+        )
+        return articles
+
     def _configured_categories(self) -> list[str]:
         from src.repositories.config_repo import ConfigRepository
 
@@ -103,7 +139,16 @@ class ScrawlerService(BaseService):
         failures: list[ScrawlerError] = []
         for category in categories:
             try:
-                articles.extend(await self.fetch_rss(limit_each, category=category))
+                articles.extend(
+                    await self._fetch_with_event(
+                        {
+                            "id": f"google-{category}",
+                            "name": f"Google News · {category}",
+                            "category": category,
+                        },
+                        limit_each,
+                    )
+                )
             except ScrawlerError as exc:
                 failures.append(exc)
                 logger.warning("Skipping unavailable news category", exc_info=True)
