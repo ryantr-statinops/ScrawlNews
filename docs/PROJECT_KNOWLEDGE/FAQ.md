@@ -23,7 +23,7 @@ Xem chi tiết: [docs/GUIDES/setup.md](../GUIDES/setup.md).
 | **Worker/Beat** | celery native | Docker |
 | **Redis** | Docker (chỉ redis) | Docker (full stack) |
 | **Nginx** | Docker | Docker |
-| **Hot-reload code** | ✅ Native watcher | Cần `docker compose restart` |
+| **Hot-reload code** | ✅ Native watcher | Cần `docker-compose restart` |
 | **Parity prod** | ✅ Qua Nginx :80 | ✅ Qua Nginx :80 |
 
 Cả 2 đều parity Nginx, chọn 1.
