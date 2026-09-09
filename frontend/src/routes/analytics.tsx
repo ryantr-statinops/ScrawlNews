@@ -7,6 +7,7 @@ import { analyticsApi } from "../features/analytics/api";
 import { ContentTab } from "../features/analytics/ContentTab";
 import { OverviewTab } from "../features/analytics/OverviewTab";
 import { PipelineTab } from "../features/analytics/PipelineTab";
+import { SourcesTab } from "../features/analytics/SourcesTab";
 import type { AnalyticsTab } from "../features/analytics/types";
 import { useAnalyticsFilters } from "../features/analytics/useAnalyticsFilters";
 
@@ -36,7 +37,8 @@ export function AnalyticsPage() {
         <Tabs.Panel value="overview"><OverviewTab filters={filters} /></Tabs.Panel>
         <Tabs.Panel value="content"><ContentTab filters={filters} /></Tabs.Panel>
         <Tabs.Panel value="pipeline"><PipelineTab filters={filters} /></Tabs.Panel>
-        {(["sources", "ai-usage"] as const).map((name) => (
+        <Tabs.Panel value="sources"><SourcesTab filters={filters} /></Tabs.Panel>
+        {(["ai-usage"] as const).map((name) => (
           <Tabs.Panel value={name} key={name}><Card withBorder><Text c="dimmed">The {name} workspace is being connected.</Text></Card></Tabs.Panel>
         ))}
       </Tabs>
