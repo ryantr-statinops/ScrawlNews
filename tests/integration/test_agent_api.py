@@ -26,3 +26,26 @@ def test_agent_run_exposes_dry_run_and_audit(api_client):
     assert approval_body["executed"] is True
     assert approval_body["backup_path"].endswith(".db")
     assert api_client.post(f"/agent/approve/{correlation_id}").status_code == 409
+
+
+def test_agent_approval_queues_pipeline_dry_run(api_client, monkeypatch):
+    class FakeTask:
+        id = "task-agent-dry-run"
+
+    monkeypatch.setattr(
+        "src.worker.tasks.pipeline_run.delay",
+        lambda **kwargs: FakeTask(),
+    )
+    response = api_client.post("/agent/run", json={"request": "refresh"})
+    correlation_id = response.json()["decision"]["correlation_id"]
+
+    approval = api_client.post(f"/agent/approve/{correlation_id}")
+
+    assert approval.status_code == 200
+    assert approval.json() == {
+        "correlation_id": correlation_id,
+        "status": "completed",
+        "executed": True,
+        "task_id": "task-agent-dry-run",
+        "dry_run": True,
+    }
