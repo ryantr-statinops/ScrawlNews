@@ -1,4 +1,5 @@
 import asyncio
+from typing import cast
 
 from telegram import Bot
 from telegram.error import BadRequest, NetworkError, RetryAfter, TelegramError
@@ -58,9 +59,8 @@ class MessengerService(BaseService):
         return messages
 
     async def send_messages(self, chat_id: str, messages: list[str]) -> bool:
-        token = settings.telegram_bot_token
-        if not token:
-            raise MessengerError("Telegram bot token is not configured", retryable=False)
+        # execute() validates credentials before invoking this transport helper.
+        token = cast(str, settings.telegram_bot_token)
         try:
             bot = Bot(token=token)
             for msg in messages:
