@@ -20,7 +20,7 @@ export function AnalyticsFilters({ value, onChange, categories, sources, provide
     onChange({ ...value, [key]: next });
 
   return (
-    <Group gap="sm" align="end" wrap="wrap" aria-label="Analytics filters">
+    <Group gap="sm" align="end" wrap="wrap" role="group" aria-label="Analytics filters">
       <Select
         label="Window"
         value={value.window}

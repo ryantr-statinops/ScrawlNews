@@ -36,22 +36,22 @@ export function PipelineTab({ filters }: { filters: AnalyticsFiltersState }) {
       <SimpleGrid cols={{ base: 1, xl: 2 }}>
         <Card withBorder>
           <Title order={4} mb="sm">Recent runs</Title>
-          <Table striped highlightOnHover>
+          <Table.ScrollContainer minWidth={560}><Table striped highlightOnHover>
             <Table.Thead><Table.Tr><Table.Th>Run</Table.Th><Table.Th>Status</Table.Th><Table.Th>Articles</Table.Th><Table.Th>Started</Table.Th></Table.Tr></Table.Thead>
             <Table.Tbody>{runs.map((run) => {
               const id = String(run.id);
               const status = String(run.status);
               return <Table.Tr key={id} onClick={() => setSelection({ title: `Run ${id}`, kind: "stages", params: { run_id: id }, href: "/runs", hrefLabel: "Open Runs" })} style={{ cursor: "pointer" }}><Table.Td>{id.slice(0, 8)}</Table.Td><Table.Td><Badge color={status === "success" ? "teal" : status === "failed" ? "red" : "blue"} variant="light">{status}</Badge></Table.Td><Table.Td>{run.articles_fetched ?? 0}</Table.Td><Table.Td>{run.started_at ? new Date(String(run.started_at)).toLocaleString() : "—"}</Table.Td></Table.Tr>;
             })}</Table.Tbody>
-          </Table>
+          </Table></Table.ScrollContainer>
           {!runs.length ? <Text c="dimmed" py="lg">No pipeline runs in this window.</Text> : null}
         </Card>
         <Card withBorder>
           <Title order={4} mb="sm">Error breakdown</Title>
-          <Table striped>
+          <Table.ScrollContainer minWidth={420}><Table striped>
             <Table.Thead><Table.Tr><Table.Th>Stage</Table.Th><Table.Th>Error class</Table.Th><Table.Th>Count</Table.Th></Table.Tr></Table.Thead>
             <Table.Tbody>{errors.map((error) => <Table.Tr key={`${error.stage}-${error.error_class}`}><Table.Td>{error.stage}</Table.Td><Table.Td>{error.error_class}</Table.Td><Table.Td>{error.count}</Table.Td></Table.Tr>)}</Table.Tbody>
-          </Table>
+          </Table></Table.ScrollContainer>
           {!errors.length ? <Text c="teal" py="lg">No stage errors recorded.</Text> : null}
         </Card>
       </SimpleGrid>

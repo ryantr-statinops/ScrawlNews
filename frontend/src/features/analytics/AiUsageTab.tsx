@@ -23,13 +23,13 @@ function Breakdown({ title, dimension, rows, onSelect }: BreakdownProps) {
   return (
     <Card withBorder>
       <Title order={4} mb="sm">{title}</Title>
-      <Table striped highlightOnHover>
+      <Table.ScrollContainer minWidth={440}><Table striped highlightOnHover>
         <Table.Thead><Table.Tr><Table.Th>{dimension}</Table.Th><Table.Th>Requests</Table.Th><Table.Th>Tokens</Table.Th><Table.Th>Failures</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>{rows.map((row) => {
           const value = String(row[dimension]);
           return <Table.Tr key={value} onClick={() => onSelect({ title: `${title}: ${value}`, kind: "llm", params: { [dimension]: value } })} style={{ cursor: "pointer" }}><Table.Td>{value}</Table.Td><Table.Td>{row.requests}</Table.Td><Table.Td>{Number(row.total_tokens).toLocaleString()}</Table.Td><Table.Td>{row.failures}</Table.Td></Table.Tr>;
         })}</Table.Tbody>
-      </Table>
+      </Table></Table.ScrollContainer>
       {!rows.length ? <Text c="dimmed" py="lg">No AI calls recorded.</Text> : null}
     </Card>
   );
@@ -55,7 +55,7 @@ export function AiUsageTab({ filters }: { filters: AnalyticsFiltersState }) {
         <KpiCard label="Median latency" metric={kpis.median_latency_ms} format={milliseconds} inverse onClick={inspectCalls} />
         <KpiCard label="P95 latency" metric={kpis.p95_latency_ms} format={milliseconds} inverse onClick={inspectCalls} />
       </SimpleGrid>
-      <Card withBorder mb="md" onClick={inspectCalls} style={{ cursor: "pointer" }}>
+      <Card withBorder mb="md" role="button" tabIndex={0} aria-label="Inspect LLM calls" onKeyDown={(event) => { if (event.key === "Enter") inspectCalls(); }} onClick={inspectCalls} style={{ cursor: "pointer" }}>
         <Title order={4} mb="sm">Token usage trend</Title>
         <BarChart categories={trend.map((row) => row.timestamp)} series={trend.map((row) => row.input_tokens)} secondarySeries={trend.map((row) => row.output_tokens)} seriesName="input tokens" secondarySeriesName="output tokens" />
       </Card>

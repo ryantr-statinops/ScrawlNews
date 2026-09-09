@@ -46,7 +46,7 @@ export function OverviewTab({ filters }: { filters: AnalyticsFiltersState }) {
         <KpiCard label="Pipeline success" metric={kpis.pipeline_success_rate} format={percent} onClick={() => setSelection({ title: "Pipeline runs", kind: "runs", href: "/runs", hrefLabel: "Open Runs" })} />
         <KpiCard label="Total tokens" metric={kpis.total_tokens} onClick={() => setSelection({ title: "LLM calls", kind: "llm" })} />
       </SimpleGrid>
-      <Card withBorder mb="md" onClick={() => setSelection({ title: "Content records", kind: "articles", href: "/", hrefLabel: "Open Feed" })} style={{ cursor: "pointer" }}>
+      <Card withBorder mb="md" role="button" tabIndex={0} aria-label="Inspect content records" onKeyDown={(event) => { if (event.key === "Enter") setSelection({ title: "Content records", kind: "articles", href: "/", hrefLabel: "Open Feed" }); }} onClick={() => setSelection({ title: "Content records", kind: "articles", href: "/", hrefLabel: "Open Feed" })} style={{ cursor: "pointer" }}>
         <Group justify="space-between" mb="sm">
           <div><Title order={4}>News velocity</Title><Text size="xs" c="dimmed">Articles and summaries · {period.timezone}</Text></div>
           <Group gap="xs"><FileText size={16} /><Sparkles size={16} /></Group>
@@ -56,17 +56,17 @@ export function OverviewTab({ filters }: { filters: AnalyticsFiltersState }) {
       <SimpleGrid cols={{ base: 1, lg: 2 }}>
         <Card withBorder>
           <Group gap="xs" mb="sm"><Title order={4}>Category snapshot</Title></Group>
-          <Table highlightOnHover>
+          <Table.ScrollContainer minWidth={420}><Table highlightOnHover>
             <Table.Thead><Table.Tr><Table.Th>Category</Table.Th><Table.Th>Articles</Table.Th><Table.Th>Change</Table.Th></Table.Tr></Table.Thead>
             <Table.Tbody>{categories.map((row) => <Table.Tr key={String(row.category)} onClick={() => setSelection({ title: String(row.category), kind: "articles", params: { category: String(row.category) }, href: `/?category=${encodeURIComponent(String(row.category))}`, hrefLabel: "Open filtered Feed" })} style={{ cursor: "pointer" }}><Table.Td>{String(row.category)}</Table.Td><Table.Td>{row.current}</Table.Td><Table.Td>{row.delta > 0 ? "+" : ""}{row.delta}</Table.Td></Table.Tr>)}</Table.Tbody>
-          </Table>
+          </Table></Table.ScrollContainer>
         </Card>
         <Card withBorder>
           <Group gap="xs" mb="sm"><RadioTower size={18} /><Title order={4}>Source snapshot</Title></Group>
-          <Table highlightOnHover>
+          <Table.ScrollContainer minWidth={420}><Table highlightOnHover>
             <Table.Thead><Table.Tr><Table.Th>Source</Table.Th><Table.Th>Articles</Table.Th><Table.Th>Change</Table.Th></Table.Tr></Table.Thead>
             <Table.Tbody>{sources.map((row) => <Table.Tr key={String(row.source)} onClick={() => setSelection({ title: String(row.source), kind: "articles", params: { source_id: String(row.source) }, href: `/?source_id=${encodeURIComponent(String(row.source))}`, hrefLabel: "Open filtered Feed" })} style={{ cursor: "pointer" }}><Table.Td>{String(row.source)}</Table.Td><Table.Td>{row.current}</Table.Td><Table.Td>{row.delta > 0 ? "+" : ""}{row.delta}</Table.Td></Table.Tr>)}</Table.Tbody>
-          </Table>
+          </Table></Table.ScrollContainer>
           {!sources.length ? <Group justify="center" py="xl"><Clock3 size={18} /><Text c="dimmed">No source activity yet.</Text></Group> : null}
         </Card>
       </SimpleGrid>

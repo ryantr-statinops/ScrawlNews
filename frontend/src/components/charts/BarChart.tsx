@@ -16,11 +16,12 @@ export function BarChart({ categories, series, secondarySeries, seriesName = "ar
   const gridColor = isDark ? "#373A40" : "#DEE2E6";
   return (
     <Chart
+      key={colorScheme}
       type="bar"
       height={280}
       series={secondarySeries ? [{ name: seriesName, data: series }, { name: secondarySeriesName, data: secondarySeries }] : [{ name: seriesName, data: series }]}
       options={{
-        chart: { foreColor: chartText, background: "transparent", toolbar: { show: false } },
+        chart: { foreColor: chartText, background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
         xaxis: { categories, labels: { style: { colors: chartText } } },
         yaxis: { labels: { style: { colors: chartText } } },
         grid: { borderColor: gridColor },

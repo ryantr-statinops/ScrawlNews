@@ -12,11 +12,12 @@ export function DonutChart({ labels, series }: DonutChartProps) {
   const chartText = isDark ? "#C1C2C5" : "#495057";
   return (
     <Chart
+      key={colorScheme}
       type="donut"
       height={260}
       series={series}
       options={{
-        chart: { foreColor: chartText, background: "transparent", toolbar: { show: false } },
+        chart: { foreColor: chartText, background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
         labels,
         legend: { position: "bottom", labels: { colors: chartText } },
         dataLabels: { enabled: false },
