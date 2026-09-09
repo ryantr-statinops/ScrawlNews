@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { TextInput, Select, Button, Group, Pagination, Text, NumberInput, Card, SimpleGrid, Title } from "@mantine/core";
+import { TextInput, Select, Button, Group, Pagination, Text, NumberInput, Card, SimpleGrid, Title, Drawer, Anchor } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
 import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
@@ -8,7 +8,7 @@ import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
-import type { Digest } from "../types/api";
+import type { Article, Digest } from "../types/api";
 
 const PAGE_SIZE = 20;
 
@@ -23,6 +23,7 @@ export function FeedPage() {
   const [toDate, setToDate] = useState("");
   const [submittedDates, setSubmittedDates] = useState({ from: "", to: "" });
   const [runLimit, setRunLimit] = useState<number | string>("");
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
   const digestQuery = useQuery({ queryKey: ["digests"], queryFn: () => fetchDigests() });
@@ -130,7 +131,17 @@ export function FeedPage() {
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
       {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
-      {articles.length > 0 ? <FeedTable articles={articles} /> : null}
+      {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
+      <Drawer opened={selectedArticle !== null} onClose={() => setSelectedArticle(null)} title={selectedArticle?.title} position="right" size="lg">
+        {selectedArticle ? (
+          <>
+            <Text size="sm" c="dimmed" mb="md">{selectedArticle.source ?? "Unknown source"} · {selectedArticle.category ?? "uncategorized"}</Text>
+            <Text size="sm" mb="md">Published: {selectedArticle.published_at ? new Date(selectedArticle.published_at).toLocaleString() : "-"}</Text>
+            <Text mb="md">{selectedArticle.content || "No extracted content available."}</Text>
+            <Anchor href={selectedArticle.url} target="_blank" rel="noreferrer">Open original article</Anchor>
+          </>
+        ) : null}
+      </Drawer>
       {totalPages > 1 ? (
         <Group justify="space-between" mt="md">
           <Text size="sm" c="dimmed">
