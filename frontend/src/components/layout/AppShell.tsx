@@ -10,8 +10,7 @@ const navItems = [
   { to: "/runs", label: "Runs" },
   { to: "/delivery", label: "Delivery" },
   { to: "/analytics", label: "Analytics" },
-  { to: "/health", label: "Health" },
-  { to: "/config", label: "Config" },
+  { to: "/settings", label: "Settings" },
   { to: "/agent", label: "Agent" },
 ];
 
