@@ -9,6 +9,7 @@ from src.agent.models import Observation
 from src.config import settings
 from src.repositories.agent_audit_repo import AgentAuditRepository
 from src.repositories.article_repo import ArticleRepository
+from src.repositories.run_repo import PipelineRunRepository
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
@@ -31,7 +32,7 @@ def observe_system() -> Observation:
     except redis.RedisError:
         redis_ok = False
 
-    db_path = ArticleRepository(settings.database_url).db_path if db_ok else ""
+    db_path = PipelineRunRepository(settings.database_url).db_path if db_ok else ""
     active_runs = 0
     if db_path:
         with sqlite3.connect(db_path) as connection:
