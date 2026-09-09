@@ -62,8 +62,9 @@ def pipeline_run(
         if "article_ids" not in checkpoint:
             stage = "fetch"
             with track_stage(telemetry, run_id, stage) as event:
+                scrawler = ScrawlerService()
                 articles = asyncio.run(
-                    ScrawlerService().execute(
+                    scrawler.execute(
                         limit=fetch_limit or settings.fetch_limit, categories=categories
                     )
                 )
@@ -73,6 +74,19 @@ def pipeline_run(
             with track_stage(telemetry, run_id, stage) as event:
                 new_articles = [a for a in articles if article_repo.save(a)]
                 event["item_count"] = len(new_articles)
+            for source_event in getattr(scrawler, "fetch_events", []):
+                new_count = sum(
+                    1
+                    for article in new_articles
+                    if article.source == source_event["source_name"]
+                    or article.category == source_event["category"]
+                )
+                telemetry.record_source_fetch(
+                    run_id=run_id,
+                    **source_event,
+                    new_count=new_count,
+                    duplicate_count=max(0, source_event["fetched_count"] - new_count),
+                )
             checkpoint["article_ids"] = [a.id for a in new_articles]
         elif "summary_ids" not in checkpoint:
             stage = "load articles"
