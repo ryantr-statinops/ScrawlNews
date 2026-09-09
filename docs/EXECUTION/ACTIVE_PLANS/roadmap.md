@@ -15,7 +15,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 | **Stage 3: Full 6 Features** | Đủ 6 nhóm + FE/BE 77 passed + quality | Summaries/Delivery/Health/Analytics + Ruff/MyPy | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
 | **Stage 4: Polish + Deploy** | Parity + GA verify | `make dev` Nginx parity + GA cron + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
 
-**DB thuần local**: Stage 1–4 đều dùng `SQLite file` `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
+**DB thuần local**: SQLite file `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
 **Testing FE+BE**: Có Vitest + Pytest; test batch backend hiện còn cần điều tra.
 
 ---
