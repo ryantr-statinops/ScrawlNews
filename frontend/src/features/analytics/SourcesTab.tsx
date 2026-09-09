@@ -33,7 +33,7 @@ export function SourcesTab({ filters }: { filters: AnalyticsFiltersState }) {
       </SimpleGrid>
       <Card withBorder>
         <Group justify="space-between" mb="sm"><Title order={4}>Source health</Title><Text size="xs" c="dimmed">Click a source to inspect fetch history</Text></Group>
-        <Table striped highlightOnHover>
+        <Table.ScrollContainer minWidth={850}><Table striped highlightOnHover>
           <Table.Thead><Table.Tr><Table.Th>Source</Table.Th><Table.Th>Health</Table.Th><Table.Th>Yield</Table.Th><Table.Th>Duplicates</Table.Th><Table.Th>Latency P95</Table.Th><Table.Th>Last success</Table.Th></Table.Tr></Table.Thead>
           <Table.Tbody>{sources.map((source) => (
             <Table.Tr key={source.source_id} onClick={() => setSelection({ title: source.source_name, kind: "sources", params: { source_id: source.source_id }, href: `/?source_id=${encodeURIComponent(source.source_name)}`, hrefLabel: "Open source articles" })} style={{ cursor: "pointer" }}>
@@ -45,7 +45,7 @@ export function SourcesTab({ filters }: { filters: AnalyticsFiltersState }) {
               <Table.Td>{source.last_success_at ? new Date(source.last_success_at).toLocaleString() : "Never"}</Table.Td>
             </Table.Tr>
           ))}</Table.Tbody>
-        </Table>
+        </Table></Table.ScrollContainer>
         {!sources.length ? <Text c="dimmed" py="xl" ta="center">No source telemetry in this period. Run the pipeline to establish a baseline.</Text> : null}
       </Card>
       <AnalyticsDrawer selection={selection} filters={filters} onClose={() => setSelection(null)} />

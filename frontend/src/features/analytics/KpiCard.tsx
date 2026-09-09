@@ -25,9 +25,13 @@ export function KpiCard({ label, metric, format = defaultFormat, inverse = false
       padding="lg"
       onClick={onClick}
       role={onClick ? "button" : undefined}
+      aria-label={onClick ? `Inspect ${label}` : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={(event) => {
-        if (onClick && (event.key === "Enter" || event.key === " ")) onClick();
+        if (onClick && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          onClick();
+        }
       }}
       style={{ cursor: onClick ? "pointer" : undefined }}
     >
