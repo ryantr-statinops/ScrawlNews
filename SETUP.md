@@ -14,8 +14,8 @@ cd ScrawlNews
 make install
 cp .env.example .env
 # edit .env with LLM_API_KEY, TELEGRAM_BOT_TOKEN if needed
-docker compose up
-# http://localhost
+docker-compose up
+# http://localhost:6767
 # http://localhost:8000/docs
 ```
 
