@@ -8,6 +8,7 @@ __pycache__/
 .ruff_cache/
 .pytest_cache/
 .venv/
+.venv311/
 frontend/node_modules/
 frontend/dist/
 frontend-legacy/node_modules/
