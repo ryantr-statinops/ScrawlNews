@@ -38,6 +38,12 @@ def test_trigger_run_with_fetch_limit():
         mock.assert_called_once_with(50, False, None)
 
 
+@pytest.mark.parametrize("fetch_limit", [0, 101])
+def test_trigger_run_rejects_out_of_range_fetch_limit(fetch_limit: int):
+    r = client.post(f"/api/runs?fetch_limit={fetch_limit}")
+    assert r.status_code == 422
+
+
 def test_trigger_run_with_categories():
     with patch("src.api.routes.runs.pipeline_run.delay") as mock:
         mock.return_value.id = "task123"
