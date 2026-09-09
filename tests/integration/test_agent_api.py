@@ -17,3 +17,12 @@ def test_agent_run_exposes_dry_run_and_audit(api_client):
         "act",
         "verify",
     ]
+
+    approval_response = api_client.post(f"/agent/approve/{correlation_id}")
+    assert approval_response.status_code == 200
+    assert approval_response.json() == {
+        "correlation_id": correlation_id,
+        "status": "approved",
+        "executed": False,
+    }
+    assert api_client.post(f"/agent/approve/{correlation_id}").status_code == 409
