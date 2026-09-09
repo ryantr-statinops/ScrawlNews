@@ -4,6 +4,7 @@ import { Activity, BarChart3, Bot, RadioTower, Workflow } from "lucide-react";
 import { PageHeader } from "../components/ui/PageHeader";
 import { AnalyticsFilters } from "../features/analytics/AnalyticsFilters";
 import { analyticsApi } from "../features/analytics/api";
+import { ContentTab } from "../features/analytics/ContentTab";
 import { OverviewTab } from "../features/analytics/OverviewTab";
 import type { AnalyticsTab } from "../features/analytics/types";
 import { useAnalyticsFilters } from "../features/analytics/useAnalyticsFilters";
@@ -32,7 +33,8 @@ export function AnalyticsPage() {
           <Tabs.Tab value="ai-usage" leftSection={<Bot size={15} />}>AI Usage</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="overview"><OverviewTab filters={filters} /></Tabs.Panel>
-        {(["content", "pipeline", "sources", "ai-usage"] as const).map((name) => (
+        <Tabs.Panel value="content"><ContentTab filters={filters} /></Tabs.Panel>
+        {(["pipeline", "sources", "ai-usage"] as const).map((name) => (
           <Tabs.Panel value={name} key={name}><Card withBorder><Text c="dimmed">The {name} workspace is being connected.</Text></Card></Tabs.Panel>
         ))}
       </Tabs>
