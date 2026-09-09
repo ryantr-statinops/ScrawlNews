@@ -55,7 +55,7 @@ server {
 
 ```bash
 # Make dev (parity Nginx trong Docker):
-make dev   # docker compose --profile dev up nginx redis -d + concurrently uvicorn + celery worker/beat + vite
+make dev   # docker-compose dev services + concurrently uvicorn + celery worker/beat + vite
 make worker
 make beat
 go run ./cmd/newsctl --help   # Cobra stub
@@ -98,7 +98,7 @@ Secrets: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `LLM_API_KEY`, `OPENROUTER_AP
 | OmniRoute host: Fly.io | 3 shared VMs, 256MB RAM | ✅ Free, ổn định |
 | Render | Free web, 512MB | ⚠️ Spin-down 15min |
 | Railway | — | ❌ $5/tháng |
-| Database: SQLite local | File-based | ✅ Stage 1–4 (thuần local) |
+| Database: SQLite local | File-based | ✅ Current local architecture |
 | Turso | 5GB free | ✅ Nếu cần remote (Phase 2+) |
 
 ## Deployment Architecture (tổng, DB thuần local)
@@ -110,7 +110,7 @@ GitHub Actions (free) → cron 4 lần/ngày → pipeline → OmniRoute → Open
 
 ## Verify Checklist (Stage 4)
 
-- [ ] `docker compose config` passed với .env
+- [x] `docker-compose config` passed với .env
 - [ ] `make dev` parity Nginx ok
 - [ ] `go run ./cmd/newsctl --help` ok
 - [ ] `pytest` + `npm run test` green
