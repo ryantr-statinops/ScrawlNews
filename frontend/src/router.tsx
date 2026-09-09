@@ -7,6 +7,7 @@ import { DeliveryPage } from "./routes/delivery";
 import { AnalyticsPage } from "./routes/analytics";
 import { HealthPage } from "./routes/health";
 import { ConfigPage } from "./routes/config";
+import { AgentPage } from "./routes/agent";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -31,6 +32,7 @@ const deliveryRoute = withRoot("/delivery", DeliveryPage);
 const analyticsRoute = withRoot("/analytics", AnalyticsPage);
 const healthRoute = withRoot("/health", HealthPage);
 const configRoute = withRoot("/config", ConfigPage);
+const agentRoute = withRoot("/agent", AgentPage);
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -40,6 +42,7 @@ const routeTree = rootRoute.addChildren([
   analyticsRoute,
   healthRoute,
   configRoute,
+  agentRoute,
 ]);
 
 export const router = createRouter({ routeTree });
