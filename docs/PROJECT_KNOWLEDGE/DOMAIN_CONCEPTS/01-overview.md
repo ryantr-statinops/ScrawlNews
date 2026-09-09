@@ -34,7 +34,7 @@ Google News RSS -> Scrawler -> Articles -> Synthesizer -> Summaries -> Messenger
 
 ## Trạng thái hiện tại
 
-Xem [CURRENT_STATE.md](../CURRENT_STATE.md) để biết chi tiết đã build được gì (Stage 1–4 DONE).
+Xem [CURRENT_STATE.md](../CURRENT_STATE.md) để biết chi tiết đã build và kiểm chứng được gì.
 
 ## References
 
