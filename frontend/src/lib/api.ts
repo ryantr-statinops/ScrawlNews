@@ -9,12 +9,15 @@ export async function fetchRuns() {
   return res.json();
 }
 
-export async function triggerRun(fetch_limit?: number) {
-  const res = await fetch("/api/runs", {
+export async function triggerRun(fetch_limit?: number, categories?: string[]) {
+  const params = new URLSearchParams();
+  if (fetch_limit !== undefined) params.set("fetch_limit", String(fetch_limit));
+  if (categories?.length) params.set("categories", categories.join(","));
+  const query = params.toString();
+  const res = await fetch(`/api/runs${query ? `?${query}` : ""}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fetch_limit }),
   });
+  if (!res.ok) throw new Error(`Failed to trigger run: ${res.status}`);
   return res.json();
 }
 
