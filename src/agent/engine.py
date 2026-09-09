@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from src.agent.models import Decision, Observation, Verification
 from src.agent.policy import AgentPolicy
 from src.repositories.agent_audit_repo import AgentAuditRepository
@@ -18,15 +20,21 @@ class AgentEngine:
         self.audit_repository.record(
             correlation_id, "observe", "ok" if observation.healthy else "failed", self._observation_message(observation)
         )
+        if decision.status == "ready" and decision.action is not None:
+            decision = replace(
+                decision,
+                status="pending_approval",
+                reason="Action is allowed but requires explicit approval",
+            )
         self.audit_repository.record(correlation_id, "decide", decision.status, decision.reason)
 
-        if decision.status != "ready" or decision.action is None:
+        if decision.status != "pending_approval" or decision.action is None:
             verification = Verification("skipped", "No action was approved", correlation_id)
             self.audit_repository.record(correlation_id, "verify", verification.status, verification.message)
             return decision, verification
 
-        action_message = f"Dry-run: {decision.action.kind} was not executed"
-        self.audit_repository.record(correlation_id, "act", "skipped", action_message)
+        action_message = f"Awaiting approval for {decision.action.kind}"
+        self.audit_repository.record(correlation_id, "act", "pending_approval", action_message)
         verification = Verification("skipped", "Action execution awaits explicit approval", correlation_id)
         self.audit_repository.record(correlation_id, "verify", verification.status, verification.message)
         return decision, verification
