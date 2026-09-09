@@ -20,9 +20,9 @@ def test_agent_run_exposes_dry_run_and_audit(api_client):
 
     approval_response = api_client.post(f"/agent/approve/{correlation_id}")
     assert approval_response.status_code == 200
-    assert approval_response.json() == {
-        "correlation_id": correlation_id,
-        "status": "approved",
-        "executed": False,
-    }
+    approval_body = approval_response.json()
+    assert approval_body["correlation_id"] == correlation_id
+    assert approval_body["status"] == "completed"
+    assert approval_body["executed"] is True
+    assert approval_body["backup_path"].endswith(".db")
     assert api_client.post(f"/agent/approve/{correlation_id}").status_code == 409
