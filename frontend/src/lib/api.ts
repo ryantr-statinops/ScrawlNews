@@ -26,6 +26,13 @@ export async function fetchConfig() {
   return res.json();
 }
 
+export async function fetchDigests(category?: string) {
+  const query = category ? `?category=${encodeURIComponent(category)}` : "";
+  const res = await fetch(`/api/digests${query}`);
+  if (!res.ok) throw new Error(`Failed to fetch digests: ${res.status}`);
+  return res.json();
+}
+
 export async function updateConfig(payload: Record<string, unknown>) {
   const res = await fetch("/api/config", {
     method: "PUT",

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { TextInput, Select, Button, Group, Pagination, Text, NumberInput } from "@mantine/core";
+import { TextInput, Select, Button, Group, Pagination, Text, NumberInput, Card, SimpleGrid, Title } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
-import { fetchConfig, triggerRun } from "../lib/api";
+import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
+import type { Digest } from "../types/api";
 
 const PAGE_SIZE = 20;
 
@@ -21,6 +22,7 @@ export function FeedPage() {
   const [runLimit, setRunLimit] = useState<number | string>("");
 
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
+  const digestQuery = useQuery({ queryKey: ["digests"], queryFn: () => fetchDigests() });
   const configuredFetchLimit = Number(configQuery.data?.fetch_limit ?? 20);
   const updateFeed = useMutation({
     mutationFn: () => triggerRun(
@@ -50,6 +52,7 @@ export function FeedPage() {
   const total = data?.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const sources = Array.from(new Set(articles.map((a) => a.source).filter(Boolean))) as string[];
+  const digests: Digest[] = digestQuery.data?.digests ?? [];
 
   const search = () => {
     setPage(1);
@@ -100,6 +103,22 @@ export function FeedPage() {
           Search
         </Button>
       </Group>
+      {digests.length > 0 ? (
+        <Card withBorder mb="md">
+          <Title order={4} mb="sm">Topic digests</Title>
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
+            {digests.map((digest) => (
+              <Card key={digest.id} withBorder shadow="xs">
+                <Text fw={600}>{digest.title}</Text>
+                <Text size="sm" c="dimmed" mb="xs">
+                  {digest.category} · {digest.article_count} articles
+                </Text>
+                <Text size="sm">{digest.digest_text}</Text>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </Card>
+      ) : null}
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
       {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
