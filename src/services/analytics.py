@@ -565,6 +565,91 @@ class AnalyticsService:
             "operations": self._usage_breakdown(rows, "operation"),
         }
 
+    def drilldown(
+        self,
+        kind: str,
+        window: str = "24h",
+        category: str | None = None,
+        source_id: str | None = None,
+        provider: str | None = None,
+        model: str | None = None,
+        run_id: str | None = None,
+        operation: str | None = None,
+        limit: int = 50,
+    ) -> dict:
+        period = self.period(window)
+        start, end = self._bounds(period)
+        limit = min(max(limit, 1), 100)
+        with self._connect() as conn:
+            if kind == "articles":
+                filters, params = self._filters(category=category, source_id=source_id)
+                rows = conn.execute(
+                    """SELECT id, title, url, source, category, published_at, fetched_at,
+                    summarized FROM articles WHERE fetched_at >= ? AND fetched_at < ?"""
+                    + filters
+                    + " ORDER BY fetched_at DESC LIMIT ?",
+                    [start, end, *params, limit],
+                ).fetchall()
+            elif kind == "runs":
+                extra = " AND id = ?" if run_id else ""
+                run_params: list[object] = [
+                    start, end, *([run_id] if run_id else []), limit
+                ]
+                rows = conn.execute(
+                    "SELECT * FROM pipeline_runs WHERE started_at >= ? AND started_at < ?"
+                    + extra
+                    + " ORDER BY started_at DESC LIMIT ?",
+                    run_params,
+                ).fetchall()
+            elif kind == "stages":
+                extra = " AND run_id = ?" if run_id else ""
+                stage_params: list[object] = [
+                    start, end, *([run_id] if run_id else []), limit
+                ]
+                rows = conn.execute(
+                    """SELECT * FROM pipeline_stage_events
+                    WHERE started_at >= ? AND started_at < ?"""
+                    + extra
+                    + " ORDER BY started_at DESC LIMIT ?",
+                    stage_params,
+                ).fetchall()
+            elif kind == "sources":
+                extra = " AND source_id = ?" if source_id else ""
+                source_params: list[object] = [
+                    start, end, *([source_id] if source_id else []), limit
+                ]
+                rows = conn.execute(
+                    """SELECT * FROM source_fetch_events
+                    WHERE occurred_at >= ? AND occurred_at < ?"""
+                    + extra
+                    + " ORDER BY occurred_at DESC LIMIT ?",
+                    source_params,
+                ).fetchall()
+            elif kind == "llm":
+                filters, params = self._filters(provider=provider, model=model)
+                extra = " AND run_id = ?" if run_id else ""
+                if run_id:
+                    params.append(run_id)
+                if operation:
+                    extra += " AND operation = ?"
+                    params.append(operation)
+                rows = conn.execute(
+                    """SELECT id, run_id, operation, provider, model, input_tokens,
+                    output_tokens, total_tokens, latency_ms, status, error, occurred_at
+                    FROM llm_usage_events WHERE occurred_at >= ? AND occurred_at < ?"""
+                    + filters
+                    + extra
+                    + " ORDER BY occurred_at DESC LIMIT ?",
+                    [start, end, *params, limit],
+                ).fetchall()
+            else:
+                raise ValueError(f"Unsupported drilldown kind: {kind}")
+        return {
+            "period": period.as_dict(),
+            "kind": kind,
+            "records": [dict(row) for row in rows],
+        }
+
     @staticmethod
     def _usage_breakdown(rows: list[sqlite3.Row], key: str) -> list[dict]:
         grouped: dict[str, dict[str, int]] = defaultdict(
