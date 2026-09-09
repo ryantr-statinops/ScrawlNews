@@ -107,7 +107,9 @@ class ScrawlerService(BaseService):
         rss_url = source_url or f"https://news.google.com/rss/search?q={q}&hl=vi&gl=VN&ceid=VN:vi"
         if rss_url.startswith("google-news://"):
             google_query = rss_url.removeprefix("google-news://") or q
-            rss_url = f"https://news.google.com/rss/search?q={google_query}&hl=vi&gl=VN&ceid=VN:vi"
+            country = settings.news_country.lower()
+            language = "vi" if country == "vn" else "en"
+            rss_url = f"https://news.google.com/rss/search?q={google_query}&hl={language}&gl={country}&ceid={country}:{language}"
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.get(rss_url)

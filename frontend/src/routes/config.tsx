@@ -15,6 +15,8 @@ const schema = z.object({
   retention_days: z.number().min(1).max(30),
   schedule_times: z.string().min(5),
   schedule_timezone: z.string().min(3),
+  news_country: z.string().min(2),
+  news_city: z.string().min(2),
 });
 
 export function ConfigPage() {
@@ -33,6 +35,8 @@ export function ConfigPage() {
       retention_days: data?.retention_days ?? 7,
       schedule_times: data?.schedule_times ?? "08:00,12:00,18:00",
       schedule_timezone: data?.schedule_timezone ?? "Asia/Ho_Chi_Minh",
+      news_country: data?.news_country ?? "VN",
+      news_city: data?.news_city ?? "Hanoi",
     },
     validate: zodResolver(schema),
   });
@@ -63,6 +67,8 @@ export function ConfigPage() {
             <NumberInput label="Retention days" {...form.getInputProps("retention_days")} />
             <TextInput label="Daily run times" description="HH:MM values separated by commas" {...form.getInputProps("schedule_times")} />
             <TextInput label="Schedule timezone" {...form.getInputProps("schedule_timezone")} />
+            <TextInput label="News country" {...form.getInputProps("news_country")} />
+            <TextInput label="News city" {...form.getInputProps("news_city")} />
             <Button type="submit" loading={save.isPending}>
               Save
             </Button>
