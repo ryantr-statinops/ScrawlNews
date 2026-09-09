@@ -32,7 +32,7 @@ make test
 
 # 5. Run — 2 cách 1 terminal
 # Docker (có Nginx + Redis):
-docker compose up          # → http://localhost (Nginx), :8000/docs (API)
+docker-compose up -d --build # → http://localhost (Nginx), :8000/docs (API)
 # Local dev parity (cũng qua Nginx :80):
 make dev                    # nginx redis Docker + concurrently uvicorn + celery + vite
 # CLI:
@@ -74,7 +74,7 @@ Hot reload chỉ 4 vars (`fetch_limit`, `summary_lang`, `telegram_enabled`, `ret
 | `make run` | Pipeline CLI (`python src/main.py`) |
 | `make worker` | `celery -A src.worker.celery_app worker` |
 | `make beat` | `celery -A src.worker.celery_app beat` |
-| `make test` | Chạy tests |
+| `make test` | Chạy backend và frontend tests |
 | `make lint` | Ruff lint + format check |
 | `make typecheck` | MyPy |
 | `make clean` | Xóa cache, data, logs |
