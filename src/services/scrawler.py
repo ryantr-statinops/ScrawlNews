@@ -29,8 +29,11 @@ def _entry_datetime(entry) -> datetime | None:
 
 
 class ScrawlerService(BaseService):
-    async def execute(self, limit: int = 20, categories: list[str] | None = None) -> list[Article]:
+    def __init__(self) -> None:
         self.fetch_events: list[dict] = []
+
+    async def execute(self, limit: int = 20, categories: list[str] | None = None) -> list[Article]:
+        self.fetch_events = []
         configured_sources = self._configured_sources()
         if configured_sources:
             return await self.fetch_sources(configured_sources, limit)
