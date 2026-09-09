@@ -84,6 +84,7 @@ def pipeline_run(
             stage = "save summaries"
             for summary in summaries:
                 summary_repo.save(summary)
+                article_repo.mark_summarized(summary.article_id)
                 summaries_generated += 1
             checkpoint["summary_ids"] = [s.id for s in summaries]
         else:
