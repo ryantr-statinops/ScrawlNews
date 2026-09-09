@@ -34,8 +34,10 @@ def list_articles(
         if summarized is not None:
             sql += " AND summarized=?"
             params.append(summarized)
+        count_sql = sql
+        count_params = list(params)
         sql += " ORDER BY fetched_at DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
         rows = conn.execute(sql, params).fetchall()
-        total = conn.execute("SELECT COUNT(*) FROM articles").fetchone()[0]
+        total = conn.execute(count_sql.replace("SELECT *", "SELECT COUNT(*)"), count_params).fetchone()[0]
         return {"count": total, "articles": [dict(r) for r in rows]}
