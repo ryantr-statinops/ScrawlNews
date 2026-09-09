@@ -13,7 +13,7 @@ from src.repositories.agent_audit_repo import AgentAuditRepository
 from src.repositories.article_repo import ArticleRepository
 from src.repositories.run_repo import PipelineRunRepository
 
-router = APIRouter(prefix="/agent", tags=["agent"])
+router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 
 class AgentRequest(BaseModel):
