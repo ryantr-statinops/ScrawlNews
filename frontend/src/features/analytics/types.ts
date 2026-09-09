@@ -35,14 +35,14 @@ export interface OverviewResponse {
   period: AnalyticsPeriod;
   kpis: Record<string, ComparisonMetric>;
   alerts: Array<{ severity: "warning" | "error"; kind: string; count: number }>;
-  trend: Array<{ timestamp: string; articles: number }>;
+  trend: Array<{ timestamp: string; articles: number; summaries: number }>;
   categories: BreakdownRow[];
   sources: BreakdownRow[];
 }
 
 export interface ContentResponse {
   period: AnalyticsPeriod;
-  velocity: Array<{ timestamp: string; articles: number }>;
+  velocity: Array<{ timestamp: string; articles: number; summaries: number }>;
   categories: BreakdownRow[];
   sources: BreakdownRow[];
   diversity: number;

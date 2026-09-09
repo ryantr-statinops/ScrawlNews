@@ -319,6 +319,15 @@ class AnalyticsService:
                 "FROM articles WHERE fetched_at >= ? AND fetched_at < ?" + filters,
                 [start, end, *params],
             ).fetchall()
+            summary_filters, summary_params = self._filters(
+                alias="a", category=category, source_id=source_id
+            )
+            summary_rows = conn.execute(
+                """SELECT s.created_at FROM summaries s
+                JOIN articles a ON a.id = s.article_id
+                WHERE s.created_at >= ? AND s.created_at < ?""" + summary_filters,
+                [start, end, *summary_params],
+            ).fetchall()
             previous_rows = conn.execute(
                 "SELECT COALESCE(category, 'uncategorized') category, "
                 "COALESCE(source, 'unknown') source FROM articles "
@@ -341,7 +350,7 @@ class AnalyticsService:
             freshness[bucket] += 1
         return {
             "period": period.as_dict(),
-            "velocity": self._velocity(rows, period),
+            "velocity": self._velocity(rows, summary_rows, period),
             "categories": self._breakdown(current_categories, previous_categories, "category"),
             "sources": self._breakdown(current_sources, previous_sources, "source"),
             "diversity": len(current_sources),
@@ -363,16 +372,25 @@ class AnalyticsService:
         ]
 
     @staticmethod
-    def _velocity(rows: list[sqlite3.Row], period: AnalyticsPeriod) -> list[dict]:
+    def _velocity(
+        rows: list[sqlite3.Row], summary_rows: list[sqlite3.Row], period: AnalyticsPeriod
+    ) -> list[dict]:
         use_days = WINDOWS[period.window] > timedelta(days=2)
-        buckets: dict[str, int] = defaultdict(int)
+        buckets: dict[str, dict[str, int]] = defaultdict(
+            lambda: {"articles": 0, "summaries": 0}
+        )
         timezone = ZoneInfo(period.timezone)
         for row in rows:
             timestamp = datetime.fromisoformat(row["fetched_at"]).replace(tzinfo=UTC)
             local = timestamp.astimezone(timezone)
             label = local.strftime("%Y-%m-%d" if use_days else "%m-%d %H:00")
-            buckets[label] += 1
-        return [{"timestamp": key, "articles": buckets[key]} for key in sorted(buckets)]
+            buckets[label]["articles"] += 1
+        for row in summary_rows:
+            timestamp = datetime.fromisoformat(row["created_at"]).replace(tzinfo=UTC)
+            local = timestamp.astimezone(timezone)
+            label = local.strftime("%Y-%m-%d" if use_days else "%m-%d %H:00")
+            buckets[label]["summaries"] += 1
+        return [{"timestamp": key, **buckets[key]} for key in sorted(buckets)]
 
     def pipeline(self, window: str = "24h") -> dict:
         period = self.period(window)
