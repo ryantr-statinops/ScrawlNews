@@ -4,7 +4,7 @@
 
 ## Principles
 
-- Một terminal parity: `docker compose up` và `make dev` đều qua Nginx `:80`
+- Một terminal parity: `docker-compose up` và `make dev` đều qua Nginx `:80`
 - Progressive disclosure cho API docs
 
 ---
