@@ -101,6 +101,24 @@ sqlite3 data/scrawlnews.db "SELECT COUNT(*) FROM articles;"
 tail -f logs/scrawlnews.log
 ```
 
+### Backup & Restore SQLite
+
+Tạo một bản sao nhất quán của database local:
+
+```bash
+make backup
+```
+
+Khôi phục từ một backup cụ thể. Lệnh sẽ tạo safety backup của database hiện tại trước khi thay thế:
+
+```bash
+docker-compose stop api worker beat bot
+make restore BACKUP=backups/scrawlnews-YYYYMMDDTHHMMSSZ.db
+docker-compose start api worker beat bot
+```
+
+Không commit thư mục `backups/`; đây là dữ liệu local và đã được `.gitignore` loại trừ.
+
 ## Troubleshooting
 
 | Lỗi | Khắc phục |
