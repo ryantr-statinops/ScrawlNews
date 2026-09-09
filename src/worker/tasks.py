@@ -38,6 +38,10 @@ def pipeline_run(
     run_id = checkpoint.setdefault("run_id", self.request.id or str(uuid.uuid4()))
     repo = PipelineRunRepository(settings.database_url)
     telemetry = TelemetryRepository(settings.database_url)
+    try:
+        telemetry.cleanup(30)
+    except Exception:
+        logger.warning("Unable to clean expired analytics telemetry", exc_info=True)
     if _checkpoint is None:
         repo.create(
             PipelineRun(
