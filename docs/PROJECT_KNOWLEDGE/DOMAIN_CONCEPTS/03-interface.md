@@ -15,15 +15,18 @@
 
 - `GET /health`, `/api/articles`, `/api/summaries`, `/api/runs`
 - `POST /api/runs` trigger Celery
-- `PUT /api/config` chỉ 4 biến hot-reload
+- `PUT /api/config` cập nhật runtime settings được allow-list
 - `GET /api/config/history` audit
-- `GET /api/stats`, `GET /api/logs/stream` (SSE)
+- `GET /api/stats` legacy-compatible, `GET /api/logs/stream` (SSE)
+- Analytics Command Center: `GET /api/analytics/{overview|content|pipeline|sources|ai-usage|drilldown}`
+- Analytics query dùng `window=1h|4h|12h|24h|7d|30d`; filter tùy endpoint gồm `category`, `source_id`, `provider`, `model`, `country`
 - `GET /api/tasks/{id}` Celery task status
 - Full spec: `EXECUTION/ACTIVE_PLANS/specs/api.yaml`
 
 ### Web
 
-- 7 pages routing: Feed, Summaries, Runs, Delivery, Analytics, Health, Config
+- 7 trang chính: Feed, Summaries, Runs, Delivery, Analytics, Settings, Agent. Route Health và Config cũ vẫn được giữ tương thích.
+- Analytics có 5 tab: Overview, Content, Pipeline, Sources và AI Usage; filter được lưu trong URL, KPI so với kỳ trước và click mở drawer drill-down.
 - Tech stack chi tiết: xem [frontend/01-stack.md](frontend/01-stack.md) (Mantine UI + ApexCharts + TanStack Router + Zustand + SSE)
 
 ### Implementation (Stage 2–4)
@@ -31,6 +34,7 @@
 - Stage 2: `src/api/routes/articles.py` (q/source filter), `runs.py` (`POST pipeline_run.delay`), `config.py` (limited 4 vars), `health.py`
 - Stage 3: `src/api/routes/summaries.py` — `17f63da`, `logs.py` SSE + `stats.py` — `af8a5f7`, web Summaries/Delivery/Health/Analytics — `2332603`..`f1cc456`, `App.tsx` 7 pages — `ef147ab`
 - Stage 4: verify `docker-compose config` + `make dev` npx parity — `cedfbd8`
+- Command Center: analytics service/API — `8c9b4f98`..`07ce9b93`; 5 tab và shared filters — `9bc36dc7`..`547385c5`
 - Nginx: `/api → :8000`, `/ → :5173`, `/api/logs/stream` buffering off
 
 ## CLI
