@@ -40,7 +40,25 @@ class ScrawlerService(BaseService):
     def _configured_sources(self) -> list[dict]:
         from src.repositories.source_repo import NewsSourceRepository
 
-        return NewsSourceRepository(settings.database_url).list(enabled=True)
+        repository = NewsSourceRepository(settings.database_url)
+        stored = repository.list()
+        if not stored:
+            return []
+        stored_by_id = {source["id"]: source for source in stored}
+        defaults = [
+            source.__dict__.copy()
+            for source in self._default_sources()
+            if source.id not in stored_by_id
+        ]
+        return [source for source in defaults if source["enabled"]] + [
+            source for source in stored if source["enabled"]
+        ]
+
+    @staticmethod
+    def _default_sources():
+        from src.services.source_catalog import DEFAULT_SOURCES
+
+        return DEFAULT_SOURCES
 
     async def fetch_sources(self, sources: list[dict], limit: int = 20) -> list[Article]:
         limit_each = max(1, limit // max(1, len(sources)))
