@@ -17,7 +17,7 @@ export function KpiCard({ label, metric, format = defaultFormat, inverse = false
   const changed = metric.delta !== 0;
   const color = !changed ? "gray" : improved ? "teal" : "red";
   const Icon = !changed ? Minus : metric.delta > 0 ? ArrowUpRight : ArrowDownRight;
-  const delta = metric.delta_percent === null ? "New baseline" : `${Math.abs(metric.delta_percent)}%`;
+  const delta = !changed ? "No change" : metric.delta_percent === null ? "New baseline" : `${Math.abs(metric.delta_percent)}%`;
 
   return (
     <Card
