@@ -64,13 +64,23 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 - [x] Lấp feature: Feed search/filter + phân trang, Runs polling + cron note, Delivery stat cards, Analytics cost + donut, Config history, Health error board
 - [x] Verify `docker-compose up` với `frontend/` mới; dashboard local mở tại `http://localhost`
 
-## Local Release 1.0 — NEXT
+## Local Release 1.0 — COMPLETE
 
-- [ ] Làm pytest chạy ổn định theo batch
-- [ ] Chuẩn hóa MyPy theo Python 3.11
-- [ ] Xử lý graceful Telegram configuration
-- [ ] Cập nhật setup/testing documentation
-- [ ] Backup/restore SQLite và dependency audit
+- [x] Làm pytest chạy ổn định theo batch — 228 passed
+- [x] Chuẩn hóa MyPy theo Python 3.11
+- [x] Xử lý graceful Telegram configuration
+- [x] Cập nhật setup/testing documentation
+- [x] Backup/restore SQLite và dependency audit
+
+## Agent v1 — IMPLEMENTED
+
+- [x] Deterministic Observe → Decide → Act → Verify → Record lifecycle
+- [x] SQLite audit trail và correlation ID
+- [x] Approval gate cho mọi action
+- [x] Auto database backup sau approval
+- [x] Pipeline dry-run queue sau approval
+- [x] Dashboard Agent tại `/agent`
+- [x] `pip-audit` trong CI
 
 ## Stage 5+: Mở rộng (Post-MVP)
 
