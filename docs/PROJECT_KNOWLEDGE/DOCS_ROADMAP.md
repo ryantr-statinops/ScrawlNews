@@ -322,7 +322,7 @@ Thêm FAQ, QUICKSTART, polish README cho người mới onboard nhanh.
 
 ## Backlog (sau docs)
 
-- Setup Mantine + ApexCharts thực tế trong `web/`
+- Setup Mantine + ApexCharts thực tế trong `frontend/`
 - Migrate 7 pages từ inline style sang Mantine
 - Connect SSE log streaming
 - Implement dark mode toggle
