@@ -1,6 +1,6 @@
 import sqlite3
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from src.config import settings
 from src.repositories.run_repo import PipelineRunRepository
@@ -57,7 +57,7 @@ def runs_summary(days: int = 7):
 
 @router.post("/api/runs")
 def trigger_run(
-    fetch_limit: int | None = None,
+    fetch_limit: int | None = Query(None, ge=1, le=100),
     dry_run: bool = False,
     categories: str | None = None,
 ):
