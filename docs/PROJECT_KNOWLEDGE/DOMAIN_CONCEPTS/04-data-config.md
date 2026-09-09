@@ -69,7 +69,7 @@ CREATE INDEX idx_runs_started_at ON pipeline_runs(started_at DESC);
 
 - Tables: articles, summaries, pipeline_runs (+ settings/config_history Stage 3)
 - File mount `./data:/app/data`, backup = copy file
-- Không Turso/Neon ở Stage 1–4
+- Không Turso/Neon trong local architecture hiện tại
 
 **Implementation (Stage 1–3)**:
 - Stage 1: ArticleRepository, SummaryRepository, PipelineRunRepository với sqlite3 CREATE TABLE, indexes, `data/.gitkeep`
