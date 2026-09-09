@@ -1,10 +1,12 @@
 import sqlite3
+from pathlib import Path
 
 import redis
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from src.agent.engine import AgentEngine
+from src.agent.executor import AgentExecutor
 from src.agent.models import Observation
 from src.config import settings
 from src.repositories.agent_audit_repo import AgentAuditRepository
@@ -70,4 +72,21 @@ def approve_agent_action(correlation_id: str):
     if not pending:
         raise HTTPException(status_code=409, detail="Agent decision is not awaiting approval")
     audit.record(correlation_id, "approval", "approved", "Explicit approval recorded")
+    action_event = next(event for event in events if event["phase"] == "act")
+    if action_event["message"].endswith("database_backup"):
+        database_path = settings.database_url.replace("sqlite:///", "")
+        try:
+            target = AgentExecutor(database_path).execute_database_backup()
+        except (OSError, sqlite3.Error) as exc:
+            audit.record(correlation_id, "act", "failed", str(exc))
+            audit.record(correlation_id, "verify", "failed", "Approved backup execution failed")
+            return {"correlation_id": correlation_id, "status": "failed", "executed": False}
+        audit.record(correlation_id, "act", "executed", f"Database backup created: {target}")
+        audit.record(correlation_id, "verify", "passed", "Backup file created successfully")
+        return {
+            "correlation_id": correlation_id,
+            "status": "completed",
+            "executed": True,
+            "backup_path": str(Path(target)),
+        }
     return {"correlation_id": correlation_id, "status": "approved", "executed": False}
