@@ -145,7 +145,8 @@ class AnalyticsService:
         start, end = self._bounds(period, previous)
         filters, params = self._filters(category=category, source_id=source_id)
         row = conn.execute(
-            "SELECT COUNT(*) FROM articles WHERE fetched_at >= ? AND fetched_at < ?" + filters,
+            "SELECT COUNT(*) FROM articles WHERE datetime(fetched_at) >= datetime(?) "
+            "AND datetime(fetched_at) < datetime(?)" + filters,
             [start, end, *params],
         ).fetchone()
         return int(row[0] if row else 0)
@@ -164,7 +165,8 @@ class AnalyticsService:
             """SELECT COUNT(*) AS total,
             SUM(CASE WHEN EXISTS (SELECT 1 FROM summaries s WHERE s.article_id = a.id)
                 THEN 1 ELSE 0 END) AS summarized
-            FROM articles a WHERE a.fetched_at >= ? AND a.fetched_at < ?""" + filters,
+            FROM articles a WHERE datetime(a.fetched_at) >= datetime(?)
+            AND datetime(a.fetched_at) < datetime(?)""" + filters,
             [start, end, *params],
         ).fetchone()
         total = int(row["total"] or 0) if row else 0
@@ -178,7 +180,8 @@ class AnalyticsService:
         row = conn.execute(
             """SELECT COUNT(*) AS total,
             SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) AS successful
-            FROM pipeline_runs WHERE started_at >= ? AND started_at < ?
+            FROM pipeline_runs WHERE datetime(started_at) >= datetime(?)
+            AND datetime(started_at) < datetime(?)
             AND status IN ('success', 'failed')""",
             (start, end),
         ).fetchone()
@@ -198,7 +201,8 @@ class AnalyticsService:
         filters, params = self._filters(provider=provider, model=model)
         row = conn.execute(
             "SELECT COALESCE(SUM(total_tokens), 0) FROM llm_usage_events "
-            "WHERE occurred_at >= ? AND occurred_at < ?" + filters,
+            "WHERE datetime(occurred_at) >= datetime(?) AND datetime(occurred_at) < datetime(?)"
+            + filters,
             [start, end, *params],
         ).fetchone()
         return int(row[0] if row else 0)
@@ -237,7 +241,8 @@ class AnalyticsService:
                 )
                 source_row = conn.execute(
                     """SELECT COUNT(DISTINCT source_id) FROM source_fetch_events
-                    WHERE occurred_at >= ? AND occurred_at < ? AND status = 'success'"""
+                    WHERE datetime(occurred_at) >= datetime(?)
+                    AND datetime(occurred_at) < datetime(?) AND status = 'success'"""
                     + source_filters,
                     [start, end, *source_params],
                 ).fetchone()
@@ -247,7 +252,8 @@ class AnalyticsService:
                 )
                 rows = conn.execute(
                     """SELECT COALESCE(published_at, fetched_at) AS timestamp FROM articles
-                    WHERE fetched_at >= ? AND fetched_at < ?""" + article_filters,
+                    WHERE datetime(fetched_at) >= datetime(?)
+                    AND datetime(fetched_at) < datetime(?)""" + article_filters,
                     [start, end, *article_params],
                 ).fetchall()
                 reference = period.previous_end if previous else period.current_end
@@ -260,18 +266,21 @@ class AnalyticsService:
 
             start, end = self._bounds(period)
             failures = conn.execute(
-                "SELECT COUNT(*) FROM pipeline_runs WHERE started_at >= ? AND started_at < ? "
+                "SELECT COUNT(*) FROM pipeline_runs WHERE datetime(started_at) >= datetime(?) "
+                "AND datetime(started_at) < datetime(?) "
                 "AND status = 'failed'",
                 (start, end),
             ).fetchone()[0]
             source_errors = conn.execute(
-                "SELECT COUNT(*) FROM source_fetch_events WHERE occurred_at >= ? "
-                "AND occurred_at < ? AND status != 'success'",
+                "SELECT COUNT(*) FROM source_fetch_events "
+                "WHERE datetime(occurred_at) >= datetime(?) "
+                "AND datetime(occurred_at) < datetime(?) AND status != 'success'",
                 (start, end),
             ).fetchone()[0]
             llm_errors = conn.execute(
-                "SELECT COUNT(*) FROM llm_usage_events WHERE occurred_at >= ? "
-                "AND occurred_at < ? AND status != 'success'",
+                "SELECT COUNT(*) FROM llm_usage_events "
+                "WHERE datetime(occurred_at) >= datetime(?) "
+                "AND datetime(occurred_at) < datetime(?) AND status != 'success'",
                 (start, end),
             ).fetchone()[0]
             alerts = []
@@ -316,7 +325,8 @@ class AnalyticsService:
             rows = conn.execute(
                 "SELECT fetched_at, COALESCE(category, 'uncategorized') category, "
                 "COALESCE(source, 'unknown') source, COALESCE(published_at, fetched_at) published "
-                "FROM articles WHERE fetched_at >= ? AND fetched_at < ?" + filters,
+                "FROM articles WHERE datetime(fetched_at) >= datetime(?) "
+                "AND datetime(fetched_at) < datetime(?)" + filters,
                 [start, end, *params],
             ).fetchall()
             summary_filters, summary_params = self._filters(
@@ -325,13 +335,15 @@ class AnalyticsService:
             summary_rows = conn.execute(
                 """SELECT s.created_at FROM summaries s
                 JOIN articles a ON a.id = s.article_id
-                WHERE s.created_at >= ? AND s.created_at < ?""" + summary_filters,
+                WHERE datetime(s.created_at) >= datetime(?)
+                AND datetime(s.created_at) < datetime(?)""" + summary_filters,
                 [start, end, *summary_params],
             ).fetchall()
             previous_rows = conn.execute(
                 "SELECT COALESCE(category, 'uncategorized') category, "
                 "COALESCE(source, 'unknown') source FROM articles "
-                "WHERE fetched_at >= ? AND fetched_at < ?" + filters,
+                "WHERE datetime(fetched_at) >= datetime(?) "
+                "AND datetime(fetched_at) < datetime(?)" + filters,
                 [previous_start, previous_end, *params],
             ).fetchall()
 
@@ -398,16 +410,19 @@ class AnalyticsService:
         previous_start, previous_end = self._bounds(period, True)
         with self._connect() as conn:
             current_runs = conn.execute(
-                "SELECT * FROM pipeline_runs WHERE started_at >= ? AND started_at < ? "
+                "SELECT * FROM pipeline_runs WHERE datetime(started_at) >= datetime(?) "
+                "AND datetime(started_at) < datetime(?) "
                 "ORDER BY started_at DESC",
                 (start, end),
             ).fetchall()
             previous_runs = conn.execute(
-                "SELECT * FROM pipeline_runs WHERE started_at >= ? AND started_at < ?",
+                "SELECT * FROM pipeline_runs WHERE datetime(started_at) >= datetime(?) "
+                "AND datetime(started_at) < datetime(?)",
                 (previous_start, previous_end),
             ).fetchall()
             stage_rows = conn.execute(
-                "SELECT * FROM pipeline_stage_events WHERE started_at >= ? AND started_at < ?",
+                "SELECT * FROM pipeline_stage_events WHERE datetime(started_at) >= datetime(?) "
+                "AND datetime(started_at) < datetime(?)",
                 (start, end),
             ).fetchall()
         current_success = self._success_rate(current_runs)
@@ -496,7 +511,8 @@ class AnalyticsService:
                 "SELECT e.*, COALESCE(e.category, s.category) AS resolved_category, "
                 "COALESCE(e.country, s.country) AS resolved_country FROM source_fetch_events e "
                 "LEFT JOIN sources s ON s.id = e.source_id "
-                "WHERE e.occurred_at >= ? AND e.occurred_at < ? "
+                "WHERE datetime(e.occurred_at) >= datetime(?) "
+                "AND datetime(e.occurred_at) < datetime(?) "
                 + ("AND " + " AND ".join(clauses) + " " if clauses else "")
                 + "ORDER BY e.occurred_at DESC",
                 params,
@@ -547,12 +563,14 @@ class AnalyticsService:
         filters, params = self._filters(provider=provider, model=model)
         with self._connect() as conn:
             rows = conn.execute(
-                "SELECT * FROM llm_usage_events WHERE occurred_at >= ? AND occurred_at < ?"
+                "SELECT * FROM llm_usage_events WHERE datetime(occurred_at) >= datetime(?) "
+                "AND datetime(occurred_at) < datetime(?)"
                 + filters,
                 [start, end, *params],
             ).fetchall()
             previous = conn.execute(
-                "SELECT * FROM llm_usage_events WHERE occurred_at >= ? AND occurred_at < ?"
+                "SELECT * FROM llm_usage_events WHERE datetime(occurred_at) >= datetime(?) "
+                "AND datetime(occurred_at) < datetime(?)"
                 + filters,
                 [previous_start, previous_end, *params],
             ).fetchall()
@@ -614,7 +632,8 @@ class AnalyticsService:
                 filters, params = self._filters(category=category, source_id=source_id)
                 rows = conn.execute(
                     """SELECT id, title, url, source, category, published_at, fetched_at,
-                    summarized FROM articles WHERE fetched_at >= ? AND fetched_at < ?"""
+                    summarized FROM articles WHERE datetime(fetched_at) >= datetime(?)
+                    AND datetime(fetched_at) < datetime(?)"""
                     + filters
                     + " ORDER BY fetched_at DESC LIMIT ?",
                     [start, end, *params, limit],
@@ -625,7 +644,8 @@ class AnalyticsService:
                     start, end, *([run_id] if run_id else []), limit
                 ]
                 rows = conn.execute(
-                    "SELECT * FROM pipeline_runs WHERE started_at >= ? AND started_at < ?"
+                    "SELECT * FROM pipeline_runs WHERE datetime(started_at) >= datetime(?) "
+                    "AND datetime(started_at) < datetime(?)"
                     + extra
                     + " ORDER BY started_at DESC LIMIT ?",
                     run_params,
@@ -637,7 +657,8 @@ class AnalyticsService:
                 ]
                 rows = conn.execute(
                     """SELECT * FROM pipeline_stage_events
-                    WHERE started_at >= ? AND started_at < ?"""
+                    WHERE datetime(started_at) >= datetime(?)
+                    AND datetime(started_at) < datetime(?)"""
                     + extra
                     + " ORDER BY started_at DESC LIMIT ?",
                     stage_params,
@@ -649,7 +670,8 @@ class AnalyticsService:
                 ]
                 rows = conn.execute(
                     """SELECT * FROM source_fetch_events
-                    WHERE occurred_at >= ? AND occurred_at < ?"""
+                    WHERE datetime(occurred_at) >= datetime(?)
+                    AND datetime(occurred_at) < datetime(?)"""
                     + extra
                     + " ORDER BY occurred_at DESC LIMIT ?",
                     source_params,
@@ -665,7 +687,8 @@ class AnalyticsService:
                 rows = conn.execute(
                     """SELECT id, run_id, operation, provider, model, input_tokens,
                     output_tokens, total_tokens, latency_ms, status, error, occurred_at
-                    FROM llm_usage_events WHERE occurred_at >= ? AND occurred_at < ?"""
+                    FROM llm_usage_events WHERE datetime(occurred_at) >= datetime(?)
+                    AND datetime(occurred_at) < datetime(?)"""
                     + filters
                     + extra
                     + " ORDER BY occurred_at DESC LIMIT ?",
