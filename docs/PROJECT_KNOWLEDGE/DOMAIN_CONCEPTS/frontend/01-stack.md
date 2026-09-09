@@ -1,6 +1,6 @@
 # Frontend Stack
 
-> Tech stack + lý do chọn cho web dashboard (`web/`). Cập nhật 2026-09-03.
+> Tech stack + lý do chọn cho frontend dashboard (`frontend/`). Cập nhật 2026-09-09.
 
 ## Stack
 
