@@ -1,6 +1,6 @@
 import sqlite3
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
 from src.config import settings
 from src.repositories.run_repo import PipelineRunRepository
@@ -61,6 +61,13 @@ def trigger_run(
     dry_run: bool = False,
     categories: str | None = None,
 ):
+    repo = PipelineRunRepository(settings.database_url)
+    with sqlite3.connect(repo.db_path) as conn:
+        running = conn.execute(
+            "SELECT id FROM pipeline_runs WHERE status IN ('pending', 'running') LIMIT 1"
+        ).fetchone()
+    if running:
+        raise HTTPException(status_code=409, detail="A pipeline run is already in progress")
     cats = [c.strip() for c in categories.split(",") if c.strip()] if categories else None
     task = pipeline_run.delay(fetch_limit, dry_run, cats)
     return {"task_id": task.id, "status": "pending", "run_id": task.id}

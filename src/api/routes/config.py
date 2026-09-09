@@ -37,6 +37,8 @@ def get_config():
         "news_categories": db_overrides.get("news_categories", settings.news_categories),
         "schedule_times": db_overrides.get("schedule_times", settings.schedule_times),
         "schedule_timezone": db_overrides.get("schedule_timezone", settings.schedule_timezone),
+        "news_country": db_overrides.get("news_country", settings.news_country),
+        "news_city": db_overrides.get("news_city", settings.news_city),
         "log_level": settings.log_level,
     }
 
@@ -51,6 +53,8 @@ def update_config(payload: dict):
         "news_categories",
         "schedule_times",
         "schedule_timezone",
+        "news_country",
+        "news_city",
     }
     rejected = {k: v for k, v in payload.items() if k not in allowed}
     if rejected:
@@ -99,6 +103,10 @@ def update_config(payload: dict):
                 settings.schedule_times = str(v)
             elif k == "schedule_timezone":
                 settings.schedule_timezone = str(v)
+            elif k == "news_country":
+                settings.news_country = str(v).upper()
+            elif k == "news_city":
+                settings.news_city = str(v)
 
     if changed_keys:
         _publish_config_change(changed_keys)

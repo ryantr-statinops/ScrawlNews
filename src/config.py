@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     schedule_interval_hours: int = 24
     schedule_times: str = "08:00,12:00,18:00"
     schedule_timezone: str = "Asia/Ho_Chi_Minh"
+    news_country: str = "VN"
+    news_city: str = "Hanoi"
 
     @property
     def news_categories_list(self) -> list[str]:
