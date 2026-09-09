@@ -89,4 +89,17 @@ def approve_agent_action(correlation_id: str):
             "executed": True,
             "backup_path": str(Path(target)),
         }
+    if action_event["message"].endswith("pipeline_dry_run"):
+        from src.worker.tasks import pipeline_run
+
+        task = pipeline_run.delay(dry_run=True)
+        audit.record(correlation_id, "act", "queued", f"Pipeline dry-run queued: {task.id}")
+        audit.record(correlation_id, "verify", "passed", "Pipeline dry-run task accepted by Celery")
+        return {
+            "correlation_id": correlation_id,
+            "status": "completed",
+            "executed": True,
+            "task_id": task.id,
+            "dry_run": True,
+        }
     return {"correlation_id": correlation_id, "status": "approved", "executed": False}
