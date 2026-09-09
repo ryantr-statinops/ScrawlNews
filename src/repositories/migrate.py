@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 MIGRATIONS = {
     1: """
@@ -56,6 +56,29 @@ MIGRATIONS = {
     );
     CREATE INDEX IF NOT EXISTS idx_sources_enabled ON sources(enabled);
     CREATE INDEX IF NOT EXISTS idx_sources_category ON sources(category)
+    """
+    ,
+    7: """
+    CREATE TABLE IF NOT EXISTS digests (
+        id TEXT PRIMARY KEY,
+        category TEXT NOT NULL,
+        title TEXT NOT NULL,
+        digest_text TEXT NOT NULL,
+        article_count INTEGER NOT NULL DEFAULT 0,
+        model_used TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'ready',
+        error TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_digests_category_created
+        ON digests(category, created_at DESC);
+    CREATE TABLE IF NOT EXISTS digest_articles (
+        digest_id TEXT NOT NULL,
+        article_id TEXT NOT NULL,
+        PRIMARY KEY (digest_id, article_id),
+        FOREIGN KEY(digest_id) REFERENCES digests(id),
+        FOREIGN KEY(article_id) REFERENCES articles(id)
+    )
     """
     # v3 is applied in Python (see run_migrations): add category column
     # only when the articles table already exists (fresh DBs get it via _init_db)
