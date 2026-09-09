@@ -13,6 +13,8 @@ const schema = z.object({
   summary_lang: z.string().min(2).max(5),
   telegram_enabled: z.boolean(),
   retention_days: z.number().min(1).max(30),
+  schedule_times: z.string().min(5),
+  schedule_timezone: z.string().min(3),
 });
 
 export function ConfigPage() {
@@ -29,6 +31,8 @@ export function ConfigPage() {
       summary_lang: data?.summary_lang ?? "vi",
       telegram_enabled: data?.telegram_enabled ?? true,
       retention_days: data?.retention_days ?? 7,
+      schedule_times: data?.schedule_times ?? "08:00,12:00,18:00",
+      schedule_timezone: data?.schedule_timezone ?? "Asia/Ho_Chi_Minh",
     },
     validate: zodResolver(schema),
   });
@@ -57,6 +61,8 @@ export function ConfigPage() {
             <TextInput label="Summary lang" {...form.getInputProps("summary_lang")} />
             <Switch label="Telegram enabled" {...form.getInputProps("telegram_enabled", { type: "checkbox" })} />
             <NumberInput label="Retention days" {...form.getInputProps("retention_days")} />
+            <TextInput label="Daily run times" description="HH:MM values separated by commas" {...form.getInputProps("schedule_times")} />
+            <TextInput label="Schedule timezone" {...form.getInputProps("schedule_timezone")} />
             <Button type="submit" loading={save.isPending}>
               Save
             </Button>

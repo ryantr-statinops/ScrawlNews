@@ -35,6 +35,8 @@ def get_config():
         == "true",
         "retention_days": int(db_overrides.get("retention_days", settings.retention_days)),
         "news_categories": db_overrides.get("news_categories", settings.news_categories),
+        "schedule_times": db_overrides.get("schedule_times", settings.schedule_times),
+        "schedule_timezone": db_overrides.get("schedule_timezone", settings.schedule_timezone),
         "log_level": settings.log_level,
     }
 
@@ -47,6 +49,8 @@ def update_config(payload: dict):
         "telegram_enabled",
         "retention_days",
         "news_categories",
+        "schedule_times",
+        "schedule_timezone",
     }
     rejected = {k: v for k, v in payload.items() if k not in allowed}
     if rejected:
@@ -65,6 +69,9 @@ def update_config(payload: dict):
         elif key == "telegram_enabled":
             if str(value).lower() not in {"true", "false"}:
                 raise ConfigError("Invalid Telegram toggle")
+        elif key == "schedule_times":
+            if not isinstance(value, str) or not all(_valid_time(item) for item in value.split(",") if item.strip()):
+                raise ConfigError("Invalid schedule times")
         elif not isinstance(value, str):
             raise ConfigError("Expected a configuration string")
 
@@ -88,6 +95,10 @@ def update_config(payload: dict):
                 settings.retention_days = int(v)
             elif k == "news_categories":
                 settings.news_categories = str(v)
+            elif k == "schedule_times":
+                settings.schedule_times = str(v)
+            elif k == "schedule_timezone":
+                settings.schedule_timezone = str(v)
 
     if changed_keys:
         _publish_config_change(changed_keys)
@@ -98,3 +109,11 @@ def update_config(payload: dict):
 @router.get("/api/config/history")
 def get_config_history(key: str | None = Query(None), limit: int = Query(50, le=200)):
     return {"history": _config_repo.get_history(key=key, limit=limit)}
+
+
+def _valid_time(value: str) -> bool:
+    try:
+        hour, minute = (int(part) for part in value.strip().split(":"))
+        return 0 <= hour <= 23 and 0 <= minute <= 59
+    except (TypeError, ValueError):
+        return False

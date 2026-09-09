@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     retention_days: int = 7
     news_categories: str = "technology,business,world,science"
     schedule_interval_hours: int = 24
+    schedule_times: str = "08:00,12:00,18:00"
+    schedule_timezone: str = "Asia/Ho_Chi_Minh"
 
     @property
     def news_categories_list(self) -> list[str]:
