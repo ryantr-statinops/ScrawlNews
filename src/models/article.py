@@ -12,4 +12,5 @@ class Article:
     raw_html: str | None = None
     content: str | None = None
     fetched_at: datetime | None = None
+    published_at: datetime | None = None
     summarized: int = 0

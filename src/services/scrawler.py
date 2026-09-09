@@ -1,6 +1,7 @@
+import calendar
 import hashlib
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 import feedparser
 import httpx
@@ -13,6 +14,16 @@ from src.services.base import BaseService
 from src.utils.errors import ScrawlerError
 
 logger = logging.getLogger(__name__)
+
+
+def _entry_datetime(entry) -> datetime | None:
+    parsed = entry.get("published_parsed") or entry.get("updated_parsed")
+    if not parsed:
+        return None
+    try:
+        return datetime.fromtimestamp(calendar.timegm(parsed), tz=UTC)
+    except (TypeError, ValueError):
+        return None
 
 
 class ScrawlerService(BaseService):
@@ -88,6 +99,7 @@ class ScrawlerService(BaseService):
                 else None
             )
             article_id = hashlib.sha256(url.encode()).hexdigest()[:16] if url else ""
+            published_at = _entry_datetime(entry)
             content = await self.extract_content(url) if url else None
             articles.append(
                 Article(
@@ -98,6 +110,7 @@ class ScrawlerService(BaseService):
                     category=category,
                     content=content,
                     fetched_at=datetime.utcnow(),
+                    published_at=published_at,
                     summarized=0,
                 )
             )
