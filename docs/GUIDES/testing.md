@@ -33,6 +33,9 @@ tests/                          # BE (pytest)
 │   ├── test_run_repo.py
 │   ├── test_api_articles.py
 │   ├── test_api_runs.py        # POST /api/runs + Celery mock
+│   ├── test_analytics_service.py # windows, comparison, telemetry aggregates
+│   ├── test_analytics_api.py    # handler/OpenAPI contract + legacy /api/stats
+│   ├── test_telemetry_repo.py   # event persistence + 30-day cleanup
 │   └── test_celery_tasks.py
 └── integration/
     ├── test_pipeline.py
@@ -41,11 +44,8 @@ tests/                          # BE (pytest)
 
 frontend/                         # FE (Vitest)
 └── src/__tests__/
-    ├── Feed.test.tsx
-    ├── Summaries.test.tsx
-    ├── Runs.test.tsx
-    ├── Analytics.test.tsx
-    └── Config.test.tsx
+    ├── FeedTable.test.tsx
+    └── AnalyticsKpi.test.tsx
 ```
 
 ## Coverage Goals
@@ -94,11 +94,20 @@ cd frontend && npm run test
 - cd frontend && npm run lint
 ```
 
-## Status (2026-08-28)
+## Analytics regression focus
 
-- BE: collection succeeds; full batch run still requires investigation
-- FE: current Vitest suite passes
-- ruff passed, web lint flat (`eslint src`)
+- Tất cả window `1h`, `4h`, `12h`, `24h`, `7d`, `30d` dùng chung period builder.
+- `previous.to == current.from`; hai kỳ liền nhau và không overlap.
+- Stage/source/LLM failure vẫn tạo telemetry; thiếu token usage được chấp nhận là 0.
+- Cleanup chỉ tác động ba bảng telemetry và giữ event mới hơn 30 ngày.
+- Frontend KPI hiển thị previous-period comparison và mở drill-down bằng chuột hoặc bàn phím.
+- `/api/stats` vẫn có trong OpenAPI để giữ client cũ tương thích.
+
+## Status (2026-09-09)
+
+- Targeted analytics, telemetry và pipeline suites pass.
+- Frontend typecheck, lint, tests và production build pass. Vitest có thể in cảnh báo WebSocket `EPERM` trong sandbox nhưng test process vẫn pass.
+- Full backend batch vẫn cần lưu ý hiện tượng TestClient/lifespan có thể treo trong môi trường sandbox; handler contract được test trực tiếp trên SQLite cô lập.
 
 ## Notes
 
