@@ -1,6 +1,6 @@
 # Current State — Project đang thực sự như thế nào
 
-> Cập nhật: 2026-09-09. Stage 1–4 và phần lớn Stage 5 đã hoàn tất. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
+> Cập nhật: 2026-09-09. Stage 1–5 và Feed product upgrade đã được triển khai từng commit. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
 
 ## Purpose
 
@@ -29,6 +29,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - Celery `pipeline.run` task thực tế, max_retries 3 — `9124808`
 - `ConfigRepository` + migrate v2 (settings/config_history) — `afa00a7`
 - Scrawler (feedparser + trafilatura), Synthesizer (OpenRouter batch), Messenger (Telegram toggle) — `65dedb1`..`1f68dd0`
+- Feed upgrade: publication-time filtering, source registry/API, multi-source fetch, topic digests, inline update and daily multi-time scheduler — xem git history sau `d6073895`
 
 ### Frontend (product, đã cutover)
 - `frontend/` là web chính: Mantine UI v7, TanStack Router, ApexCharts, Zustand, SSE logs — xem `DOMAIN_CONCEPTS/frontend/01-stack.md`. Chạy `:5173`, nối `docker-compose.yml` + `Makefile` + CI
@@ -65,7 +66,8 @@ ScrawlNews/
 
 - Prometheus metrics chưa có
 - `pip-audit` chưa chạy trong CI
-- Multi-source, detailed cost tracking và structured summarization chưa làm.
+- Source discovery hiện tìm trong catalog/local registry; chưa tự động khám phá nguồn Internet.
+- Detailed cost tracking và structured summarization chưa làm.
 - Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
 - Backend pytest vẫn cần điều tra hiện tượng treo khi chạy theo batch; local Docker dashboard đã chạy được.
 

@@ -88,13 +88,21 @@ Key variables:
 | RETENTION_DAYS | no | 7 | Data retention |
 | NEWS_CATEGORIES | no | technology,business,world,science | RSS categories, comma-separated |
 | SCHEDULE_INTERVAL_HOURS | no | 24 | Briefing interval for beat scheduler |
+| SCHEDULE_TIMES | no | 08:00,12:00,18:00 | Daily run times, comma-separated HH:MM |
+| SCHEDULE_TIMEZONE | no | Asia/Ho_Chi_Minh | Timezone for scheduled runs |
+| NEWS_COUNTRY | no | VN | Google News country locale |
+| NEWS_CITY | no | Hanoi | Display/configuration city |
 | LOG_LEVEL | no | INFO | Logging level |
 | DATABASE_URL | no | sqlite:///data/scrawlnews.db | SQLite file, pure local |
 | REDIS_URL | no | redis://localhost:6379/0 | Redis for Celery broker, docker uses redis://redis:6379/0 |
 | CELERY_BROKER_URL | no | redis://localhost:6379/0 | Celery broker |
 | CELERY_RESULT_BACKEND | no | redis://localhost:6379/1 | Celery result backend |
 
-Hot reload is limited to fetch_limit, summary_lang, telegram_enabled, retention_days, news_categories via PUT /api/config. Secrets and connection URLs require restart.
+Hot reload supports fetch_limit, summary_lang, telegram_enabled, retention_days, news_categories, schedule_times, schedule_timezone, news_country and news_city via PUT /api/config. Secrets and connection URLs require restart.
+
+## Feed workflow
+
+Feed is the main local dashboard. Use **Update feed** to run the pipeline without opening Runs, filter articles by query/category/source/date, and open an article row for extracted content. Settings contains the fetch limit, schedule, locale, health and source manager. Sources are RSS/Atom URLs from the built-in catalog or user-added feeds; the Source Manager can test and enable/disable them. Topic digests are generated per category after a successful run when summaries are available.
 
 ## Project Structure
 
