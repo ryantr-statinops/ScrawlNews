@@ -58,8 +58,11 @@ class MessengerService(BaseService):
         return messages
 
     async def send_messages(self, chat_id: str, messages: list[str]) -> bool:
+        token = settings.telegram_bot_token
+        if not token:
+            raise MessengerError("Telegram bot token is not configured", retryable=False)
         try:
-            bot = Bot(token=settings.telegram_bot_token)
+            bot = Bot(token=token)
             for msg in messages:
                 try:
                     await bot.send_message(chat_id=chat_id, text=msg)
