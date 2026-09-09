@@ -9,11 +9,11 @@ def test_engine_records_complete_dry_run_lifecycle(tmp_path):
 
     decision, verification = engine.run("backup", Observation(db_ok=True, redis_ok=True))
 
-    assert decision.status == "ready"
+    assert decision.status == "pending_approval"
     assert verification.status == "skipped"
     events = repository.list_for_correlation(decision.correlation_id)
     assert [event["phase"] for event in events] == ["observe", "decide", "act", "verify"]
-    assert events[2]["status"] == "skipped"
+    assert events[2]["status"] == "pending_approval"
 
 
 def test_engine_does_not_act_when_policy_blocks(tmp_path):
