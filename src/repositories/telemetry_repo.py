@@ -36,14 +36,15 @@ class TelemetryRepository:
             cursor = conn.execute(
                 """INSERT INTO source_fetch_events
                 (run_id, source_id, source_name, status, fetched_count, new_count,
-                 duplicate_count, latency_ms, error, occurred_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                 duplicate_count, latency_ms, error, occurred_at, category, country)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     values.get("run_id"), values["source_id"], values["source_name"],
                     values["status"], values.get("fetched_count", 0),
                     values.get("new_count", 0), values.get("duplicate_count", 0),
                     values.get("latency_ms", 0), values.get("error"),
                     values.get("occurred_at", self._now()),
+                    values.get("category"), values.get("country"),
                 ),
             )
             conn.commit()
