@@ -10,9 +10,9 @@ cp .env.example .env
 ## Start the stack
 
 ```bash
-docker compose config
-docker compose up -d --build
-docker compose ps
+docker-compose config
+docker-compose up -d --build
+docker-compose ps
 ```
 
 Expected services: `api`, `worker`, `beat`, `redis`, `web`, and `nginx`.
@@ -38,8 +38,8 @@ curl -fsS -X POST http://localhost/api/runs \
 Use the returned task/run identifier to inspect status in the Runs page. Check worker logs with:
 
 ```bash
-docker compose logs --tail=100 worker
-docker compose logs --tail=100 api
+docker-compose logs --tail=100 worker
+docker-compose logs --tail=100 api
 ```
 
-Stop the stack with `docker compose down` after verification.
+Stop the stack with `docker-compose down` after verification.
