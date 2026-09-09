@@ -45,10 +45,10 @@ OPENROUTER_API_KEY=sk-or-...    # OpenRouter (free models)
 
 ```bash
 make dev
-# → http://localhost
+# → http://localhost:6767
 ```
 
-Dashboard sẽ hiện ở `http://localhost`. Click "Run Now" để test pipeline.
+Dashboard sẽ hiện ở `http://localhost:6767`. Click "Run Now" để test pipeline.
 
 ### Bước 5: Verify (30s)
 
