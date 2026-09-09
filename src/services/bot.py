@@ -21,19 +21,27 @@ HELP_TEXT = (
 )
 
 
+async def _reply(
+    update: Update, text: str, *, disable_web_page_preview: bool = False
+) -> None:
+    message = update.effective_message
+    if message is None:
+        logger.warning("Ignoring Telegram update without an effective message")
+        return
+    await message.reply_text(text, disable_web_page_preview=disable_web_page_preview)
+
+
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.effective_message.reply_text(
-        "Xin chào! Mình là ScrawlNews Bot 📰\n\n" + HELP_TEXT
-    )
+    await _reply(update, "Xin chào! Mình là ScrawlNews Bot 📰\n\n" + HELP_TEXT)
 
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.effective_message.reply_text(HELP_TEXT)
+    await _reply(update, HELP_TEXT)
 
 
 async def cmd_detail(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
-        await update.effective_message.reply_text("Usage: /detail <article_id>")
+        await _reply(update, "Usage: /detail <article_id>")
         return
     article_id = context.args[0]
     article_repo = ArticleRepository(settings.database_url)
@@ -41,7 +49,7 @@ async def cmd_detail(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     article = article_repo.get_by_id(article_id)
     summaries = summary_repo.get_by_article(article_id)
     if article is None:
-        await update.effective_message.reply_text(f"Article {article_id} not found.")
+        await _reply(update, f"Article {article_id} not found.")
         return
     summary_text = summaries[0]["summary_text"] if summaries else article["title"]
     category = article.get("category") or "uncategorized"
@@ -51,26 +59,24 @@ async def cmd_detail(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         f"\nCategory: {category}\nSource: {article['source']}",
         f"Link: {article['url']}",
     ]
-    await update.effective_message.reply_text("\n".join(lines), disable_web_page_preview=True)
+    await _reply(update, "\n".join(lines), disable_web_page_preview=True)
 
 
 async def cmd_topic(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
-        await update.effective_message.reply_text("Usage: /topic <category>")
+        await _reply(update, "Usage: /topic <category>")
         return
     category = context.args[0].strip().lower()
     article_repo = ArticleRepository(settings.database_url)
     articles = article_repo.get_recent_by_category(category, limit=10)
     if not articles:
-        await update.effective_message.reply_text(f"No articles for category '{category}'.")
+        await _reply(update, f"No articles for category '{category}'.")
         return
     lines = [f"*Latest {category} news:*"]
     for a in articles:
         title = a["title"][:80]
         lines.append(f"- {title} — /detail {a['id']}")
-    await update.effective_message.reply_text(
-        "\n".join(lines), disable_web_page_preview=True
-    )
+    await _reply(update, "\n".join(lines), disable_web_page_preview=True)
 
 
 async def cmd_settings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -78,13 +84,16 @@ async def cmd_settings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if context.args:
         key, value = _parse_settings_args(context.args)
         if key is None:
-            await update.effective_message.reply_text(
+            await _reply(
+                update,
                 "Unknown setting. Use /settings categories <a,b,c> or /settings frequency <hours>"
             )
             return
+        if value is None:
+            return
         config_repo.set(key, value)
         _publish_config_change([key])
-        await update.effective_message.reply_text(f"Updated {key} = {value}")
+        await _reply(update, f"Updated {key} = {value}")
         return
     overrides = config_repo.get_all()
     categories = overrides.get("news_categories", settings.news_categories)
@@ -99,7 +108,7 @@ async def cmd_settings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/settings categories <a,b,c>\n"
         "/settings frequency <hours>"
     )
-    await update.effective_message.reply_text(text)
+    await _reply(update, text)
 
 
 def _parse_settings_args(args: list[str]) -> tuple[str | None, str | None]:
@@ -130,6 +139,8 @@ def _publish_config_change(keys: list[str]) -> None:
 
 def build_bot_app(token: str | None = None) -> Application:
     bot_token = token or settings.telegram_bot_token
+    if not bot_token:
+        raise ValueError("Telegram bot token is not configured")
     app = Application.builder().token(bot_token).build()
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
