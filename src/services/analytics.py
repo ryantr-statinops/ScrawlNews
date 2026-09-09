@@ -65,6 +65,14 @@ def percentile(values: list[float], percentage: float) -> float:
     return round(ordered[index], 1)
 
 
+def parse_timestamp(value: str) -> datetime:
+    """Normalize SQLite timestamps to a naive UTC datetime for comparisons."""
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        return parsed
+    return parsed.astimezone(UTC).replace(tzinfo=None)
+
+
 class AnalyticsService:
     def __init__(self, db_url: str | None = None, now: datetime | None = None):
         self.db_url = db_url or settings.database_url
@@ -258,7 +266,7 @@ class AnalyticsService:
                 ).fetchall()
                 reference = period.previous_end if previous else period.current_end
                 ages = [
-                    max(0.0, (reference - datetime.fromisoformat(row[0])).total_seconds() / 60)
+                    max(0.0, (reference - parse_timestamp(row[0])).total_seconds() / 60)
                     for row in rows
                     if row[0]
                 ]
@@ -353,7 +361,7 @@ class AnalyticsService:
         previous_sources = self._count_values(previous_rows, "source")
         freshness = {"under_1h": 0, "1h_6h": 0, "6h_24h": 0, "over_24h": 0}
         for row in rows:
-            published = datetime.fromisoformat(row["published"])
+            published = parse_timestamp(row["published"])
             age_hours = max(0.0, (period.current_end - published).total_seconds() / 3600)
             bucket = (
                 "under_1h" if age_hours < 1 else "1h_6h" if age_hours < 6
@@ -393,12 +401,12 @@ class AnalyticsService:
         )
         timezone = ZoneInfo(period.timezone)
         for row in rows:
-            timestamp = datetime.fromisoformat(row["fetched_at"]).replace(tzinfo=UTC)
+            timestamp = parse_timestamp(row["fetched_at"]).replace(tzinfo=UTC)
             local = timestamp.astimezone(timezone)
             label = local.strftime("%Y-%m-%d" if use_days else "%m-%d %H:00")
             buckets[label]["articles"] += 1
         for row in summary_rows:
-            timestamp = datetime.fromisoformat(row["created_at"]).replace(tzinfo=UTC)
+            timestamp = parse_timestamp(row["created_at"]).replace(tzinfo=UTC)
             local = timestamp.astimezone(timezone)
             label = local.strftime("%Y-%m-%d" if use_days else "%m-%d %H:00")
             buckets[label]["summaries"] += 1
@@ -490,7 +498,7 @@ class AnalyticsService:
     def _run_duration(row: sqlite3.Row) -> float:
         return max(
             0.0,
-            (datetime.fromisoformat(row["finished_at"]) - datetime.fromisoformat(row["started_at"])).total_seconds(),
+            (parse_timestamp(row["finished_at"]) - parse_timestamp(row["started_at"])).total_seconds(),
         )
 
     def sources(
@@ -729,7 +737,7 @@ class AnalyticsService:
             lambda: {"input_tokens": 0, "output_tokens": 0, "requests": 0}
         )
         for row in rows:
-            timestamp = datetime.fromisoformat(row["occurred_at"]).replace(tzinfo=UTC)
+            timestamp = parse_timestamp(row["occurred_at"]).replace(tzinfo=UTC)
             local = timestamp.astimezone(timezone)
             label = local.strftime("%Y-%m-%d" if use_days else "%m-%d %H:00")
             grouped[label]["input_tokens"] += row["input_tokens"]

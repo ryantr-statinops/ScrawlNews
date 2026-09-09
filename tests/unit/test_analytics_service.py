@@ -98,6 +98,23 @@ def test_overview_compares_current_and_previous_periods(tmp_path):
     assert result["kpis"]["active_sources"]["current"] == 1
 
 
+def test_content_normalizes_timezone_aware_article_timestamps(tmp_path):
+    service = _service(tmp_path)
+    with sqlite3.connect(service.db_path) as conn:
+        conn.execute(
+            """INSERT INTO articles
+            (id, url, title, source, category, fetched_at, published_at, summarized)
+            VALUES ('aware-1', 'https://a/aware', 'Aware', 'Source A', 'technology',
+                    '2026-09-09T11:30:00+00:00', '2026-09-09T18:00:00+07:00', 0)"""
+        )
+        conn.commit()
+
+    result = service.content("24h")
+
+    assert result["freshness"]["1h_6h"] == 1
+    assert result["velocity"][0]["articles"] == 1
+
+
 def test_pipeline_sources_and_ai_usage_aggregate_telemetry(tmp_path):
     service = _service(tmp_path)
     with sqlite3.connect(service.db_path) as conn:
