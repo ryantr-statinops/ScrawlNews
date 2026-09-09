@@ -11,10 +11,17 @@
 
 ## Local Release 1.0
 
-- [ ] Ổn định pytest khi chạy toàn bộ suite
-- [ ] Chuẩn hóa môi trường MyPy/Python 3.11
-- [ ] Graceful handling khi Telegram disabled hoặc token không hợp lệ
-- [ ] Backup/restore SQLite và rà soát dependency
+- [x] Ổn định pytest khi chạy toàn bộ suite — 228 passed
+- [x] Chuẩn hóa môi trường MyPy/Python 3.11
+- [x] Graceful handling khi Telegram disabled hoặc token không hợp lệ
+- [x] Backup/restore SQLite và rà soát dependency
+
+## Agent v1
+
+- [x] Deterministic policy, audit trail và approval gate
+- [x] Auto database backup sau approval
+- [x] Queue pipeline dry-run sau approval
+- [x] Dashboard Agent và integration tests
 
 ## Medium priority
 
