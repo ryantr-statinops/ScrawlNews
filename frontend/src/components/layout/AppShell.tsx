@@ -12,6 +12,7 @@ const navItems = [
   { to: "/analytics", label: "Analytics" },
   { to: "/health", label: "Health" },
   { to: "/config", label: "Config" },
+  { to: "/agent", label: "Agent" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
