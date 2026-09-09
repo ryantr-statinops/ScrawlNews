@@ -1,3 +1,4 @@
+import asyncio
 import calendar
 import hashlib
 import logging
@@ -28,10 +29,47 @@ def _entry_datetime(entry) -> datetime | None:
 
 class ScrawlerService(BaseService):
     async def execute(self, limit: int = 20, categories: list[str] | None = None) -> list[Article]:
+        configured_sources = self._configured_sources()
+        if configured_sources:
+            return await self.fetch_sources(configured_sources, limit)
         cats = categories or self._configured_categories()
         if len(cats) <= 1:
             return await self.fetch_rss(limit, category=cats[0] if cats else None)
         return await self.fetch_categories(cats, limit)
+
+    def _configured_sources(self) -> list[dict]:
+        from src.repositories.source_repo import NewsSourceRepository
+
+        return NewsSourceRepository(settings.database_url).list(enabled=True)
+
+    async def fetch_sources(self, sources: list[dict], limit: int = 20) -> list[Article]:
+        limit_each = max(1, limit // max(1, len(sources)))
+        results = await asyncio.gather(
+            *[
+                self.fetch_rss(
+                    limit_each,
+                    query=source["category"] or source["name"],
+                    category=source["category"],
+                    source_url=source["url"],
+                    source_name=source["name"],
+                )
+                for source in sources
+            ],
+            return_exceptions=True,
+        )
+        articles: list[Article] = []
+        seen_urls: set[str] = set()
+        for source, result in zip(sources, results):
+            if isinstance(result, BaseException):
+                logger.warning("Skipping unavailable source %s", source["id"], exc_info=result)
+                continue
+            for article in result:
+                if article.url not in seen_urls:
+                    seen_urls.add(article.url)
+                    articles.append(article)
+        if not articles and results and all(isinstance(result, Exception) for result in results):
+            raise ScrawlerError("All configured news sources failed")
+        return articles
 
     def _configured_categories(self) -> list[str]:
         from src.repositories.config_repo import ConfigRepository
@@ -58,10 +96,18 @@ class ScrawlerService(BaseService):
         return articles
 
     async def fetch_rss(
-        self, limit: int = 20, query: str | None = None, category: str | None = None
+        self,
+        limit: int = 20,
+        query: str | None = None,
+        category: str | None = None,
+        source_url: str | None = None,
+        source_name: str | None = None,
     ) -> list[Article]:
         q = query or category or "news"
-        rss_url = f"https://news.google.com/rss/search?q={q}&hl=vi&gl=VN&ceid=VN:vi"
+        rss_url = source_url or f"https://news.google.com/rss/search?q={q}&hl=vi&gl=VN&ceid=VN:vi"
+        if rss_url.startswith("google-news://"):
+            google_query = rss_url.removeprefix("google-news://") or q
+            rss_url = f"https://news.google.com/rss/search?q={google_query}&hl=vi&gl=VN&ceid=VN:vi"
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.get(rss_url)
@@ -93,7 +139,7 @@ class ScrawlerService(BaseService):
         for entry in feed.entries[:limit]:
             url = entry.get("link", "")
             title = entry.get("title", "")
-            source = (
+            source = source_name or (
                 entry.get("source", {}).get("title")
                 if isinstance(entry.get("source"), dict)
                 else None
