@@ -27,6 +27,12 @@ paths:
         - name: offset
           in: query
           schema: { type: integer, default: 0 }
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
       responses:
         '200':
           description: Articles
@@ -37,6 +43,20 @@ paths:
                 properties:
                   count: { type: integer }
                   articles: { type: array, items: { $ref: '#/components/schemas/Article' } }
+
+  /api/sources:
+    get:
+      summary: List and search configured RSS/Atom sources
+    post:
+      summary: Add a custom RSS/Atom source
+
+  /api/digests:
+    get:
+      summary: List topic digests
+
+  /api/digests/regenerate:
+    post:
+      summary: Regenerate a category digest
 
   /api/summaries:
     get:
