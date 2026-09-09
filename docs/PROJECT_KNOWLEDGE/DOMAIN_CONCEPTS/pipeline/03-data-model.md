@@ -1,13 +1,17 @@
 # 03 — Data Model
 
-> ER diagram cho DB schema, tables, relations. Cập nhật 2026-09-04.
+> ER diagram cho DB schema, tables, relations. Cập nhật 2026-09-09 (schema v9).
 
 ## ER Diagram
 
 ```mermaid
 erDiagram
     ARTICLES ||--o{ SUMMARIES : "has"
-    PIPELINE_RUNS ||--o{ SUMMARIES : "produces"
+    ARTICLES }o--o{ DIGESTS : "digest_articles"
+    PIPELINE_RUNS ||--o{ PIPELINE_STAGE_EVENTS : "measures"
+    PIPELINE_RUNS ||--o{ SOURCE_FETCH_EVENTS : "fetches"
+    PIPELINE_RUNS ||--o{ LLM_USAGE_EVENTS : "uses"
+    SOURCES ||--o{ SOURCE_FETCH_EVENTS : "observed by"
     SETTINGS ||--o{ CONFIG_HISTORY : "audit"
     PIPELINE_RUNS }o--|| TASKS : "celery"
 
@@ -16,9 +20,11 @@ erDiagram
         TEXT url UK "UNIQUE, NOT NULL"
         TEXT title "NOT NULL"
         TEXT source "VnExpress, BBC, ..."
+        TEXT category "technology, business, ..."
         TEXT raw_html "optional, debug"
         TEXT content "extracted & cleaned"
         DATETIME fetched_at "DEFAULT NOW()"
+        DATETIME published_at "nullable; source timestamp"
         INTEGER summarized "0|1, DEFAULT 0"
     }
 
@@ -40,6 +46,72 @@ erDiagram
         TEXT error "if failed"
         DATETIME started_at "NOT NULL"
         DATETIME finished_at "nullable"
+    }
+
+    PIPELINE_STAGE_EVENTS {
+        INTEGER id PK
+        TEXT run_id "pipeline run"
+        TEXT stage "fetch, synthesize, digest, ..."
+        TEXT status "success|failed"
+        INTEGER duration_ms
+        INTEGER item_count
+        TEXT error_class
+        DATETIME started_at
+        DATETIME finished_at
+    }
+
+    SOURCE_FETCH_EVENTS {
+        INTEGER id PK
+        TEXT run_id
+        TEXT source_id
+        TEXT source_name
+        TEXT category
+        TEXT country
+        TEXT status
+        INTEGER fetched_count
+        INTEGER new_count
+        INTEGER duplicate_count
+        INTEGER latency_ms
+        TEXT error
+        DATETIME occurred_at
+    }
+
+    LLM_USAGE_EVENTS {
+        INTEGER id PK
+        TEXT run_id
+        TEXT operation "article_summary|topic_digest"
+        TEXT provider
+        TEXT model
+        INTEGER input_tokens
+        INTEGER output_tokens
+        INTEGER total_tokens
+        INTEGER latency_ms
+        TEXT status
+        TEXT error
+        DATETIME occurred_at
+    }
+
+    SOURCES {
+        TEXT id PK
+        TEXT name
+        TEXT url UK
+        TEXT category
+        TEXT country
+        TEXT city
+        INTEGER enabled
+        TEXT last_status
+        TEXT last_error
+    }
+
+    DIGESTS {
+        TEXT id PK
+        TEXT category
+        TEXT title
+        TEXT digest_text
+        INTEGER article_count
+        TEXT model_used
+        TEXT status
+        DATETIME created_at
     }
 
     SETTINGS {
@@ -74,9 +146,11 @@ erDiagram
 | `url` | TEXT | UNIQUE, NOT NULL | Link gốc bài viết |
 | `title` | TEXT | NOT NULL | Tiêu đề |
 | `source` | TEXT | | Nguồn tin |
+| `category` | TEXT | | Lĩnh vực |
 | `raw_html` | TEXT | | HTML gốc (optional) |
 | `content` | TEXT | | Nội dung đã extract & clean |
 | `fetched_at` | DATETIME | NOT NULL, DEFAULT NOW() | Thời gian fetch |
+| `published_at` | DATETIME | nullable | Thời gian nguồn phát hành; fallback sang fetched_at khi lọc |
 | `summarized` | INTEGER | NOT NULL, DEFAULT 0 | 0=chưa, 1=đã tóm tắt |
 
 ### `summaries`
@@ -121,6 +195,16 @@ erDiagram
 | `user` | TEXT | | dashboard\|cli\|api |
 | `changed_at` | DATETIME | NOT NULL | Thời gian đổi |
 
+### Analytics telemetry (schema v8–v9)
+
+| Table | Grain | Core metrics |
+|-------|-------|--------------|
+| `pipeline_stage_events` | một stage trong một run | status, duration, item count, error class |
+| `source_fetch_events` | một lần fetch một source | fetched/new/duplicate, latency, category/country, status/error |
+| `llm_usage_events` | một LLM request | operation, provider/model, input/output/total tokens, latency, status/error |
+
+Telemetry được ghi best-effort: lỗi ghi metric không làm pipeline đang chạy thất bại. Provider không trả usage vẫn tạo event với token bằng 0.
+
 ## Indexes
 
 ```sql
@@ -134,6 +218,12 @@ CREATE INDEX idx_summaries_article_id ON summaries(article_id);
 -- Pipeline runs
 CREATE INDEX idx_runs_started_at ON pipeline_runs(started_at DESC);
 
+-- Analytics telemetry
+CREATE INDEX idx_stage_events_time ON pipeline_stage_events(started_at DESC);
+CREATE INDEX idx_source_events_source ON source_fetch_events(source_id, occurred_at DESC);
+CREATE INDEX idx_source_events_category ON source_fetch_events(category, occurred_at DESC);
+CREATE INDEX idx_llm_events_model ON llm_usage_events(model, occurred_at DESC);
+
 -- Config history
 CREATE INDEX idx_config_history_changed_at ON config_history(changed_at DESC);
 ```
@@ -146,6 +236,8 @@ RSS ─fetch─▶ Article ─summarize─▶ Summary ─send─▶ Telegram
               │ 7 days                │ 7 days
               ▼                       ▼
           cleanup_old            cleanup_old
+
+Pipeline/source/LLM ─telemetry─▶ analytics events ─30 days─▶ cleanup
 ```
 
 | Table | Retention | Cleanup |
@@ -155,6 +247,9 @@ RSS ─fetch─▶ Article ─summarize─▶ Summary ─send─▶ Telegram
 | `pipeline_runs` | Forever (audit) | Manual hoặc archive after 90 days |
 | `config_history` | Forever (audit) | Manual hoặc archive after 1 year |
 | `settings` | Forever (current state) | Upsert on update |
+| `pipeline_stage_events` | 30 ngày | Cleanup ở đầu mỗi pipeline run |
+| `source_fetch_events` | 30 ngày | Cleanup ở đầu mỗi pipeline run |
+| `llm_usage_events` | 30 ngày | Cleanup ở đầu mỗi pipeline run |
 
 ## Storage Estimates
 
