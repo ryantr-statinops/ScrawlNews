@@ -15,7 +15,7 @@ Google News RSS -> Scrawler -> Articles -> Synthesizer -> Summaries -> Messenger
                   ArticleRepo              SummaryRepo
                        ^                        ^
                        +---- Dashboard (FastAPI + React) -- Celery/Redis ----+
-                                Nginx :80 -> /api :8000, / :5173
+                                Nginx :6767 -> /api :8000, / :5173
 ```
 
 ## Stack
@@ -39,7 +39,7 @@ Docker (recommended):
 
 ```bash
 docker-compose up -d --build
-# http://localhost
+# http://localhost:6767
 # http://localhost:8000/docs
 ```
 
