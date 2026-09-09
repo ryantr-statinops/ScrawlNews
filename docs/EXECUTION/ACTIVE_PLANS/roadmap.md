@@ -1,6 +1,6 @@
 # Active Plan — Roadmap
 
-> Kế hoạch đang thực hiện. Stage 1–4 đã DONE (2026-08-28). Stage 5+ là hướng phát triển tiếp theo.
+> Cập nhật: 2026-09-09. ScrawlNews đang được hoàn thiện thành Local Release 1.0.
 
 ## Overview
 
@@ -58,11 +58,19 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ---
 
-## Stage 5: Product Frontend Cutover (in progress)
+## Stage 5: Product Frontend Cutover — IMPLEMENTED
 
 - [x] Cutover `web/` → `frontend-legacy/`, `web-v2/` → `frontend/` + repoint compose/nginx/Makefile/CI
 - [x] Lấp feature: Feed search/filter + phân trang, Runs polling + cron note, Delivery stat cards, Analytics cost + donut, Config history, Health error board
-- [ ] Verify `docker-compose up` + `make dev` với `frontend/` mới
+- [x] Verify `docker-compose up` với `frontend/` mới; dashboard local mở tại `http://localhost`
+
+## Local Release 1.0 — NEXT
+
+- [ ] Làm pytest chạy ổn định theo batch
+- [ ] Chuẩn hóa MyPy theo Python 3.11
+- [ ] Xử lý graceful Telegram configuration
+- [ ] Cập nhật setup/testing documentation
+- [ ] Backup/restore SQLite và dependency audit
 
 ## Stage 5+: Mở rộng (Post-MVP)
 
