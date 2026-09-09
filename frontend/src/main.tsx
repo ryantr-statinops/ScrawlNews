@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 function InnerApp() {
   const colorScheme = useThemeStore((s) => s.colorScheme);
   return (
-    <MantineProvider theme={theme} defaultColorScheme={colorScheme}>
+    <MantineProvider theme={theme} forceColorScheme={colorScheme}>
       <Notifications />
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
