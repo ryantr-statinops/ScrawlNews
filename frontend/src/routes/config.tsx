@@ -6,6 +6,7 @@ import { fetchConfig, updateConfig } from "../lib/api";
 import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
+import { SourceManager } from "../components/SourceManager";
 
 const schema = z.object({
   fetch_limit: z.number().min(1).max(100),
@@ -62,6 +63,7 @@ export function ConfigPage() {
           </Stack>
         </form>
       </Card>
+      <SourceManager />
       <Title order={4} mt="lg" mb="xs">
         Change history
       </Title>
