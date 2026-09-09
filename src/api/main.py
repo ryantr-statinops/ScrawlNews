@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 from src.api.routes import (
     agent,
+    analytics,
     articles,
     config,
     digests,
@@ -63,6 +64,7 @@ app.include_router(health.router)
 app.include_router(summaries.router)
 app.include_router(logs.router)
 app.include_router(stats.router)
+app.include_router(analytics.router)
 app.include_router(agent.router)
 app.include_router(sources.router)
 app.include_router(digests.router)

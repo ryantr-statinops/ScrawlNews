@@ -146,3 +146,21 @@ def test_pipeline_sources_and_ai_usage_aggregate_telemetry(tmp_path):
     assert usage["kpis"]["total_tokens"]["current"] == 180
     assert usage["kpis"]["failure_rate"]["current"] == 50.0
     assert usage["operations"][0]["operation"] == "article_summary"
+
+
+def test_drilldown_limits_records_and_rejects_unknown_kind(tmp_path):
+    service = _service(tmp_path)
+    with sqlite3.connect(service.db_path) as conn:
+        conn.execute(
+            """INSERT INTO pipeline_runs
+            (id, status, started_at, finished_at)
+            VALUES ('run-1', 'success', '2026-09-09T11:00:00', '2026-09-09T11:00:01')"""
+        )
+        conn.commit()
+
+    result = service.drilldown("runs", "24h", limit=500)
+
+    assert result["kind"] == "runs"
+    assert [record["id"] for record in result["records"]] == ["run-1"]
+    with pytest.raises(ValueError, match="Unsupported drilldown kind"):
+        service.drilldown("unknown", "24h")
