@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card, Group, Tabs, Text } from "@mantine/core";
+import { Group, Tabs } from "@mantine/core";
 import { Activity, BarChart3, Bot, RadioTower, Workflow } from "lucide-react";
 import { PageHeader } from "../components/ui/PageHeader";
 import { AnalyticsFilters } from "../features/analytics/AnalyticsFilters";
 import { analyticsApi } from "../features/analytics/api";
+import { AiUsageTab } from "../features/analytics/AiUsageTab";
 import { ContentTab } from "../features/analytics/ContentTab";
 import { OverviewTab } from "../features/analytics/OverviewTab";
 import { PipelineTab } from "../features/analytics/PipelineTab";
@@ -38,9 +39,7 @@ export function AnalyticsPage() {
         <Tabs.Panel value="content"><ContentTab filters={filters} /></Tabs.Panel>
         <Tabs.Panel value="pipeline"><PipelineTab filters={filters} /></Tabs.Panel>
         <Tabs.Panel value="sources"><SourcesTab filters={filters} /></Tabs.Panel>
-        {(["ai-usage"] as const).map((name) => (
-          <Tabs.Panel value={name} key={name}><Card withBorder><Text c="dimmed">The {name} workspace is being connected.</Text></Card></Tabs.Panel>
-        ))}
+        <Tabs.Panel value="ai-usage"><AiUsageTab filters={filters} /></Tabs.Panel>
       </Tabs>
     </div>
   );
