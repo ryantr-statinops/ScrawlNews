@@ -27,7 +27,7 @@ export const analyticsApi = {
   overview: (filters: AnalyticsFiltersState) => get<OverviewResponse>("/api/analytics/overview", filters),
   content: (filters: AnalyticsFiltersState) => get<ContentResponse>("/api/analytics/content", filters),
   pipeline: (filters: AnalyticsFiltersState) => get<PipelineResponse>("/api/analytics/pipeline", filters),
-  sources: (filters: AnalyticsFiltersState) => get<SourceAnalyticsResponse>("/api/analytics/sources", filters),
+  sources: (filters: AnalyticsFiltersState, country?: string | null) => get<SourceAnalyticsResponse>("/api/analytics/sources", filters, country ? { country } : undefined),
   aiUsage: (filters: AnalyticsFiltersState) => get<AiUsageResponse>("/api/analytics/ai-usage", filters),
   drilldown: (filters: AnalyticsFiltersState, extra: Record<string, string>) =>
     get<DrilldownResponse>("/api/analytics/drilldown", filters, extra),
