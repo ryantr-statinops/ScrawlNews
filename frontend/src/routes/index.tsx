@@ -19,6 +19,9 @@ export function FeedPage() {
   const [category, setCategory] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [submitted, setSubmitted] = useState({ q: "", source: "", category: "" });
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [submittedDates, setSubmittedDates] = useState({ from: "", to: "" });
   const [runLimit, setRunLimit] = useState<number | string>("");
 
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
@@ -46,6 +49,8 @@ export function FeedPage() {
   if (submitted.q) params.q = submitted.q;
   if (submitted.source) params.source = submitted.source;
   if (submitted.category) params.category = submitted.category;
+  if (submittedDates.from) params.from = `${submittedDates.from}T00:00:00Z`;
+  if (submittedDates.to) params.to = `${submittedDates.to}T23:59:59Z`;
 
   const { data, isLoading, error } = useFeedQuery(params);
   const articles = data?.articles ?? [];
@@ -57,6 +62,7 @@ export function FeedPage() {
   const search = () => {
     setPage(1);
     setSubmitted({ q, source: source ?? "", category: category ?? "" });
+    setSubmittedDates({ from: fromDate, to: toDate });
   };
 
   return (
@@ -99,6 +105,8 @@ export function FeedPage() {
           value={category}
           onChange={setCategory}
         />
+        <TextInput type="date" label="From" value={fromDate} onChange={(e) => setFromDate(e.currentTarget.value)} />
+        <TextInput type="date" label="To" value={toDate} onChange={(e) => setToDate(e.currentTarget.value)} />
         <Button onClick={search} loading={isLoading}>
           Search
         </Button>
