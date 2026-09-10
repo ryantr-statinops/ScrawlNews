@@ -1,4 +1,4 @@
-import { Table, Anchor, Badge } from "@mantine/core";
+import { Table, Badge } from "@mantine/core";
 import type { Article } from "../../types/api";
 
 export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelect?: (article: Article) => void }) {
@@ -14,11 +14,9 @@ export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelec
       </Table.Thead>
       <Table.Tbody>
         {articles.map((a) => (
-          <Table.Tr key={a.id}>
+          <Table.Tr key={a.id} onClick={() => onSelect?.(a)} style={{ cursor: onSelect ? "pointer" : undefined }}>
             <Table.Td>
-              <Anchor href={a.url} target="_blank" rel="noreferrer" onClick={() => onSelect?.(a)}>
-                {a.title}
-              </Anchor>
+              {a.title}
             </Table.Td>
             <Table.Td>{a.source ?? "-"}</Table.Td>
             <Table.Td>{a.fetched_at ? new Date(a.fetched_at).toLocaleString() : "-"}</Table.Td>
