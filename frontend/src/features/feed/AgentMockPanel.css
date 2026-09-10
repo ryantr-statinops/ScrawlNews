@@ -1,0 +1,16 @@
+.agent-mock {
+  display: flex;
+  min-width: 0;
+  min-height: 280px;
+  flex-direction: column;
+}
+
+.agent-mock--collapsed {
+  min-height: 0;
+}
+
+.agent-mock__messages {
+  min-height: 150px;
+  max-height: 180px;
+  overflow-y: auto;
+}
