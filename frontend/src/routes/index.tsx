@@ -13,6 +13,7 @@ import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
 import type { Article, Digest } from "../types/api";
 import { MarkdownContent } from "../components/ui/MarkdownContent";
+import { AgentMockPanel } from "../features/feed/AgentMockPanel";
 
 const PAGE_SIZE = 20;
 
@@ -80,6 +81,7 @@ export function FeedPage() {
         articles={<>
           {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
           {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
+          <AgentMockPanel />
         </>}
         digests={<DigestPanel digests={digests} />}
       />
