@@ -14,3 +14,12 @@
   max-height: 180px;
   overflow-y: auto;
 }
+
+@media (min-width: 62em) {
+  .agent-mock--floating {
+    position: sticky;
+    top: var(--mantine-spacing-md);
+    z-index: 1;
+    box-shadow: var(--mantine-shadow-lg);
+  }
+}
