@@ -12,6 +12,7 @@ import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
 import type { Article, Digest } from "../types/api";
+import { MarkdownContent } from "../components/ui/MarkdownContent";
 
 const PAGE_SIZE = 20;
 
@@ -87,7 +88,7 @@ export function FeedPage() {
           <>
             <Text size="sm" c="dimmed" mb="md">{selectedArticle.source ?? "Unknown source"} · {selectedArticle.category ?? "uncategorized"}</Text>
             <Text size="sm" mb="md">Published: {selectedArticle.published_at ? new Date(selectedArticle.published_at).toLocaleString() : "-"}</Text>
-            <Text mb="md">{selectedArticle.content || "No extracted content available."}</Text>
+            <MarkdownContent content={selectedArticle.content || "No extracted content available."} />
             <Anchor href={selectedArticle.url} target="_blank" rel="noreferrer">Open original article</Anchor>
           </>
         ) : null}
