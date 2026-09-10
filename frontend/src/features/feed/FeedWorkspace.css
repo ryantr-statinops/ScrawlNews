@@ -10,8 +10,23 @@
   min-width: 0;
 }
 
+.digest-panel {
+  min-height: 0;
+}
+
 @media (min-width: 62em) {
   .feed-workspace {
     grid-template-columns: minmax(320px, 0.36fr) minmax(0, 0.64fr);
+  }
+
+  .feed-workspace__utility-stack {
+    display: flex;
+    min-height: 0;
+    max-height: calc(100vh - 240px);
+  }
+
+  .feed-workspace__utility-stack .digest-panel {
+    max-height: none !important;
+    flex: 1;
   }
 }
