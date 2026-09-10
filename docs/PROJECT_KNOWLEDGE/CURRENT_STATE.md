@@ -45,6 +45,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - `pytest tests/unit -q` = 77 passed, `pytest tests/integration -q` = 10 passed, `ruff` passed
 - Analytics API live qua Docker: 6 endpoint mới trả HTTP 200; dry-run xác nhận pipeline/source/LLM telemetry và Content freshness với timestamp có timezone.
 - Analytics regression: service/API contract/drill-down tests passed; `mypy src/` passed.
+- Feed UI: Agent mock chỉ còn collapse/expand, không còn Float/Dock; trạng thái collapsed giữ header tối thiểu 48px và spacing 16px với Topic digests. Frontend Feed tests, typecheck và lint đã pass sau thay đổi này.
 
 ## Cấu trúc source thực tế
 
