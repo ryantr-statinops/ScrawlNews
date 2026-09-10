@@ -3,13 +3,14 @@ import type { Article } from "../../types/api";
 
 export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelect?: (article: Article) => void }) {
   return (
-    <Table striped highlightOnHover>
+    <Table.ScrollContainer minWidth={640}>
+    <Table striped highlightOnHover verticalSpacing="sm">
       <Table.Thead>
           <Table.Tr>
-            <Table.Th>Title</Table.Th>
-            <Table.Th>Source</Table.Th>
-            <Table.Th>Fetched</Table.Th>
-            <Table.Th>Status</Table.Th>
+            <Table.Th style={{ minWidth: 280 }}>Title</Table.Th>
+            <Table.Th style={{ width: 130 }}>Source</Table.Th>
+            <Table.Th style={{ width: 180 }}>Fetched</Table.Th>
+            <Table.Th style={{ width: 110 }}>Status</Table.Th>
           </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -29,5 +30,6 @@ export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelec
         ))}
       </Table.Tbody>
     </Table>
+    </Table.ScrollContainer>
   );
 }
