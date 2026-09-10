@@ -16,11 +16,12 @@ export function latestDigestsByCategory(digests: Digest[]) {
 
 export function DigestPanel({ digests, onSelect, loading = false, error }: { digests: Digest[]; onSelect?: (digest: Digest) => void; loading?: boolean; error?: string }) {
   const latestDigests = latestDigestsByCategory(digests);
+  const selectDigest = (digest: Digest) => onSelect?.(digest);
   return <Card withBorder className="digest-panel" style={{ maxHeight: "70vh", overflowY: "auto" }}>
     <Title order={4} mb="sm">Topic digests</Title>
     {loading ? <Loader size="sm" /> : null}
     {error ? <Alert color="red" title="Unable to load digests">{error}</Alert> : null}
     {!loading && !error && latestDigests.length === 0 ? <Text c="dimmed">No topic digests yet.</Text> : null}
-    {!loading && !error && latestDigests.length > 0 ? <SimpleGrid cols={1}>{latestDigests.map((digest) => <Card key={digest.id} withBorder shadow="xs" onClick={() => onSelect?.(digest)} style={{ cursor: onSelect ? "pointer" : undefined }}><Group justify="space-between" gap="xs"><Text fw={600}>{digest.title}</Text>{digest.status !== "success" ? <Badge color="red">{digest.status}</Badge> : null}</Group><Text size="sm" c="dimmed" mb="xs">{digest.category} · {digest.article_count} articles</Text>{digest.error ? <Text size="xs" c="red" mb="xs">{digest.error}</Text> : null}<div className="digest-panel__preview"><MarkdownContent content={digest.digest_text || "No digest content available."} /></div>{onSelect ? <Button variant="subtle" size="compact-sm" mt="sm" onClick={() => onSelect(digest)}>Open digest</Button> : null}</Card>)}</SimpleGrid> : null}
+    {!loading && !error && latestDigests.length > 0 ? <SimpleGrid cols={1}>{latestDigests.map((digest) => <Card key={digest.id} withBorder shadow="xs" onClick={() => selectDigest(digest)} style={{ cursor: onSelect ? "pointer" : undefined }}><Group justify="space-between" gap="xs"><Text fw={600}>{digest.title}</Text>{digest.status !== "success" ? <Badge color="red">{digest.status}</Badge> : null}</Group><Text size="sm" c="dimmed" mb="xs">{digest.category} · {digest.article_count} articles</Text>{digest.error ? <Text size="xs" c="red" mb="xs">{digest.error}</Text> : null}<div className="digest-panel__preview"><MarkdownContent content={digest.digest_text || "No digest content available."} /></div>{onSelect ? <Button variant="subtle" size="compact-sm" mt="sm" onClick={(event) => { event.stopPropagation(); selectDigest(digest); }}>Open digest</Button> : null}</Card>)}</SimpleGrid> : null}
   </Card>;
 }
