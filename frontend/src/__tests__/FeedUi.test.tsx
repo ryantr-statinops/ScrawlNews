@@ -86,4 +86,20 @@ describe("Feed UI", () => {
     expect(onSelect).toHaveBeenCalledWith(article);
   });
 
+  it("opens an article row with keyboard interaction", () => {
+    const onSelect = vi.fn();
+    render(<MantineProvider theme={theme}><FeedTable articles={[article]} onSelect={onSelect} /></MantineProvider>);
+    const row = screen.getByRole("button", { name: "Open article: Article One" });
+    fireEvent.keyDown(row, { key: "Enter" });
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith(article);
+  });
+
+  it("renders a digest loading and error state", () => {
+    const { container, rerender } = render(<MantineProvider theme={theme}><DigestPanel digests={[]} loading /></MantineProvider>);
+    expect(container.querySelector(".mantine-Loader-root")).not.toBeNull();
+    rerender(<MantineProvider theme={theme}><DigestPanel digests={[]} error="Digest API unavailable" /></MantineProvider>);
+    expect(screen.getByText("Digest API unavailable")).toBeDefined();
+  });
+
 });
