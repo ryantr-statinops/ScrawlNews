@@ -1,4 +1,4 @@
-import { Button, Card, Grid, Select, TextInput } from "@mantine/core";
+import { Button, Card, Grid, Select, Text, TextInput } from "@mantine/core";
 
 export function FeedFilters({
   q, source, category, sources, categories, fromDate, toDate,
@@ -19,5 +19,6 @@ export function FeedFilters({
       <Grid.Col span={{ base: 6, sm: 3, lg: 2 }}><TextInput type="date" label="To" value={toDate} onChange={(e) => onToChange(e.currentTarget.value)} /></Grid.Col>
       <Grid.Col span={{ base: 12, sm: 6, lg: 1 }}><Button fullWidth onClick={onSearch} loading={loading}>Search</Button></Grid.Col>
     </Grid>
+    <Text size="xs" c="dimmed" mt="xs">Date filters use Asia/Ho_Chi_Minh time.</Text>
   </Card>;
 }
