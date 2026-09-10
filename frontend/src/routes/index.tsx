@@ -14,6 +14,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import type { Article, Digest } from "../types/api";
 import { MarkdownContent } from "../components/ui/MarkdownContent";
 import { AgentMockPanel } from "../features/feed/AgentMockPanel";
+import { ArticlePanel } from "../features/feed/ArticlePanel";
 
 const PAGE_SIZE = 20;
 
@@ -79,10 +80,10 @@ export function FeedPage() {
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
       <FeedWorkspace
-        articles={<>
+        articles={<ArticlePanel total={total}>
           {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
           {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
-        </>}
+        </ArticlePanel>}
         digests={<DigestPanel digests={digests} onSelect={setSelectedDigest} />}
         agent={<AgentMockPanel />}
       />
