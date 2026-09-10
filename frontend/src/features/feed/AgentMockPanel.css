@@ -7,7 +7,13 @@
 
 .agent-mock.agent-mock--collapsed {
   --card-padding: var(--mantine-spacing-xs);
-  min-height: 0;
+  min-height: 48px;
+  overflow: visible;
+}
+
+.agent-mock.agent-mock--collapsed > .mantine-Group-root {
+  min-height: 32px;
+  align-items: center;
 }
 
 .agent-mock__messages {
