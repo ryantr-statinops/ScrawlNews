@@ -3,7 +3,7 @@ import { SimpleGrid } from "@mantine/core";
 
 export function FeedWorkspace({ articles, digests }: { articles: ReactNode; digests: ReactNode }) {
   return <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" style={{ alignItems: "start" }}>
-    <section aria-label="Articles">{articles}</section>
     <section aria-label="Topic digests">{digests}</section>
+    <section aria-label="Articles">{articles}</section>
   </SimpleGrid>;
 }
