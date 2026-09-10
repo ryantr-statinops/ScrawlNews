@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, Send } from "lucide-react";
 
 export function AgentMockPanel() {
   const [expanded, setExpanded] = useState(true);
+  const [floating, setFloating] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(["I can help you inspect this feed."]);
 
@@ -14,10 +15,10 @@ export function AgentMockPanel() {
     setMessage("");
   };
 
-  return <Card withBorder mt="md" style={{ minWidth: 320, minHeight: expanded ? 280 : 0 }}>
+  return <Card withBorder mt="md" style={{ minWidth: 320, minHeight: expanded ? 280 : 0, ...(floating ? { position: "fixed", left: 24, bottom: 24, width: 360, zIndex: 10, boxShadow: "var(--mantine-shadow-lg)" } : {}) }}>
     <Group justify="space-between">
       <div><Text fw={700}>Agent</Text><Text size="xs" c="teal">Ready · mock mode</Text></div>
-      <ActionIcon variant="subtle" aria-label={expanded ? "Collapse agent" : "Expand agent"} onClick={() => setExpanded((value) => !value)}>{expanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}</ActionIcon>
+      <Group gap={4}><Button variant="subtle" size="compact-xs" onClick={() => setFloating((value) => !value)}>{floating ? "Dock" : "Float"}</Button><ActionIcon variant="subtle" aria-label={expanded ? "Collapse agent" : "Expand agent"} onClick={() => setExpanded((value) => !value)}>{expanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}</ActionIcon></Group>
     </Group>
     {expanded ? <>
       <Card.Section p="sm" mt="sm" style={{ minHeight: 150, maxHeight: 180, overflowY: "auto" }}>
