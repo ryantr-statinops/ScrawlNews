@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { TextInput, Select, Button, Group, Pagination, Text, NumberInput, Card, SimpleGrid, Title, Drawer, Anchor } from "@mantine/core";
+import { Group, Pagination, Text, Drawer, Anchor } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
 import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
-import { PageHeader } from "../components/ui/PageHeader";
+import { FeedHeader } from "../features/feed/FeedHeader";
+import { FeedFilters } from "../features/feed/FeedFilters";
+import { FeedWorkspace } from "../features/feed/FeedWorkspace";
+import { DigestPanel } from "../features/feed/DigestPanel";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
 import type { Article, Digest } from "../types/api";
+import { MarkdownContent } from "../components/ui/MarkdownContent";
+import { AgentMockPanel } from "../features/feed/AgentMockPanel";
 
 const PAGE_SIZE = 20;
 
@@ -68,76 +73,24 @@ export function FeedPage() {
 
   return (
     <div>
-      <Group justify="space-between" mb="md" align="end">
-        <PageHeader title="Feed" description="Latest articles from configured news sources" />
-        <Group align="end">
-          <NumberInput
-            label="Articles per update"
-            min={1}
-            max={100}
-            value={runLimit}
-            placeholder={String(configuredFetchLimit)}
-            onChange={setRunLimit}
-            w={150}
-          />
-          <Button onClick={() => updateFeed.mutate()} loading={updateFeed.isPending}>
-            Update feed
-          </Button>
-        </Group>
-      </Group>
-      <Group mb="md">
-        <TextInput
-          placeholder="Search..."
-          value={q}
-          onChange={(e) => setQ(e.currentTarget.value)}
-          onKeyDown={(e) => e.key === "Enter" && search()}
-        />
-        <Select
-          placeholder="All sources"
-          clearable
-          data={sources}
-          value={source}
-          onChange={setSource}
-        />
-        <Select
-          placeholder="All categories"
-          clearable
-          data={categories}
-          value={category}
-          onChange={setCategory}
-        />
-        <TextInput type="date" label="From" value={fromDate} onChange={(e) => setFromDate(e.currentTarget.value)} />
-        <TextInput type="date" label="To" value={toDate} onChange={(e) => setToDate(e.currentTarget.value)} />
-        <Button onClick={search} loading={isLoading}>
-          Search
-        </Button>
-      </Group>
-      {digests.length > 0 ? (
-        <Card withBorder mb="md">
-          <Title order={4} mb="sm">Topic digests</Title>
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
-            {digests.map((digest) => (
-              <Card key={digest.id} withBorder shadow="xs">
-                <Text fw={600}>{digest.title}</Text>
-                <Text size="sm" c="dimmed" mb="xs">
-                  {digest.category} · {digest.article_count} articles
-                </Text>
-                <Text size="sm">{digest.digest_text}</Text>
-              </Card>
-            ))}
-          </SimpleGrid>
-        </Card>
-      ) : null}
+      <FeedHeader fetchLimit={configuredFetchLimit} runLimit={runLimit} onRunLimitChange={setRunLimit} onUpdate={() => updateFeed.mutate()} loading={updateFeed.isPending} />
+      <FeedFilters q={q} source={source} category={category} sources={sources} categories={categories} fromDate={fromDate} toDate={toDate} onQueryChange={setQ} onSourceChange={setSource} onCategoryChange={setCategory} onFromChange={setFromDate} onToChange={setToDate} onSearch={search} loading={isLoading} />
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
-      {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
-      {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
+      <FeedWorkspace
+        articles={<>
+          {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
+          {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
+          <AgentMockPanel />
+        </>}
+        digests={<DigestPanel digests={digests} />}
+      />
       <Drawer opened={selectedArticle !== null} onClose={() => setSelectedArticle(null)} title={selectedArticle?.title} position="right" size="lg">
         {selectedArticle ? (
           <>
             <Text size="sm" c="dimmed" mb="md">{selectedArticle.source ?? "Unknown source"} · {selectedArticle.category ?? "uncategorized"}</Text>
             <Text size="sm" mb="md">Published: {selectedArticle.published_at ? new Date(selectedArticle.published_at).toLocaleString() : "-"}</Text>
-            <Text mb="md">{selectedArticle.content || "No extracted content available."}</Text>
+            <MarkdownContent content={selectedArticle.content || "No extracted content available."} />
             <Anchor href={selectedArticle.url} target="_blank" rel="noreferrer">Open original article</Anchor>
           </>
         ) : null}
