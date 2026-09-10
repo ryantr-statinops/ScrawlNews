@@ -25,12 +25,3 @@
 .agent-mock__message--user {
   background: var(--mantine-primary-color-light);
 }
-
-@media (min-width: 62em) {
-  .agent-mock.agent-mock--floating {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    box-shadow: var(--mantine-shadow-lg);
-  }
-}
