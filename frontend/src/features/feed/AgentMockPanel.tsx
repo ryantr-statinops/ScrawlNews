@@ -19,7 +19,7 @@ export function AgentMockPanel() {
   return <Card withBorder className={`agent-mock${expanded ? "" : " agent-mock--collapsed"}${floating ? " agent-mock--floating" : ""}`}>
     <Group justify="space-between">
       <div><Text fw={700}>Agent</Text><Text size="xs" c="primary">Ready · mock mode</Text></div>
-      <Group gap={4}><Button variant="subtle" size="compact-xs" onClick={() => setFloating((value) => !value)}>{floating ? "Dock" : "Float"}</Button><ActionIcon variant="subtle" aria-label={expanded ? "Collapse agent" : "Expand agent"} onClick={() => setExpanded((value) => !value)}>{expanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}</ActionIcon></Group>
+      <Group gap={4}><Button variant="subtle" size="compact-xs" onClick={() => setFloating((value) => !value)}>{floating ? "Dock" : "Float"}</Button><ActionIcon variant="subtle" aria-label={expanded ? "Collapse agent" : "Expand agent"} onClick={() => setExpanded((value) => !value)}>{expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</ActionIcon></Group>
     </Group>
     {expanded ? <>
       <Card.Section className="agent-mock__messages" p="sm" mt="sm">
