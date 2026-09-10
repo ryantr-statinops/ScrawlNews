@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { SimpleGrid } from "@mantine/core";
+import "./FeedWorkspace.css";
 
 export function FeedWorkspace({ articles, digests, agent }: { articles: ReactNode; digests: ReactNode; agent: ReactNode }) {
-  return <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" style={{ alignItems: "start" }}>
+  return <div className="feed-workspace">
     <section aria-label="Feed tools">{agent}{digests}</section>
     <section aria-label="Articles">{articles}</section>
-  </SimpleGrid>;
+  </div>;
 }

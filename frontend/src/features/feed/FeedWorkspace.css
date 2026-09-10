@@ -1,0 +1,12 @@
+.feed-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-md);
+  align-items: start;
+}
+
+@media (min-width: 62em) {
+  .feed-workspace {
+    grid-template-columns: minmax(320px, 0.36fr) minmax(0, 0.64fr);
+  }
+}
