@@ -4,7 +4,7 @@
 
 ## Principles
 
-- Một terminal parity: `docker-compose up` và `make dev` đều qua Nginx `:80`
+- Một terminal parity: `docker-compose up` và `make dev` đều qua Nginx nội bộ `:80`, host dashboard mặc định `:6767`
 - Progressive disclosure cho API docs
 
 ---
@@ -27,6 +27,7 @@
 
 - 7 trang chính: Feed, Summaries, Runs, Delivery, Analytics, Settings, Agent. Route Health và Config cũ vẫn được giữ tương thích.
 - Analytics có 5 tab: Overview, Content, Pipeline, Sources và AI Usage; filter được lưu trong URL, KPI so với kỳ trước và click mở drawer drill-down.
+- Feed dùng workspace 2 cột: article table bên trái, Topic digests bên phải; digest/summary render GFM Markdown an toàn. Agent hiện là mock panel có thể thu gọn và Float/Dock, chưa gọi backend thật.
 - Tech stack chi tiết: xem [frontend/01-stack.md](frontend/01-stack.md) (Mantine UI + ApexCharts + TanStack Router + Zustand + SSE)
 
 ### Implementation (Stage 2–4)
