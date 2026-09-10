@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { TextInput, Select, Button, Group, Pagination, Text, NumberInput, Card, SimpleGrid, Title, Drawer, Anchor } from "@mantine/core";
+import { Button, Group, Pagination, Text, Card, SimpleGrid, Title, Drawer, Anchor } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
 import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
-import { PageHeader } from "../components/ui/PageHeader";
+import { FeedHeader } from "../features/feed/FeedHeader";
+import { FeedFilters } from "../features/feed/FeedFilters";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -68,50 +69,8 @@ export function FeedPage() {
 
   return (
     <div>
-      <Group justify="space-between" mb="md" align="end">
-        <PageHeader title="Feed" description="Latest articles from configured news sources" />
-        <Group align="end">
-          <NumberInput
-            label="Articles per update"
-            min={1}
-            max={100}
-            value={runLimit}
-            placeholder={String(configuredFetchLimit)}
-            onChange={setRunLimit}
-            w={150}
-          />
-          <Button onClick={() => updateFeed.mutate()} loading={updateFeed.isPending}>
-            Update feed
-          </Button>
-        </Group>
-      </Group>
-      <Group mb="md">
-        <TextInput
-          placeholder="Search..."
-          value={q}
-          onChange={(e) => setQ(e.currentTarget.value)}
-          onKeyDown={(e) => e.key === "Enter" && search()}
-        />
-        <Select
-          placeholder="All sources"
-          clearable
-          data={sources}
-          value={source}
-          onChange={setSource}
-        />
-        <Select
-          placeholder="All categories"
-          clearable
-          data={categories}
-          value={category}
-          onChange={setCategory}
-        />
-        <TextInput type="date" label="From" value={fromDate} onChange={(e) => setFromDate(e.currentTarget.value)} />
-        <TextInput type="date" label="To" value={toDate} onChange={(e) => setToDate(e.currentTarget.value)} />
-        <Button onClick={search} loading={isLoading}>
-          Search
-        </Button>
-      </Group>
+      <FeedHeader fetchLimit={configuredFetchLimit} runLimit={runLimit} onRunLimitChange={setRunLimit} onUpdate={() => updateFeed.mutate()} loading={updateFeed.isPending} />
+      <FeedFilters q={q} source={source} category={category} sources={sources} categories={categories} fromDate={fromDate} toDate={toDate} onQueryChange={setQ} onSourceChange={setSource} onCategoryChange={setCategory} onFromChange={setFromDate} onToChange={setToDate} onSearch={search} loading={isLoading} />
       {digests.length > 0 ? (
         <Card withBorder mb="md">
           <Title order={4} mb="sm">Topic digests</Title>
