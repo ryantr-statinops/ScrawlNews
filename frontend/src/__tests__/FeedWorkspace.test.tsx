@@ -20,8 +20,8 @@ describe("Feed workspace", () => {
     render(<MantineProvider theme={theme}><AgentMockPanel /></MantineProvider>);
     expect(screen.getByText("Ready · mock mode")).toBeDefined();
     expect(screen.getByLabelText("Message agent")).toBeDefined();
-    fireEvent.click(screen.getByRole("button", { name: "Float" }));
-    expect(screen.getByRole("button", { name: "Dock" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Float" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Dock" })).toBeNull();
   });
 
   it("keeps only the newest digest for each category in the rail", () => {

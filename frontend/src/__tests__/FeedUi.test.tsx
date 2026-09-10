@@ -49,13 +49,12 @@ describe("Feed UI", () => {
     expect(within(articles).getByRole("heading", { name: "Articles" })).toBeDefined();
   });
 
-  it("keeps Agent controls local and restores the docked state", () => {
+  it("keeps Agent collapse control local", () => {
     const { container } = renderWorkspace();
     const agent = container.querySelector(".agent-mock");
     expect(agent).not.toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Float" }));
-    expect(screen.getByRole("button", { name: "Dock" })).toBeDefined();
-    expect(agent?.className).toContain("agent-mock--floating");
+    expect(screen.queryByRole("button", { name: "Float" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Dock" })).toBeNull();
     expect(agent?.querySelector(".lucide-chevron-up")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Collapse agent" }));
     expect(screen.getByRole("button", { name: "Expand agent" })).toBeDefined();
@@ -66,8 +65,6 @@ describe("Feed UI", () => {
     fireEvent.change(screen.getByLabelText("Message agent"), { target: { value: "check layout" } });
     fireEvent.click(screen.getByRole("button", { name: "Send message" }));
     expect(screen.getByText("check layout")).toBeDefined();
-    fireEvent.click(screen.getByRole("button", { name: "Dock" }));
-    expect(screen.getByRole("button", { name: "Float" })).toBeDefined();
   });
 
   it("shows only the latest digest and emits the selected digest", () => {
