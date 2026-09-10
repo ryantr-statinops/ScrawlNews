@@ -80,7 +80,12 @@ export function FeedPage() {
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
       <FeedWorkspace
-        articles={<ArticlePanel total={total}>
+        articles={<ArticlePanel total={total} footer={totalPages > 1 ? (
+          <Group justify="space-between">
+            <Text size="sm" c="dimmed">Page {page} / {totalPages}</Text>
+            <Pagination total={totalPages} value={page} onChange={setPage} />
+          </Group>
+        ) : null}>
           {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
           {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
         </ArticlePanel>}
@@ -109,14 +114,6 @@ export function FeedPage() {
           </Stack>
         ) : null}
       </Drawer>
-      {totalPages > 1 ? (
-        <Group justify="space-between" mt="md">
-          <Text size="sm" c="dimmed">
-            Total: {total} · Page {page} / {totalPages}
-          </Text>
-          <Pagination total={totalPages} value={page} onChange={setPage} />
-        </Group>
-      ) : null}
     </div>
   );
 }
