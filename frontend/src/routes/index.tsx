@@ -6,6 +6,7 @@ import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { FeedHeader } from "../features/feed/FeedHeader";
 import { FeedFilters } from "../features/feed/FeedFilters";
+import { FeedWorkspace } from "../features/feed/FeedWorkspace";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -71,26 +72,15 @@ export function FeedPage() {
     <div>
       <FeedHeader fetchLimit={configuredFetchLimit} runLimit={runLimit} onRunLimitChange={setRunLimit} onUpdate={() => updateFeed.mutate()} loading={updateFeed.isPending} />
       <FeedFilters q={q} source={source} category={category} sources={sources} categories={categories} fromDate={fromDate} toDate={toDate} onQueryChange={setQ} onSourceChange={setSource} onCategoryChange={setCategory} onFromChange={setFromDate} onToChange={setToDate} onSearch={search} loading={isLoading} />
-      {digests.length > 0 ? (
-        <Card withBorder mb="md">
-          <Title order={4} mb="sm">Topic digests</Title>
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
-            {digests.map((digest) => (
-              <Card key={digest.id} withBorder shadow="xs">
-                <Text fw={600}>{digest.title}</Text>
-                <Text size="sm" c="dimmed" mb="xs">
-                  {digest.category} · {digest.article_count} articles
-                </Text>
-                <Text size="sm">{digest.digest_text}</Text>
-              </Card>
-            ))}
-          </SimpleGrid>
-        </Card>
-      ) : null}
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
-      {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
-      {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
+      <FeedWorkspace
+        articles={<>
+          {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
+          {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
+        </>}
+        digests={<Card withBorder><Title order={4} mb="sm">Topic digests</Title>{digests.length === 0 ? <Text c="dimmed">No topic digests yet.</Text> : <SimpleGrid cols={1}>{digests.map((digest) => <Card key={digest.id} withBorder shadow="xs"><Text fw={600}>{digest.title}</Text><Text size="sm" c="dimmed" mb="xs">{digest.category} · {digest.article_count} articles</Text><Text size="sm">{digest.digest_text}</Text></Card>)}</SimpleGrid>}</Card>}
+      />
       <Drawer opened={selectedArticle !== null} onClose={() => setSelectedArticle(null)} title={selectedArticle?.title} position="right" size="lg">
         {selectedArticle ? (
           <>
