@@ -1,0 +1,4 @@
+.digest-panel__preview {
+  max-height: 12rem;
+  overflow: hidden;
+}
