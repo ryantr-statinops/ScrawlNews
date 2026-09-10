@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Group, Pagination, Text, Card, SimpleGrid, Title, Drawer, Anchor } from "@mantine/core";
+import { Group, Pagination, Text, Drawer, Anchor } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
 import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { FeedHeader } from "../features/feed/FeedHeader";
 import { FeedFilters } from "../features/feed/FeedFilters";
 import { FeedWorkspace } from "../features/feed/FeedWorkspace";
+import { DigestPanel } from "../features/feed/DigestPanel";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -79,7 +80,7 @@ export function FeedPage() {
           {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
           {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
         </>}
-        digests={<Card withBorder><Title order={4} mb="sm">Topic digests</Title>{digests.length === 0 ? <Text c="dimmed">No topic digests yet.</Text> : <SimpleGrid cols={1}>{digests.map((digest) => <Card key={digest.id} withBorder shadow="xs"><Text fw={600}>{digest.title}</Text><Text size="sm" c="dimmed" mb="xs">{digest.category} · {digest.article_count} articles</Text><Text size="sm">{digest.digest_text}</Text></Card>)}</SimpleGrid>}</Card>}
+        digests={<DigestPanel digests={digests} />}
       />
       <Drawer opened={selectedArticle !== null} onClose={() => setSelectedArticle(null)} title={selectedArticle?.title} position="right" size="lg">
         {selectedArticle ? (
