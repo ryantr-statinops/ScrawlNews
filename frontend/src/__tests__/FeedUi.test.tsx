@@ -56,9 +56,13 @@ describe("Feed UI", () => {
     fireEvent.click(screen.getByRole("button", { name: "Float" }));
     expect(screen.getByRole("button", { name: "Dock" })).toBeDefined();
     expect(agent?.className).toContain("agent-mock--floating");
+    expect(agent?.querySelector(".lucide-chevron-up")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Collapse agent" }));
     expect(screen.getByRole("button", { name: "Expand agent" })).toBeDefined();
+    expect(agent?.className).toContain("agent-mock--collapsed");
+    expect(agent?.querySelector(".lucide-chevron-down")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Expand agent" }));
+    expect(agent?.querySelector(".lucide-chevron-up")).not.toBeNull();
     fireEvent.change(screen.getByLabelText("Message agent"), { target: { value: "check layout" } });
     fireEvent.click(screen.getByRole("button", { name: "Send message" }));
     expect(screen.getByText("check layout")).toBeDefined();
