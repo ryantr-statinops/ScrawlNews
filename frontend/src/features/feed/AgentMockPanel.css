@@ -15,6 +15,16 @@
   overflow-y: auto;
 }
 
+.agent-mock__message {
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-default-hover);
+  color: var(--mantine-color-text);
+}
+
+.agent-mock__message--user {
+  background: var(--mantine-primary-color-light);
+}
+
 @media (min-width: 62em) {
   .agent-mock--floating {
     position: sticky;
