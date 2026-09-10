@@ -33,6 +33,18 @@ export async function fetchDigests(category?: string) {
   return res.json();
 }
 
+export async function fetchSummaries(articleId: string) {
+  const res = await fetch(`/api/summaries?article_id=${encodeURIComponent(articleId)}&limit=20`);
+  if (!res.ok) throw new Error(`Failed to fetch summaries: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchDigestArticles(digestId: string) {
+  const res = await fetch(`/api/digests/${encodeURIComponent(digestId)}/articles`);
+  if (!res.ok) throw new Error(`Failed to fetch digest articles: ${res.status}`);
+  return res.json();
+}
+
 export async function updateConfig(payload: Record<string, unknown>) {
   const res = await fetch("/api/config", {
     method: "PUT",
