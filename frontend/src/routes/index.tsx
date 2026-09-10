@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Group, Pagination, Text, Drawer, Anchor, Stack } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
-import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
+import { fetchConfig, fetchDigests, fetchRuns, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { FeedHeader } from "../features/feed/FeedHeader";
 import { FeedFilters } from "../features/feed/FeedFilters";
@@ -34,6 +34,7 @@ export function FeedPage() {
 
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
   const digestQuery = useQuery({ queryKey: ["digests"], queryFn: () => fetchDigests() });
+  const runsQuery = useQuery({ queryKey: ["runs"], queryFn: fetchRuns, refetchInterval: 5000 });
   const configuredFetchLimit = Number(configQuery.data?.fetch_limit ?? 20);
   const updateFeed = useMutation({
     mutationFn: () => triggerRun(
@@ -45,6 +46,7 @@ export function FeedPage() {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
     },
   });
+  const latestRun = runsQuery.data?.runs?.[0];
   const categories: string[] = String(configQuery.data?.news_categories ?? "technology,business,world,science")
     .split(",")
     .map((c: string) => c.trim())
@@ -75,7 +77,7 @@ export function FeedPage() {
 
   return (
     <div>
-      <FeedHeader fetchLimit={configuredFetchLimit} runLimit={runLimit} onRunLimitChange={setRunLimit} onUpdate={() => updateFeed.mutate()} loading={updateFeed.isPending} />
+      <FeedHeader fetchLimit={configuredFetchLimit} runLimit={runLimit} onRunLimitChange={setRunLimit} onUpdate={() => updateFeed.mutate()} loading={updateFeed.isPending} runStatus={latestRun?.status} />
       <FeedFilters q={q} source={source} category={category} sources={sources} categories={categories} fromDate={fromDate} toDate={toDate} onQueryChange={setQ} onSourceChange={setSource} onCategoryChange={setCategory} onFromChange={setFromDate} onToChange={setToDate} onSearch={search} loading={isLoading} />
       {isLoading ? <LoadingState /> : null}
       {error ? <ErrorState message={(error as Error).message} /> : null}
