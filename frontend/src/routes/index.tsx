@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Group, Pagination, Text, Drawer, Anchor } from "@mantine/core";
+import { Group, Pagination, Text, Drawer, Anchor, Stack } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
 import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
@@ -29,6 +29,7 @@ export function FeedPage() {
   const [submittedDates, setSubmittedDates] = useState({ from: "", to: "" });
   const [runLimit, setRunLimit] = useState<number | string>("");
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [selectedDigest, setSelectedDigest] = useState<Digest | null>(null);
 
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
   const digestQuery = useQuery({ queryKey: ["digests"], queryFn: () => fetchDigests() });
@@ -82,7 +83,7 @@ export function FeedPage() {
           {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
           {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
         </>}
-        digests={<DigestPanel digests={digests} />}
+        digests={<DigestPanel digests={digests} onSelect={setSelectedDigest} />}
         agent={<AgentMockPanel />}
       />
       <Drawer opened={selectedArticle !== null} onClose={() => setSelectedArticle(null)} title={selectedArticle?.title} position="right" size="lg">
@@ -93,6 +94,18 @@ export function FeedPage() {
             <MarkdownContent content={selectedArticle.content || "No extracted content available."} />
             <Anchor href={selectedArticle.url} target="_blank" rel="noreferrer">Open original article</Anchor>
           </>
+        ) : null}
+      </Drawer>
+      <Drawer opened={selectedDigest !== null} onClose={() => setSelectedDigest(null)} title={selectedDigest?.title} position="left" size="lg">
+        {selectedDigest ? (
+          <Stack gap="md">
+            <Text size="sm" c="dimmed">{selectedDigest.category} · {selectedDigest.article_count} articles · {selectedDigest.created_at ? new Date(selectedDigest.created_at).toLocaleString() : "-"}</Text>
+            <MarkdownContent content={selectedDigest.digest_text} />
+            <Text fw={600}>Earlier digests in this category</Text>
+            {digests.filter((digest) => digest.category === selectedDigest.category && digest.id !== selectedDigest.id).map((digest) => (
+              <Anchor key={digest.id} component="button" type="button" onClick={() => setSelectedDigest(digest)}>{digest.title} · {digest.created_at ? new Date(digest.created_at).toLocaleDateString() : "-"}</Anchor>
+            ))}
+          </Stack>
         ) : null}
       </Drawer>
       {totalPages > 1 ? (

@@ -13,10 +13,10 @@ export function latestDigestsByCategory(digests: Digest[]) {
   return [...newest.values()].sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
 }
 
-export function DigestPanel({ digests }: { digests: Digest[] }) {
+export function DigestPanel({ digests, onSelect }: { digests: Digest[]; onSelect?: (digest: Digest) => void }) {
   const latestDigests = latestDigestsByCategory(digests);
   return <Card withBorder style={{ maxHeight: "70vh", overflowY: "auto" }}>
     <Title order={4} mb="sm">Topic digests</Title>
-    {latestDigests.length === 0 ? <Text c="dimmed">No topic digests yet.</Text> : <SimpleGrid cols={1}>{latestDigests.map((digest) => <Card key={digest.id} withBorder shadow="xs"><Text fw={600}>{digest.title}</Text><Text size="sm" c="dimmed" mb="xs">{digest.category} · {digest.article_count} articles</Text><MarkdownContent content={digest.digest_text} /></Card>)}</SimpleGrid>}
+    {latestDigests.length === 0 ? <Text c="dimmed">No topic digests yet.</Text> : <SimpleGrid cols={1}>{latestDigests.map((digest) => <Card key={digest.id} withBorder shadow="xs" onClick={() => onSelect?.(digest)} style={{ cursor: onSelect ? "pointer" : undefined }}><Text fw={600}>{digest.title}</Text><Text size="sm" c="dimmed" mb="xs">{digest.category} · {digest.article_count} articles</Text><MarkdownContent content={digest.digest_text} /></Card>)}</SimpleGrid>}
   </Card>;
 }
