@@ -15,7 +15,7 @@ export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelec
       </Table.Thead>
       <Table.Tbody>
         {articles.map((a) => (
-          <Table.Tr key={a.id} onClick={() => onSelect?.(a)} style={{ cursor: onSelect ? "pointer" : undefined }}>
+          <Table.Tr key={a.id} tabIndex={onSelect ? 0 : undefined} role={onSelect ? "button" : undefined} aria-label={onSelect ? `Open article: ${a.title}` : undefined} onClick={() => onSelect?.(a)} onKeyDown={(event) => { if (onSelect && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(a); } }} style={{ cursor: onSelect ? "pointer" : undefined }}>
             <Table.Td>
               {a.title}
             </Table.Td>
