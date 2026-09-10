@@ -28,7 +28,7 @@
 @media (min-width: 62em) {
   .agent-mock--floating {
     position: sticky;
-    top: var(--mantine-spacing-md);
+    top: 0;
     z-index: 1;
     box-shadow: var(--mantine-shadow-lg);
   }
