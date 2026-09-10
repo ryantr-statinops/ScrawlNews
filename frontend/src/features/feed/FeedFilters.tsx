@@ -1,4 +1,4 @@
-import { Button, Group, Select, TextInput } from "@mantine/core";
+import { Button, Card, Grid, Select, TextInput } from "@mantine/core";
 
 export function FeedFilters({
   q, source, category, sources, categories, fromDate, toDate,
@@ -10,12 +10,14 @@ export function FeedFilters({
   onFromChange: (value: string) => void; onToChange: (value: string) => void;
   onSearch: () => void; loading: boolean;
 }) {
-  return <Group mb="md">
-    <TextInput placeholder="Search..." value={q} onChange={(e) => onQueryChange(e.currentTarget.value)} onKeyDown={(e) => e.key === "Enter" && onSearch()} />
-    <Select placeholder="All sources" clearable data={sources} value={source} onChange={onSourceChange} />
-    <Select placeholder="All categories" clearable data={categories} value={category} onChange={onCategoryChange} />
-    <TextInput type="date" label="From" value={fromDate} onChange={(e) => onFromChange(e.currentTarget.value)} />
-    <TextInput type="date" label="To" value={toDate} onChange={(e) => onToChange(e.currentTarget.value)} />
-    <Button onClick={onSearch} loading={loading}>Search</Button>
-  </Group>;
+  return <Card withBorder mb="md" padding="md">
+    <Grid align="end" gutter="sm">
+      <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}><TextInput label="Search" placeholder="Search articles..." value={q} onChange={(e) => onQueryChange(e.currentTarget.value)} onKeyDown={(e) => e.key === "Enter" && onSearch()} /></Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 6, lg: 2 }}><Select label="Source" placeholder="All sources" clearable data={sources} value={source} onChange={onSourceChange} /></Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 6, lg: 2 }}><Select label="Category" placeholder="All categories" clearable data={categories} value={category} onChange={onCategoryChange} /></Grid.Col>
+      <Grid.Col span={{ base: 6, sm: 3, lg: 2 }}><TextInput type="date" label="From" value={fromDate} onChange={(e) => onFromChange(e.currentTarget.value)} /></Grid.Col>
+      <Grid.Col span={{ base: 6, sm: 3, lg: 2 }}><TextInput type="date" label="To" value={toDate} onChange={(e) => onToChange(e.currentTarget.value)} /></Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 6, lg: 1 }}><Button fullWidth onClick={onSearch} loading={loading}>Search</Button></Grid.Col>
+    </Grid>
+  </Card>;
 }
