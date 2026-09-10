@@ -5,6 +5,11 @@
   align-items: start;
 }
 
+.feed-workspace__utility,
+.feed-workspace__articles {
+  min-width: 0;
+}
+
 @media (min-width: 62em) {
   .feed-workspace {
     grid-template-columns: minmax(320px, 0.36fr) minmax(0, 0.64fr);
