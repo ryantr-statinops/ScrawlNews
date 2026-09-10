@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Group, Pagination, Text, Drawer, Anchor, Stack } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
-import { fetchConfig, fetchDigestArticles, fetchDigests, fetchRuns, fetchSummaries, triggerRun } from "../lib/api";
+import { fetchConfig, fetchDigestArticles, fetchDigests, fetchRuns, fetchSources, fetchSummaries, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { FeedHeader } from "../features/feed/FeedHeader";
 import { FeedFilters } from "../features/feed/FeedFilters";
@@ -35,6 +35,7 @@ export function FeedPage() {
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
   const digestQuery = useQuery({ queryKey: ["digests"], queryFn: () => fetchDigests() });
   const runsQuery = useQuery({ queryKey: ["runs"], queryFn: fetchRuns, refetchInterval: 5000 });
+  const sourcesQuery = useQuery({ queryKey: ["sources"], queryFn: () => fetchSources() });
   const articleSummariesQuery = useQuery({ queryKey: ["summaries", selectedArticle?.id], queryFn: () => fetchSummaries(selectedArticle!.id), enabled: selectedArticle !== null });
   const digestArticlesQuery = useQuery({ queryKey: ["digest-articles", selectedDigest?.id], queryFn: () => fetchDigestArticles(selectedDigest!.id), enabled: selectedDigest !== null });
   const configuredFetchLimit = Number(configQuery.data?.fetch_limit ?? 20);
@@ -69,7 +70,7 @@ export function FeedPage() {
   const articles = data?.articles ?? [];
   const total = data?.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const sources = Array.from(new Set(articles.map((a) => a.source).filter(Boolean))) as string[];
+  const sources = Array.from(new Set((sourcesQuery.data?.sources ?? []).map((source: { name: string }) => source.name).filter(Boolean))) as string[];
   const digests: Digest[] = digestQuery.data?.digests ?? [];
 
   const search = () => {

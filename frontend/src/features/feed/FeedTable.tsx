@@ -3,14 +3,16 @@ import type { Article } from "../../types/api";
 
 export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelect?: (article: Article) => void }) {
   return (
-    <Table.ScrollContainer minWidth={640}>
+    <Table.ScrollContainer minWidth={760}>
     <Table striped highlightOnHover verticalSpacing="sm">
       <Table.Thead>
           <Table.Tr>
             <Table.Th style={{ minWidth: 280 }}>Title</Table.Th>
             <Table.Th style={{ width: 130 }}>Source</Table.Th>
+            <Table.Th style={{ width: 110 }}>Category</Table.Th>
+            <Table.Th style={{ width: 180 }}>Published</Table.Th>
             <Table.Th style={{ width: 180 }}>Fetched</Table.Th>
-            <Table.Th style={{ width: 110 }}>Status</Table.Th>
+            <Table.Th style={{ width: 130 }}>Status</Table.Th>
           </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -20,6 +22,8 @@ export function FeedTable({ articles, onSelect }: { articles: Article[]; onSelec
               {a.title}
             </Table.Td>
             <Table.Td>{a.source ?? "-"}</Table.Td>
+            <Table.Td>{a.category ?? "-"}</Table.Td>
+            <Table.Td>{a.published_at ? new Date(a.published_at).toLocaleString() : "-"}</Table.Td>
             <Table.Td>{a.fetched_at ? new Date(a.fetched_at).toLocaleString() : "-"}</Table.Td>
             <Table.Td>
               <Badge color={a.summarized ? "green" : "yellow"}>
