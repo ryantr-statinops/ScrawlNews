@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Group, Pagination, Text, Drawer, Anchor, Stack } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
-import { fetchConfig, fetchDigests, fetchRuns, triggerRun } from "../lib/api";
+import { fetchConfig, fetchDigestArticles, fetchDigests, fetchRuns, fetchSummaries, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
 import { FeedHeader } from "../features/feed/FeedHeader";
 import { FeedFilters } from "../features/feed/FeedFilters";
@@ -35,6 +35,8 @@ export function FeedPage() {
   const configQuery = useQuery({ queryKey: ["config"], queryFn: fetchConfig });
   const digestQuery = useQuery({ queryKey: ["digests"], queryFn: () => fetchDigests() });
   const runsQuery = useQuery({ queryKey: ["runs"], queryFn: fetchRuns, refetchInterval: 5000 });
+  const articleSummariesQuery = useQuery({ queryKey: ["summaries", selectedArticle?.id], queryFn: () => fetchSummaries(selectedArticle!.id), enabled: selectedArticle !== null });
+  const digestArticlesQuery = useQuery({ queryKey: ["digest-articles", selectedDigest?.id], queryFn: () => fetchDigestArticles(selectedDigest!.id), enabled: selectedDigest !== null });
   const configuredFetchLimit = Number(configQuery.data?.fetch_limit ?? 20);
   const updateFeed = useMutation({
     mutationFn: () => triggerRun(
@@ -100,6 +102,12 @@ export function FeedPage() {
           <>
             <Text size="sm" c="dimmed" mb="md">{selectedArticle.source ?? "Unknown source"} · {selectedArticle.category ?? "uncategorized"}</Text>
             <Text size="sm" mb="md">Published: {selectedArticle.published_at ? new Date(selectedArticle.published_at).toLocaleString() : "-"}</Text>
+            <Text size="sm" mb="md">Fetched: {selectedArticle.fetched_at ? new Date(selectedArticle.fetched_at).toLocaleString() : "-"}</Text>
+            <Text fw={600}>Related summary</Text>
+            {articleSummariesQuery.isLoading ? <Text size="sm" c="dimmed">Loading summary...</Text> : null}
+            {articleSummariesQuery.error ? <Text size="sm" c="red">Unable to load summary.</Text> : null}
+            {!articleSummariesQuery.isLoading && !articleSummariesQuery.error && !articleSummariesQuery.data?.summaries?.length ? <Text size="sm" c="dimmed">No summary available.</Text> : null}
+            {articleSummariesQuery.data?.summaries?.[0] ? <MarkdownContent content={articleSummariesQuery.data.summaries[0].summary_text} /> : null}
             <MarkdownContent content={selectedArticle.content || "No extracted content available."} />
             <Anchor href={selectedArticle.url} target="_blank" rel="noreferrer">Open original article</Anchor>
           </>
@@ -109,7 +117,14 @@ export function FeedPage() {
         {selectedDigest ? (
           <Stack gap="md">
             <Text size="sm" c="dimmed">{selectedDigest.category} · {selectedDigest.article_count} articles · {selectedDigest.created_at ? new Date(selectedDigest.created_at).toLocaleString() : "-"}</Text>
+            <Text size="sm">Model: {selectedDigest.model_used || "-"}</Text>
+            <Text size="sm">Status: {selectedDigest.status}</Text>
+            {selectedDigest.error ? <Text size="sm" c="red">{selectedDigest.error}</Text> : null}
             <MarkdownContent content={selectedDigest.digest_text} />
+            <Text fw={600}>Source articles</Text>
+            {digestArticlesQuery.isLoading ? <Text size="sm" c="dimmed">Loading source articles...</Text> : null}
+            {digestArticlesQuery.error ? <Text size="sm" c="red">Unable to load source articles.</Text> : null}
+            {digestArticlesQuery.data?.articles?.map((article: Article) => <Anchor key={article.id} component="button" type="button" onClick={() => { setSelectedDigest(null); setSelectedArticle(article); }}>{article.title}</Anchor>)}
             <Text fw={600}>Earlier digests in this category</Text>
             {digests.filter((digest) => digest.category === selectedDigest.category && digest.id !== selectedDigest.id).map((digest) => (
               <Anchor key={digest.id} component="button" type="button" onClick={() => setSelectedDigest(digest)}>{digest.title} · {digest.created_at ? new Date(digest.created_at).toLocaleDateString() : "-"}</Anchor>
