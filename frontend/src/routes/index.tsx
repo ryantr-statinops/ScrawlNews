@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Group, Pagination, Text, Card, SimpleGrid, Title, Drawer, Anchor } from "@mantine/core";
+import { Group, Pagination, Text, Card, SimpleGrid, Title, Drawer, Anchor } from "@mantine/core";
 import { useFeedQuery } from "../features/feed/hooks";
 import { fetchConfig, fetchDigests, triggerRun } from "../lib/api";
 import { FeedTable } from "../features/feed/FeedTable";
