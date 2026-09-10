@@ -18,10 +18,6 @@
   margin-top: var(--mantine-spacing-md);
 }
 
-.feed-workspace__utility-stack:has(.agent-mock--collapsed) .digest-panel {
-  margin-top: 0;
-}
-
 @media (min-width: 62em) {
   .feed-workspace {
     grid-template-columns: minmax(320px, 0.36fr) minmax(0, 0.64fr);
