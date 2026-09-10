@@ -81,9 +81,9 @@ export function FeedPage() {
         articles={<>
           {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
           {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
-          <AgentMockPanel />
         </>}
         digests={<DigestPanel digests={digests} />}
+        agent={<AgentMockPanel />}
       />
       <Drawer opened={selectedArticle !== null} onClose={() => setSelectedArticle(null)} title={selectedArticle?.title} position="right" size="lg">
         {selectedArticle ? (
