@@ -27,7 +27,7 @@
 
 - 7 trang chính: Feed, Summaries, Runs, Delivery, Analytics, Settings, Agent. Route Health và Config cũ vẫn được giữ tương thích.
 - Analytics có 5 tab: Overview, Content, Pipeline, Sources và AI Usage; filter được lưu trong URL, KPI so với kỳ trước và click mở drawer drill-down.
-- Feed dùng workspace 2 cột: article table bên trái, Topic digests bên phải; digest/summary render GFM Markdown an toàn. Agent hiện là mock panel có thể thu gọn và Float/Dock, chưa gọi backend thật.
+- Feed dùng workspace 2 cột: utility rail bên trái (Agent ở trên, Topic digests ở dưới), article table bên phải; trên mobile chuyển thành một cột. Digest/summary render GFM Markdown an toàn. Agent hiện là mock panel có thể thu gọn và Float/Dock, chưa gọi backend thật. Article mở detail drawer bên phải; digest mở detail drawer bên trái kèm source articles và lịch sử digest.
 - Tech stack chi tiết: xem [frontend/01-stack.md](frontend/01-stack.md) (Mantine UI + ApexCharts + TanStack Router + Zustand + SSE)
 
 ### Implementation (Stage 2–4)
