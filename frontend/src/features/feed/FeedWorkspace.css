@@ -14,8 +14,12 @@
   min-height: 0;
 }
 
-.feed-workspace__utility-stack:has(.agent-mock--collapsed) {
-  --stack-gap: 0px;
+.feed-workspace__utility-stack .digest-panel {
+  margin-top: var(--mantine-spacing-md);
+}
+
+.feed-workspace__utility-stack:has(.agent-mock--collapsed) .digest-panel {
+  margin-top: 0;
 }
 
 @media (min-width: 62em) {
