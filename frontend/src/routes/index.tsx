@@ -44,6 +44,7 @@ export function FeedPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["runs"] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
+      queryClient.invalidateQueries({ queryKey: ["digests"] });
     },
   });
   const latestRun = runsQuery.data?.runs?.[0];
@@ -91,7 +92,7 @@ export function FeedPage() {
           {!isLoading && !error && articles.length === 0 ? <EmptyState message="No articles found" /> : null}
           {articles.length > 0 ? <FeedTable articles={articles} onSelect={setSelectedArticle} /> : null}
         </ArticlePanel>}
-        digests={<DigestPanel digests={digests} onSelect={setSelectedDigest} />}
+        digests={<DigestPanel digests={digests} onSelect={setSelectedDigest} loading={digestQuery.isLoading} error={digestQuery.error ? (digestQuery.error as Error).message : undefined} />}
         agent={<AgentMockPanel />}
       />
       <Drawer opened={selectedArticle !== null} onClose={() => setSelectedArticle(null)} title={selectedArticle?.title} position="right" size="lg">
