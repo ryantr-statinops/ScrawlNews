@@ -12,6 +12,9 @@ class DigestService:
     def __init__(self):
         self.synthesizer = SynthesizerService()
 
+    async def close(self) -> None:
+        await self.synthesizer.close()
+
     async def execute(
         self,
         category: str,

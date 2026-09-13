@@ -68,3 +68,14 @@ async def test_no_client_fallback(sample_articles):
     result = await service.execute(sample_articles)
     assert len(result) == len(sample_articles)
     assert all(s.summary_text == a.title for s, a in zip(result, sample_articles))
+
+
+@pytest.mark.asyncio
+async def test_close_releases_llm_client(mock_openai):
+    mock_openai.close = AsyncMock()
+    service = SynthesizerService()
+    service.client = mock_openai
+
+    await service.close()
+
+    mock_openai.close.assert_awaited_once()
