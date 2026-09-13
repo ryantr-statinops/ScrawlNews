@@ -55,10 +55,12 @@ services:
     command: celery -A src.worker.celery_app beat --loglevel=info
     env_file: .env
     environment:
+      - DATABASE_URL=sqlite:///data/scrawlnews.db
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
     volumes:
+      - ./data:/app/data
       - ./src:/app/src
     depends_on:
       redis:
