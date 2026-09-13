@@ -22,7 +22,7 @@ bot:
 	python -m src.bot_entrypoint
 
 run:
-	python src/main.py --dry-run
+	python -m src.main --dry-run
 
 test:
 	pytest tests/ --cov=src --cov-report=term-missing
