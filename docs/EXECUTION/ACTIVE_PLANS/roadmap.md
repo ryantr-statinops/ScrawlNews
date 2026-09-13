@@ -16,7 +16,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 | **Stage 4: Polish + Deploy** | Parity + automation verify | `make dev` Nginx parity + workflow + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937`; scheduler amended by ADR-014 |
 
 **DB thuần local**: SQLite file `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
-**Testing FE+BE**: Có Vitest + Pytest. Verification 2026-09-13: backend 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff trên `src/` passed.
+**Testing FE+BE**: Có Vitest + Pytest. Verification 2026-09-13: backend 251 passed, 6 skipped, 87% coverage; frontend 11 passed; MyPy, frontend typecheck/lint, Ruff `src/ tests/` và Docker build passed.
 
 ---
 
@@ -66,7 +66,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Local Release 1.0 — COMPLETE
 
-- [x] Làm pytest chạy ổn định theo batch — 228 passed khi đóng scope; current suite 249 passed, 6 skipped (2026-09-13)
+- [x] Làm pytest chạy ổn định theo batch — 228 passed khi đóng scope; current suite 251 passed, 6 skipped (2026-09-13)
 - [x] Chuẩn hóa MyPy theo Python 3.11
 - [x] Xử lý graceful Telegram configuration
 - [x] Cập nhật setup/testing documentation
@@ -82,18 +82,32 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 - [x] Dashboard Agent tại `/agent`
 - [x] `pip-audit` trong CI
 
-## Stage 5+: Mở rộng (Post-MVP)
+## Post-1.0 Roadmap — Reliability First
 
-Trước khi mở rộng feature, Release 1.0 còn hai hạng mục hardening: operational validation 2–3 runs và biến các CI quality gate phù hợp thành bắt buộc. Scheduler/`--dry-run` đã được chốt theo ADR-014.
+Scheduler/`--dry-run` và CI hardening đã hoàn thành. Release 1.0 chỉ còn Telegram test delivery validation cần external credentials trước khi đánh dấu operationally validated toàn bộ.
 
-| Feature | Effort | Priority |
-|---------|--------|----------|
-| Interactive Telegram Bot | Medium | High |
-| Category Filtering | Low | High |
-| Multi-source (HN, Reddit) | Medium | Medium |
-| Cost Tracking chi tiết | Low | Medium |
-| Audio Newsletter (TTS) | Medium | Low |
-| Go fetcher sidecar (nếu cần) | Medium | Low |
+### Release 1.1 — Reliability, Security and Guardrails
+
+| Thứ tự | Deliverable | Exit criteria |
+|---|---|---|
+| 1 | Frontend toolchain security migration | Vite/Vitest major upgrade có kiểm soát; không còn high/critical `npm audit` finding; build/test pass |
+| 2 | Prometheus metrics | Expose run count, duration, errors và pipeline-stage latency; có unit/integration tests |
+| 3 | Config validation | Invalid schedule, limit, timezone, URLs và production Telegram config fail fast với public error an toàn |
+| 4 | Cost guardrails | Token-to-cost qua configurable price snapshot; monthly estimate và budget alert; không hard-code bảng giá khó update |
+| 5 | Source reliability baseline | Report Google News/trafilatura trên nguồn tiếng Việt; chốt fallback và success-rate target |
+| 6 | Frontend coverage expansion | Test critical routes/API states, nâng baseline trước khi bật coverage threshold |
+
+### Release 1.2 — Source Expansion
+
+- Chuẩn hóa source adapter interface và canonical article mapping.
+- Thêm Hacker News RSS, Reddit và custom RSS với per-source telemetry, timeout, dedup và circuit-breaker behavior.
+- Chỉ bắt đầu sau khi Release 1.1 observability/config guardrails hoàn thành.
+
+### Release 1.3 — News Intelligence
+
+- Structured summarization output, similar-story dedup và entity extraction.
+- Feedback loop 👍/👎 với audit/opt-out rõ ràng.
+- Audio, multilingual và rich Telegram formatting giữ trong backlog cho đến khi có nhu cầu sản phẩm.
 
 ## References
 
