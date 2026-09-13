@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from src.api.main import app
 from src.config import Settings, settings
 from src.models.article import Article
 from src.repositories.article_repo import ArticleRepository
@@ -14,7 +15,6 @@ from src.repositories.summary_repo import SummaryRepository
 from src.services.messenger import MessengerService
 from src.services.scrawler import ScrawlerService
 from src.services.synthesizer import SynthesizerService
-from src.api.main import app
 
 # API config initializes its repository during collection. Never touch the local DB.
 _collection_db = TemporaryDirectory(prefix="scrawlnews-tests-")
