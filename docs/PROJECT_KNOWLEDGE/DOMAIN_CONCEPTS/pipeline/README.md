@@ -20,7 +20,7 @@ RSS → Scrawler → Articles → Synthesizer → Summaries → Messenger (optio
     ArticleRepo    dedup SHA256      SummaryRepo    Telegram Bot
 ```
 
-Trigger: dashboard `POST /api/runs` hoặc GitHub Actions cron 4 lần/ngày.
+Production trigger: dashboard `POST /api/runs` hoặc Celery Beat local. GitHub Actions chỉ chạy daily non-delivery smoke trên database tạm.
 
 ## Reading guide
 
@@ -39,4 +39,4 @@ Cập nhật: 2026-09-04. Phase 3 docs DRAFT.
 
 - [backend/04-pipeline.md](../backend/04-pipeline.md) — code-level pipeline
 - [backend/02-architecture.md](../backend/02-architecture.md) — layered design
-- [DECISIONS.md](../../DECISIONS.md) — ADR-011/012
+- [DECISIONS.md](../../DECISIONS.md) — ADR-011/012/014

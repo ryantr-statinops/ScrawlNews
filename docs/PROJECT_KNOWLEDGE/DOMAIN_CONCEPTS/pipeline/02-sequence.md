@@ -134,19 +134,18 @@ sequenceDiagram
     alt Dashboard
         Source->>FastAPI: POST /api/runs
         FastAPI->>Celery: pipeline_run.delay()
-    else GitHub Actions
-        Note over Source: Run on ubuntu-latest<br/>không có Celery worker
-        Source->>Source: python src/main.py
-        Source->>Source: asyncio.run(pipeline.run())<br/>in-process, no Celery
-    else Celery Beat
+    else Celery Beat production schedule
         Source->>Celery: pipeline_run.apply()
+    else GitHub Actions smoke
+        Note over Source: Temporary SQLite<br/>no LLM/Telegram secrets
+        Source->>Source: python src/main.py --dry-run --limit 3
     end
 
     alt Celery path
         Celery->>Worker: Execute task
         Worker-->>Celery: Return result
-    else Direct path (GA)
-        Note over Source: Result written to SQLite<br/>dashboard đọc qua API
+    else Direct smoke path
+        Note over Source: Result stays on ephemeral runner<br/>not visible in local dashboard
     end
 ```
 

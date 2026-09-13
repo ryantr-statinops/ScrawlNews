@@ -98,16 +98,16 @@ Agent dashboard: mở `http://localhost/agent`. Các action yêu cầu approval;
 
 ```bash
 python src/main.py                 # Normal run (gửi Telegram)
-python src/main.py --dry-run       # Log console, không gửi
-python src/main.py --history       # Xem lịch sử
+python src/main.py --dry-run       # Chạy pipeline và ghi DB, không gửi Telegram
 LOG_LEVEL=DEBUG python src/main.py # Verbose
 FETCH_LIMIT=10 SUMMARY_LANG=en python src/main.py  # Override env
 ```
 
-### GitHub Actions chạy tự động
+### Scheduling
 
-- 08:00 UTC → 15:00 VN, 12:00 → 19:00, 16:00 → 23:00, 21:00 → 04:00 hôm sau
-- Manual: GitHub → Actions → ScrawlNews Daily → Run workflow
+- Celery Beat local là production scheduler; mặc định đọc `SCHEDULE_TIMES=08:00,12:00,18:00` và `SCHEDULE_TIMEZONE=Asia/Ho_Chi_Minh`.
+- GitHub Actions chỉ chạy scheduled smoke lúc 01:00 UTC, không gửi Telegram hoặc gọi LLM.
+- Manual smoke: GitHub → Actions → ScrawlNews Scheduled Smoke → Run workflow.
 
 ### Monitoring
 

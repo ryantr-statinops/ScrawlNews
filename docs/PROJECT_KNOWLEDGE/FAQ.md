@@ -127,9 +127,9 @@ Xem [docs/GUIDES/deployment.md](../GUIDES/deployment.md).
 
 ### GitHub Actions không chạy?
 
-1. Check secrets: `Settings → Secrets → Actions`
-2. Check workflow: `Actions tab` xem log
-3. Manual trigger: `Run workflow` button
+1. Check workflow `ScrawlNews Scheduled Smoke` trong Actions tab.
+2. Manual trigger bằng nút `Run workflow`; workflow này không cần LLM/Telegram secrets.
+3. Đây chỉ là RSS/persistence smoke; production schedule thuộc Celery Beat local.
 
 ## Troubleshooting
 

@@ -7,11 +7,11 @@
 | Metric | Value | Notes |
 |--------|-------|-------|
 | **Avg run duration** | 30-60s | Depends on LLM response time |
-| **Runs/day** | 4 (GA cron) + manual | Production: 4 |
+| **Runs/day** | Theo `schedule_times` + manual | Mặc định Beat: 3 production runs/ngày |
 | **Articles/run** | 20 (default `fetch_limit`) | Configurable 1-100 |
 | **Cost/run (OpenRouter free)** | $0 | google/gemma-2-9b-it |
 | **Cost/run (OpenAI gpt-4o-mini)** | ~$0.001-0.003 | 20 articles batch |
-| **Cost/month** | $0-0.36 | 4 runs/day × 30 days |
+| **Cost/month** | $0-0.27 | 3 runs/day × 30 days theo schedule mặc định |
 | **DB size/month** | ~500KB-1MB | Auto cleanup at 7 days |
 | **Memory (worker)** | ~50-100MB | Python + libs |
 | **CPU (idle)** | <1% | Spikes during LLM call |

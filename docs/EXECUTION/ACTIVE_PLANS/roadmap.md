@@ -4,7 +4,7 @@
 
 ## Overview
 
-ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vite + Nginx). Newsbot là feature toggle `telegram_enabled`. DB thuần local SQLite. Pipeline chạy qua GitHub Actions cron 4x/ngày + Celery Beat local.
+ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vite + Nginx). Newsbot là feature toggle `telegram_enabled`. DB thuần local SQLite. Celery Beat local là production scheduler; GitHub Actions chỉ chạy daily non-delivery smoke (ADR-014).
 
 ## Timeline (4 Stages — DONE)
 
@@ -13,7 +13,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 | **Stage 1: Foundation** | Scaffold + config + DB thuần local + Go stub | `docker-compose.yml` + `nginx.conf` + `go.mod` + `src/config.py` + `pipeline_runs` migration | ✅ Done `014cc6d`..`c774e8f` |
 | **Stage 2: Dashboard MVP** | 3 feature core + BE/FE test cơ bản | `src/api/` + `src/worker/` + `frontend/` Feed/Runs/Config + SSE | ✅ Done `3668fe2`..`45e1851` |
 | **Stage 3: Full 6 Features** | Đủ 6 nhóm + FE/BE test tại milestone + quality | Summaries/Delivery/Health/Analytics + Ruff/MyPy | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
-| **Stage 4: Polish + Deploy** | Parity + GA verify | `make dev` Nginx parity + GA cron + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
+| **Stage 4: Polish + Deploy** | Parity + automation verify | `make dev` Nginx parity + workflow + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937`; scheduler amended by ADR-014 |
 
 **DB thuần local**: SQLite file `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
 **Testing FE+BE**: Có Vitest + Pytest. Verification 2026-09-13: backend 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff trên `src/` passed.
@@ -51,7 +51,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Stage 4: Polish + Deploy — DONE 2026-08-28
 
-- [x] `.github/workflows/scrawlnews.yml` cron `0 8,12,16,21 * * *` + `workflow_dispatch` — `0f328aa`
+- [x] `.github/workflows/scrawlnews.yml` ban đầu chạy production cron — `0f328aa`; chuyển thành daily non-delivery smoke theo ADR-014
 - [x] CI: lint + typecheck + tests trên PR — `60b8bba`
 - [x] Verify `docker-compose config`, `make dev` parity Nginx, `go run ./cmd/newsctl --help` — `6a7392c`
 - [x] SETUP.md + `src/main.py` legacy CLI — `4c32b34`, `e4d43b8`
@@ -84,7 +84,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Stage 5+: Mở rộng (Post-MVP)
 
-Trước khi mở rộng feature, Release 1.0 còn ba hạng mục hardening: chốt scheduler/`--dry-run`, operational validation 2–3 runs và biến các CI quality gate phù hợp thành bắt buộc.
+Trước khi mở rộng feature, Release 1.0 còn hai hạng mục hardening: operational validation 2–3 runs và biến các CI quality gate phù hợp thành bắt buộc. Scheduler/`--dry-run` đã được chốt theo ADR-014.
 
 | Feature | Effort | Priority |
 |---------|--------|----------|

@@ -143,7 +143,7 @@
 | **PipelineRun** | DB table track mỗi pipeline execution |
 | **stage** | 1 trong 3: Scrawler / Synthesizer / Messenger |
 | **dashboard-first** | ADR-011: Dashboard là primary service, newsbot là feature |
-| **GA cron** | GitHub Actions cron `0 8,12,16,21 * * *`, primary scheduler |
+| **GA scheduled smoke** | GitHub Actions daily dry-run, không LLM/Telegram secrets, không phải production scheduler |
 | **Nginx parity** | `make dev` cũng chạy Nginx Docker để giống prod |
 
 ## Testing
@@ -168,7 +168,7 @@
 | **docker-compose** | Multi-container Docker config, ScrawlNews có 6 services |
 | **Nginx** | Reverse proxy, public entrypoint |
 | **GitHub Actions** | CI/CD free cho public repo |
-| **cron** | Schedule syntax, `0 8,12,16,21 * * *` = 4 lần/ngày UTC |
+| **cron** | Schedule syntax; Celery Beat dùng local time/config, GitHub smoke hiện chạy `0 1 * * *` UTC |
 | **pre-commit** | Git hook chạy lint/typecheck trước khi commit |
 | **ruff** | Fast Python linter (thay flake8 + isort + black) |
 | **mypy** | Static type checker cho Python |

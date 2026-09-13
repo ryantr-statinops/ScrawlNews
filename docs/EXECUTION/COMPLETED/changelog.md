@@ -45,10 +45,10 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 - Agent v1 deterministic policy, approval gate, SQLite audit trail, database backup và pipeline dry-run queue.
 - SQLite backup/restore; `pip-audit` đã có trong scheduled workflow.
 - Backend batch suite không còn treo trong verification local: 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff `src/` passed.
+- Execution model đã chốt theo ADR-014: Celery Beat local là production scheduler; GitHub Actions là daily non-delivery smoke. Beat dùng chung SQLite volume với dashboard.
 
 **Not yet operationally validated**:
 - Chuỗi 2–3 runs theo ba tầng với RSS/LLM/Telegram thật.
-- Vai trò scheduler của Celery Beat và GitHub Actions cron sau khi audit `--dry-run`.
 - CI hardening cho các gate còn advisory.
 
 ## Template for Future Entries

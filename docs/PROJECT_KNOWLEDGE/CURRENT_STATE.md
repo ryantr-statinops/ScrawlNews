@@ -24,7 +24,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - `docker-compose.yml` 6 services: api + worker + beat + redis + web + nginx — `014cc6d`
 - `nginx.conf` routing `/api → :8000`, `/ → :5173`, SSE buffering off — `49c0969`, `1e18b382`
 - `Dockerfile` python:3.11-slim — `976ebda`
-- `.github/workflows` cron `0 8,12,16,21 * * *` + CI — `0f328aa`..`60b8bba`
+- `.github/workflows`: CI theo push/PR và scheduled non-delivery smoke một lần/ngày; Celery Beat local là production scheduler theo ADR-014.
 
 ### Backend (Stage 2–3)
 - FastAPI routes split: articles, summaries, runs, config, health, stats, logs (SSE) — `17f63da`..`af8a5f7`
@@ -80,7 +80,6 @@ ScrawlNews/
 - Dữ liệu trước schema telemetry không thể hồi dựng stage/source/LLM metrics chính xác.
 - Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
 - Chưa có biên bản operational validation cho chuỗi 2–3 pipeline runs với RSS/LLM/Telegram thật.
-- Vai trò của GitHub Actions cron so với Celery Beat local và semantics của `--dry-run` đang chờ audit/chốt lại.
 - Một số CI checks (`mypy`, frontend coverage, Docker build) hiện còn advisory do có `|| true`; hardening CI thuộc task tiếp theo.
 
 ## References
