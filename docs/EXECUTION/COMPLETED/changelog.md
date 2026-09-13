@@ -46,6 +46,7 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 - SQLite backup/restore; `pip-audit` đã có trong scheduled workflow.
 - Backend batch suite không còn treo trong verification local: 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff `src/` passed.
 - Execution model đã chốt theo ADR-014: Celery Beat local là production scheduler; GitHub Actions là daily non-delivery smoke. Beat dùng chung SQLite volume với dashboard.
+- Operational validation: 3 isolated runs xác nhận RSS/fallback và RSS/OpenRouter paths; sửa package-module CLI invocation, total fetch-limit enforcement và LLM async-client lifecycle. Telegram test delivery còn chờ credentials.
 
 **Not yet operationally validated**:
 - Chuỗi 2–3 runs theo ba tầng với RSS/LLM/Telegram thật.
