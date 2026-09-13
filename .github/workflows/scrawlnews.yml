@@ -1,33 +1,30 @@
-name: ScrawlNews Daily
+name: ScrawlNews Scheduled Smoke
 
 on:
   schedule:
-    - cron: '0 8,12,16,21 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch:
 
 jobs:
-  run-agent:
+  pipeline-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           playwright install chromium || true
-          cd frontend && npm install
       - name: Audit Python dependencies
         run: pip-audit -r requirements.txt
-      - name: Run pipeline
+      - name: Run non-delivery pipeline smoke
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
-        run: python src/main.py --dry-run
+          APP_ENV: smoke
+          DATABASE_URL: sqlite:////tmp/scrawlnews-smoke.db
+          TELEGRAM_ENABLED: "false"
+          LLM_API_KEY: ""
+          OPENROUTER_API_KEY: ""
+        run: python src/main.py --dry-run --limit 3
