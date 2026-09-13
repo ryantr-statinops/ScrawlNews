@@ -47,6 +47,7 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 - Backend batch suite không còn treo trong verification local: 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff `src/` passed.
 - Execution model đã chốt theo ADR-014: Celery Beat local là production scheduler; GitHub Actions là daily non-delivery smoke. Beat dùng chung SQLite volume với dashboard.
 - Operational validation: 3 isolated runs xác nhận RSS/fallback và RSS/OpenRouter paths; sửa package-module CLI invocation, total fetch-limit enforcement và LLM async-client lifecycle. Telegram test delivery còn chờ credentials.
+- CI hardening: bỏ toàn bộ soft-fail, bắt buộc lint/typecheck/tests/Docker build, backend coverage threshold 85%, `npm ci` và frontend Docker context tối giản.
 
 **Not yet operationally validated**:
 - Chuỗi 2–3 runs theo ba tầng với RSS/LLM/Telegram thật.
@@ -74,7 +75,7 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 | Metrics | Prometheus metrics | Low | Pending |
 | Dependency scanning | `pip-audit` trong scheduled workflow | Medium | Complete |
 | Operational validation | 2–3 runs với external services thật | High | Pending |
-| CI hardening | Bỏ soft-fail theo từng gate đã verify | High | Pending |
+| CI hardening | Bỏ soft-fail theo từng gate đã verify | High | Complete |
 
 ## Useful Commands
 

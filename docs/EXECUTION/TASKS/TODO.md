@@ -5,7 +5,6 @@
 ## Release 1.0 hardening — High priority
 
 - [ ] **Telegram test delivery validation** — RSS/fallback và RSS/LLM đã pass qua 3 isolated runs; còn chạy delivery với test-chat credentials và xác nhận `telegram_sent=1`.
-- [ ] **CI hardening** — dùng `npm ci`, bỏ `|| true` theo từng gate đã verify, đo coverage baseline và chốt Docker build gate.
 
 ## Reliability-first — Medium priority
 

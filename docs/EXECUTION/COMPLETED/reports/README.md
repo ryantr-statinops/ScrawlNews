@@ -37,3 +37,4 @@ go run ./cmd/newsctl --help → ok
 ## Operational reports
 
 - [2026-09-13 operational validation](2026-09-13-operational-validation.md) — RSS/fallback và RSS/OpenRouter pass; Telegram test delivery chờ credentials.
+- [2026-09-13 CI hardening](2026-09-13-ci-hardening.md) — mandatory gates, coverage baselines và Docker build verification.

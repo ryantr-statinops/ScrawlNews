@@ -86,16 +86,16 @@ cd frontend && npm run test
 
 ```yaml
 # .github/workflows/ci.yml
-- pytest tests/ --cov=src --cov-report=term-missing
-- cd frontend && npm run test -- --coverage || true
-- mypy src/ || true
-- cd frontend && npm run typecheck || true
-- ruff check src/
+- pytest tests/ --cov=src --cov-report=term-missing --cov-fail-under=85
+- cd frontend && npm run test
+- mypy src/
+- cd frontend && npm run typecheck
+- ruff check src/ tests/
 - cd frontend && npm run lint
-- docker compose build || true
+- docker compose build
 ```
 
-`mypy`, frontend coverage/typecheck và Docker build hiện là advisory do có `|| true`. Task CI hardening sẽ bỏ soft-fail theo từng gate sau khi đã verify và chốt coverage baseline.
+Tất cả CI commands là mandatory. Backend coverage có threshold 85%. Frontend coverage baseline là 11.12% và chưa đặt threshold; frontend test pass vẫn là bắt buộc.
 
 ## Analytics regression focus
 
@@ -108,7 +108,7 @@ cd frontend && npm run test
 
 ## Status (2026-09-13)
 
-- Full backend batch: 249 passed, 6 skipped trong 131.72 giây; không còn tái hiện hiện tượng treo.
+- Full backend batch sau hardening: 251 passed, 6 skipped; 87% coverage.
 - Frontend: 4 test files / 11 tests passed; typecheck và lint passed.
 - `mypy src/` và `ruff check src/` passed.
 - Automated tests không gọi external API thật; operational validation được theo dõi riêng trong `EXECUTION/TASKS/TODO.md`.

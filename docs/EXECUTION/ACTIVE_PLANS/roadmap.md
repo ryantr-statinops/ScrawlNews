@@ -16,7 +16,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 | **Stage 4: Polish + Deploy** | Parity + automation verify | `make dev` Nginx parity + workflow + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937`; scheduler amended by ADR-014 |
 
 **DB thuần local**: SQLite file `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
-**Testing FE+BE**: Có Vitest + Pytest. Verification 2026-09-13: backend 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff trên `src/` passed.
+**Testing FE+BE**: Có Vitest + Pytest. Verification 2026-09-13: backend 251 passed, 6 skipped, 87% coverage; frontend 11 passed; MyPy, frontend typecheck/lint, Ruff `src/ tests/` và Docker build passed.
 
 ---
 
@@ -66,7 +66,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Local Release 1.0 — COMPLETE
 
-- [x] Làm pytest chạy ổn định theo batch — 228 passed khi đóng scope; current suite 249 passed, 6 skipped (2026-09-13)
+- [x] Làm pytest chạy ổn định theo batch — 228 passed khi đóng scope; current suite 251 passed, 6 skipped (2026-09-13)
 - [x] Chuẩn hóa MyPy theo Python 3.11
 - [x] Xử lý graceful Telegram configuration
 - [x] Cập nhật setup/testing documentation
@@ -84,7 +84,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Stage 5+: Mở rộng (Post-MVP)
 
-Trước khi mở rộng feature, Release 1.0 còn hai hạng mục hardening: operational validation 2–3 runs và biến các CI quality gate phù hợp thành bắt buộc. Scheduler/`--dry-run` đã được chốt theo ADR-014.
+Scheduler/`--dry-run` và CI hardening đã hoàn thành. Release 1.0 chỉ còn Telegram test delivery validation cần external credentials trước khi đánh dấu operationally validated toàn bộ.
 
 | Feature | Effort | Priority |
 |---------|--------|----------|
