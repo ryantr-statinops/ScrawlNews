@@ -138,7 +138,7 @@ sequenceDiagram
         Source->>Celery: pipeline_run.apply()
     else GitHub Actions smoke
         Note over Source: Temporary SQLite<br/>no LLM/Telegram secrets
-        Source->>Source: python src/main.py --dry-run --limit 3
+        Source->>Source: python -m src.main --dry-run --limit 3
     end
 
     alt Celery path

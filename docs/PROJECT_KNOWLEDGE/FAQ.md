@@ -149,7 +149,7 @@ pkill -f "celery"
 
 → Chạy từ root project. Hoặc:
 ```bash
-PYTHONPATH=. python src/main.py
+python -m src.main
 ```
 
 ### Lỗi "externally-managed-environment" (pip)

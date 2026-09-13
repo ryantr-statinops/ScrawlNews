@@ -83,8 +83,8 @@ pytest tests/unit/test_scrawler.py -v
 pytest tests/ --cov=src --cov-report=html
 mypy src/
 ruff check src/ && ruff format src/
-LOG_LEVEL=DEBUG python src/main.py --dry-run
-rm data/scrawlnews.db && python src/main.py --dry-run
+LOG_LEVEL=DEBUG python -m src.main --dry-run
+rm data/scrawlnews.db && python -m src.main --dry-run
 ```
 
 ## References

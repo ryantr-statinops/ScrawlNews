@@ -96,7 +96,7 @@ Pipeline.run() invoked
 1. **Dashboard** — `POST /api/runs` (manual, user clicks "Run Now")
 2. **Celery Beat** — local production scheduler, queue cùng worker/database với dashboard
 3. **GitHub Actions** — daily non-delivery smoke trên SQLite tạm, không có LLM/Telegram secrets
-4. **Legacy CLI** — `python src/main.py --dry-run`
+4. **Legacy CLI** — `python -m src.main --dry-run`
 
 `dry_run=true` bỏ qua Telegram delivery nhưng vẫn fetch, persist, synthesize/digest và ghi telemetry. Nếu LLM credentials có trong environment, dry-run vẫn có thể gọi LLM.
 

@@ -42,7 +42,7 @@ docker-compose up -d --build # → http://localhost (Nginx), :8000/docs (API)
 make dev                    # nginx redis Docker + concurrently uvicorn + celery + vite
 # CLI:
 make run
-# Hoặc: PYTHONPATH=. python src/main.py --dry-run
+# Hoặc: python -m src.main --dry-run
 # Go:
 go run ./cmd/newsctl --help
 ```
@@ -76,7 +76,7 @@ Hot reload chỉ 4 vars (`fetch_limit`, `summary_lang`, `telegram_enabled`, `ret
 |---------|-------|
 | `make install` | Cài dependencies, Playwright, web deps |
 | `make dev` | Dashboard local (uvicorn + celery worker/beat + vite) — 1 terminal |
-| `make run` | Pipeline CLI (`python src/main.py`) |
+| `make run` | Pipeline CLI (`python -m src.main`) |
 | `make worker` | `celery -A src.worker.celery_app worker` |
 | `make beat` | `celery -A src.worker.celery_app beat` |
 | `make test` | Chạy backend và frontend tests |
@@ -97,10 +97,10 @@ Agent dashboard: mở `http://localhost/agent`. Các action yêu cầu approval;
 ## Usage (Run Modes)
 
 ```bash
-python src/main.py                 # Normal run (gửi Telegram)
-python src/main.py --dry-run       # Chạy pipeline và ghi DB, không gửi Telegram
-LOG_LEVEL=DEBUG python src/main.py # Verbose
-FETCH_LIMIT=10 SUMMARY_LANG=en python src/main.py  # Override env
+python -m src.main                 # Normal run (gửi Telegram)
+python -m src.main --dry-run       # Chạy pipeline và ghi DB, không gửi Telegram
+LOG_LEVEL=DEBUG python -m src.main # Verbose
+FETCH_LIMIT=10 SUMMARY_LANG=en python -m src.main  # Override env
 ```
 
 ### Scheduling

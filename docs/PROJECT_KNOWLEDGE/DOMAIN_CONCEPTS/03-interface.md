@@ -46,7 +46,7 @@
 
 ### Python
 
-- `python src/main.py --dry-run` legacy pipeline (gọi `pipeline_run` trực tiếp không qua Celery)
+- `python -m src.main --dry-run` legacy pipeline (gọi `pipeline_run` trực tiếp không qua Celery)
 
 ### Make commands
 
@@ -54,7 +54,7 @@
 |---------|-------|
 | `make install` | Cài dependencies, Playwright, web deps |
 | `make dev` | Dashboard local (uvicorn + celery worker/beat + vite) — 1 terminal |
-| `make run` | Pipeline CLI (`python src/main.py`) |
+| `make run` | Pipeline CLI (`python -m src.main`) |
 | `make worker` | `celery -A src.worker.celery_app worker` |
 | `make beat` | `celery -A src.worker.celery_app beat` |
 | `make test` | Chạy tests |
