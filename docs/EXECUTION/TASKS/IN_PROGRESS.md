@@ -1,17 +1,14 @@
 # IN PROGRESS — Task đang thực hiện
 
-> Cập nhật: 2026-09-09. Các task đang được làm cho Local Release 1.0.
+> Cập nhật: 2026-09-13. File này chỉ liệt kê task đang có người thực hiện, không lặp lại backlog.
 
 ## Hiện tại
 
-- [ ] Ổn định pytest khi chạy toàn bộ suite; collection hiện thành công nhưng runtime còn treo.
-- [ ] Chuẩn hóa MyPy theo Python 3.11.
-- [ ] Xử lý graceful khi Telegram disabled hoặc token không hợp lệ.
-- [ ] Chạy 2–3 local pipeline runs với API key hợp lệ.
+Không có task implementation active sau khi đồng bộ trạng thái tài liệu. Hạng mục đã được duyệt tiếp theo là audit execution model và semantics `--dry-run`; xem [TODO.md](TODO.md).
 
 ## Quy tắc
 
-- Mỗi task mới: viết plan ngắn (dùng `EXECUTION/ARCHIVED/` không — dùng execplan-template nếu cần), implement, ghi vào [changelog.md](../COMPLETED/changelog.md).
+- Mỗi task mới: chỉ viết ExecPlan khi task cần; implement và ghi vào [changelog.md](../COMPLETED/changelog.md).
 - Khi xong: chuyển khỏi đây, cập nhật `TODO.md` (tick) và `roadmap.md` nếu thuộc stage.
 
 ## References

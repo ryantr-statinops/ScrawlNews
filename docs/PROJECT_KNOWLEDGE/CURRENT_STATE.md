@@ -1,6 +1,6 @@
 # Current State — Project đang thực sự như thế nào
 
-> Cập nhật: 2026-09-09. Stage 1–5, Feed product upgrade và Analytics Command Center đã được triển khai từng commit. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
+> Cập nhật: 2026-09-13. Stage 1–5, Feed product upgrade, Analytics Command Center và Agent v1 đã được triển khai. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
 
 ## Purpose
 
@@ -12,10 +12,11 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 |-------|----------|--------|
 | Stage 1: Foundation | Scaffold + config + DB thuần local + Go stub | ✅ Done `014cc6d`..`c774e8f` |
 | Stage 2: Dashboard MVP | 3 page core + Celery pipeline + BE/FE test cơ bản | ✅ Done `3668fe2`..`45e1851` |
-| Stage 3: Full 6 Features | Đủ 6 nhóm + FE/BE 77 passed + quality | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
+| Stage 3: Full 6 Features | Đủ 6 nhóm + test/quality gates tại milestone | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
 | Stage 4: Polish + Deploy | Nginx parity verify + GA + SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
 | Stage 5: Product Frontend Cutover | Frontend mới + Telegram bot + category filtering + circuit breaker | ✅ Implemented; local runtime verified |
 | Analytics Command Center | 5 tab News Intelligence + Operations, telemetry 30 ngày | ✅ Implemented; regression/runtime verified |
+| Agent v1 | Deterministic policy + approval gate + audit trail + dashboard | ✅ Implemented; automated tests verified |
 
 ## Trạng thái kỹ thuật hiện tại
 
@@ -30,7 +31,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - Celery `pipeline.run` task thực tế, max_retries 3 — `9124808`
 - `ConfigRepository` + migrate v2 (settings/config_history) — `afa00a7`
 - Scrawler (feedparser + trafilatura), Synthesizer (OpenRouter batch), Messenger (Telegram toggle) — `65dedb1`..`1f68dd0`
-- Feed upgrade: publication-time filtering, source registry/API, multi-source fetch, topic digests, inline update and daily multi-time scheduler — xem git history sau `d6073895`
+- Feed upgrade: publication-time filtering, source registry/API, multi-RSS fetch, topic digests, inline update and daily multi-time scheduler — xem git history sau `d6073895`. Adapter Hacker News/Reddit/custom RSS tổng quát vẫn thuộc backlog.
 - Analytics API: overview/content/pipeline/sources/AI usage/drill-down; current-vs-previous comparison cho `1h`, `4h`, `12h`, `24h`, `7d`, `30d` — `8c9b4f98`..`07ce9b93`
 - Telemetry additive schema v9: pipeline stage timing, source yield/duplicate/region và LLM tokens/latency/status; cleanup tự động sau 30 ngày — `0fd00f6e`..`32c5d7fe`
 
@@ -39,10 +40,12 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - Analytics là Command Center 5 tab dùng shared URL filters, KPI delta, responsive/theme-aware charts và drawer drill-down — `9bc36dc7`..`547385c5`
 - MVP cũ (`web/` react-router-dom + recharts + tailwind) đã xóa sau cutover (`8593dd5f`), xem lại qua git history nếu cần
 
-### Verify (Stage 4)
+### Verification
 - `docker-compose config` passed với .env
 - `go run ./cmd/newsctl --help` ok — `6a7392c`
-- `pytest tests/unit -q` = 77 passed, `pytest tests/integration -q` = 10 passed, `ruff` passed
+- Verification local ngày 2026-09-13: `pytest -q` = 249 passed, 6 skipped; `mypy src/` passed; `ruff check src/` passed.
+- Frontend ngày 2026-09-13: 4 test files / 11 tests passed; typecheck và ESLint passed.
+- 6 skipped tests là các live/integration checks phụ thuộc runtime; automated suite không gọi API thật.
 - Analytics API live qua Docker: 6 endpoint mới trả HTTP 200; dry-run xác nhận pipeline/source/LLM telemetry và Content freshness với timestamp có timezone.
 - Analytics regression: service/API contract/drill-down tests passed; `mypy src/` passed.
 - Feed UI: Agent mock chỉ còn collapse/expand, không còn Float/Dock; trạng thái collapsed giữ header tối thiểu 48px và spacing 16px với Topic digests. Frontend Feed tests, typecheck và lint đã pass sau thay đổi này.
@@ -72,12 +75,13 @@ ScrawlNews/
 ## Known limitations (chưa làm)
 
 - Prometheus metrics chưa có
-- `pip-audit` chưa chạy trong CI
-- Source discovery hiện tìm trong catalog/local registry; chưa tự động khám phá nguồn Internet.
+- Source discovery hiện tìm trong catalog/local registry; chưa có adapter hoàn chỉnh cho Hacker News/Reddit hoặc tự động khám phá nguồn Internet.
 - Analytics chưa quy đổi token thành chi phí tiền tệ; provider price tables thay đổi nên đây là chủ ý trong scope hiện tại.
 - Dữ liệu trước schema telemetry không thể hồi dựng stage/source/LLM metrics chính xác.
 - Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
-- Backend pytest vẫn cần điều tra hiện tượng treo khi chạy theo batch; local Docker dashboard đã chạy được.
+- Chưa có biên bản operational validation cho chuỗi 2–3 pipeline runs với RSS/LLM/Telegram thật.
+- Vai trò của GitHub Actions cron so với Celery Beat local và semantics của `--dry-run` đang chờ audit/chốt lại.
+- Một số CI checks (`mypy`, frontend coverage, Docker build) hiện còn advisory do có `|| true`; hardening CI thuộc task tiếp theo.
 
 ## References
 

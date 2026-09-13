@@ -2,9 +2,9 @@
 
 > Ghi chép những gì đã hoàn thành. Xem [ACTIVE_PLANS/roadmap.md](../ACTIVE_PLANS/roadmap.md) để biết theo stage.
 
-## Status (2026-08-28)
+## Current verification pointer
 
-Stage 1–4 DONE. 77 unit + 10 integration passed, ruff passed, web lint flat. `docker-compose config` + `go run ./cmd/newsctl --help` ok.
+Trạng thái hiện tại và kết quả verification mới nhất được duy trì tại [CURRENT_STATE.md](../../PROJECT_KNOWLEDGE/CURRENT_STATE.md). Các mốc bên dưới là nhật ký lịch sử và giữ nguyên số liệu tại thời điểm hoàn thành.
 
 ## Developer Log
 
@@ -37,6 +37,20 @@ Stage 1–4 DONE. 77 unit + 10 integration passed, ruff passed, web lint flat. `
 - `src/main.py` legacy CLI, SETUP.md, Makefile/.gitignore fixes
 - Verified `docker-compose config`, `go run ./cmd/newsctl --help`
 
+### 2026-09-13 — Local Release 1.0 implementation baseline
+
+**Completed**:
+- Interactive Telegram bot, category filtering, LLM/Telegram circuit breaker và graceful Telegram configuration.
+- Product frontend cutover, Analytics Command Center và telemetry retention 30 ngày.
+- Agent v1 deterministic policy, approval gate, SQLite audit trail, database backup và pipeline dry-run queue.
+- SQLite backup/restore; `pip-audit` đã có trong scheduled workflow.
+- Backend batch suite không còn treo trong verification local: 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff `src/` passed.
+
+**Not yet operationally validated**:
+- Chuỗi 2–3 runs theo ba tầng với RSS/LLM/Telegram thật.
+- Vai trò scheduler của Celery Beat và GitHub Actions cron sau khi audit `--dry-run`.
+- CI hardening cho các gate còn advisory.
+
 ## Template for Future Entries
 
 ```markdown
@@ -55,9 +69,11 @@ Stage 1–4 DONE. 77 unit + 10 integration passed, ruff passed, web lint flat. `
 | Item | Description | Priority | Status |
 |------|-------------|----------|--------|
 | Config validation | Stricter env var validation | Medium | Pending |
-| Circuit breaker | Implement cho LLM API | High | Pending |
+| Circuit breaker | Implement cho LLM và Telegram | High | Complete |
 | Metrics | Prometheus metrics | Low | Pending |
-| Dependency scanning | `pip-audit` trong CI | Medium | Pending |
+| Dependency scanning | `pip-audit` trong scheduled workflow | Medium | Complete |
+| Operational validation | 2–3 runs với external services thật | High | Pending |
+| CI hardening | Bỏ soft-fail theo từng gate đã verify | High | Pending |
 
 ## Useful Commands
 

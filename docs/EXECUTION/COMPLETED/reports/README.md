@@ -8,7 +8,20 @@ Thư mục lưu **test reports** và **verification results** của các lần c
 - Mỗi report đặt tên theo ngày + mục đích để dễ tìm.
 - Không commit artifact lớn (coverage HTML, logs); chỉ commit tóm tắt text nếu cần tham chiếu lâu dài.
 
-## Latest verification (2026-08-28, Stage 4)
+## Latest verification (2026-09-13, Local Release 1.0 baseline)
+
+```
+pytest -q                         → 249 passed, 6 skipped
+ruff check src/                   → passed
+mypy src/                         → passed
+cd frontend && npm test           → 4 files / 11 tests passed
+cd frontend && npm run typecheck  → passed
+cd frontend && npm run lint       → passed
+```
+
+Automated suite không thay thế operational validation với RSS/LLM/Telegram thật. Kết quả Stage 4 bên dưới được giữ làm historical baseline.
+
+## Historical verification (2026-08-28, Stage 4)
 
 ```
 pytest tests/unit -q        → 77 passed

@@ -1,6 +1,6 @@
 # Active Plan — Roadmap
 
-> Cập nhật: 2026-09-09. ScrawlNews đang được hoàn thiện thành Local Release 1.0.
+> Cập nhật: 2026-09-13. ScrawlNews đã hoàn thành phạm vi implementation của Local Release 1.0; operational validation và release hardening đang là công việc kế tiếp.
 
 ## Overview
 
@@ -12,11 +12,11 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 |-------|----------|-------------|--------|
 | **Stage 1: Foundation** | Scaffold + config + DB thuần local + Go stub | `docker-compose.yml` + `nginx.conf` + `go.mod` + `src/config.py` + `pipeline_runs` migration | ✅ Done `014cc6d`..`c774e8f` |
 | **Stage 2: Dashboard MVP** | 3 feature core + BE/FE test cơ bản | `src/api/` + `src/worker/` + `frontend/` Feed/Runs/Config + SSE | ✅ Done `3668fe2`..`45e1851` |
-| **Stage 3: Full 6 Features** | Đủ 6 nhóm + FE/BE 77 passed + quality | Summaries/Delivery/Health/Analytics + Ruff/MyPy | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
+| **Stage 3: Full 6 Features** | Đủ 6 nhóm + FE/BE test tại milestone + quality | Summaries/Delivery/Health/Analytics + Ruff/MyPy | ✅ Done 43 commits `f1cc456`..`b9d0e2c` |
 | **Stage 4: Polish + Deploy** | Parity + GA verify | `make dev` Nginx parity + GA cron + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937` |
 
 **DB thuần local**: SQLite file `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
-**Testing FE+BE**: Có Vitest + Pytest; test batch backend hiện còn cần điều tra.
+**Testing FE+BE**: Có Vitest + Pytest. Verification 2026-09-13: backend 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff trên `src/` passed.
 
 ---
 
@@ -46,7 +46,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 - [x] Frontend đủ 6 nhóm (Summaries, Delivery, Health, Analytics) — `frontend/src/routes/`
 - [x] Config hot-reload hạn chế 4 vars + persist DB + history — `src/repositories/config_repo.py`, `migrate.py` v2
 - [x] SQLite persistence (ArticleRepo, SummaryRepo, PipelineRunRepo) + dedup + cleanup 7 ngày
-- [x] Ruff, frontend lint/typecheck/build đã kiểm tra; backend batch test còn pending
+- [x] Ruff, frontend lint/typecheck/build đã kiểm tra; backend batch test đã được ổn định sau milestone
 - [x] Code quality: Ruff, MyPy, pre-commit, ESLint flat — `06b7813`, `b9d0e2c`
 
 ## Stage 4: Polish + Deploy — DONE 2026-08-28
@@ -66,7 +66,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Local Release 1.0 — COMPLETE
 
-- [x] Làm pytest chạy ổn định theo batch — 228 passed
+- [x] Làm pytest chạy ổn định theo batch — 228 passed khi đóng scope; current suite 249 passed, 6 skipped (2026-09-13)
 - [x] Chuẩn hóa MyPy theo Python 3.11
 - [x] Xử lý graceful Telegram configuration
 - [x] Cập nhật setup/testing documentation
@@ -83,6 +83,8 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 - [x] `pip-audit` trong CI
 
 ## Stage 5+: Mở rộng (Post-MVP)
+
+Trước khi mở rộng feature, Release 1.0 còn ba hạng mục hardening: chốt scheduler/`--dry-run`, operational validation 2–3 runs và biến các CI quality gate phù hợp thành bắt buộc.
 
 | Feature | Effort | Priority |
 |---------|--------|----------|

@@ -2,35 +2,20 @@
 
 > Các task cụ thể chưa làm / chưa chốt. Kéo từ technical debt, ideas backlog, và open questions còn lại.
 
-## High priority
+## Release 1.0 hardening — High priority
 
-- [x] **Interactive Telegram Bot** — `/detail <id>`, `/topic tech`, `/settings` (ideas.md #1) — DONE `7b43b3f6`..`7cd3921e` (10 commits: bot app, 3 commands, dynamic beat scheduler, compose service)
-- [x] **Category Filtering** — configurable categories, RSS query params, multi-feed merge (ideas.md #2) — DONE `0ae56821`..`e32485e0` (14 commits, pytest 96 passed)
-- [x] **Circuit breaker cho LLM API** — retry 3x đã có, thiếu circuit breaker (Technical Debt, High) — DONE `0bdf5477`..`e297f746` (6 commits: breaker state machine, LLM + Telegram, health endpoint)
-- [ ] **Monitor 2–3 local runs** sau khi cấu hình API key, manual trigger qua dashboard `POST /api/runs`.
+- [ ] **Chốt execution model** — audit semantics của `--dry-run`; chọn Celery Beat local là scheduler chính và thu hẹp GitHub Actions cron thành CI/smoke check không gửi production.
+- [ ] **Operational validation theo ba tầng** — dry-run; LLM thật với Telegram tắt; Telegram test chat. Ghi nhận 2–3 runs và telemetry tương ứng.
+- [ ] **CI hardening** — dùng `npm ci`, bỏ `|| true` theo từng gate đã verify, đo coverage baseline và chốt Docker build gate.
 
-## Local Release 1.0
+## Reliability-first — Medium priority
 
-- [x] Ổn định pytest khi chạy toàn bộ suite — 228 passed
-- [x] Chuẩn hóa môi trường MyPy/Python 3.11
-- [x] Graceful handling khi Telegram disabled hoặc token không hợp lệ
-- [x] Backup/restore SQLite và rà soát dependency
-
-## Agent v1
-
-- [x] Deterministic policy, audit trail và approval gate
-- [x] Auto database backup sau approval
-- [x] Queue pipeline dry-run sau approval
-- [x] Dashboard Agent và integration tests
-
-## Medium priority
-
-- [ ] **Multi-source** — Hacker News RSS, Reddit, custom RSS (ideas.md #4)
-- [ ] **Cost Tracking chi tiết** — log tokens/run, monthly estimate, budget alert (ideas.md #6)
-- [ ] **Better Summarization** — structured JSON output, dedupe similar stories, entity extraction (ideas.md #7)
-- [ ] **Dependency scanning** — `pip-audit` trong CI (Technical Debt, Medium)
-- [ ] **Config validation** — stricter env var validation (Technical Debt, Medium)
 - [ ] **Metrics** — Prometheus metrics cho runs/duration/errors (Technical Debt, Low)
+- [ ] **Config validation** — stricter env var validation (Technical Debt, Medium)
+- [ ] **Cost Tracking chi tiết** — quy đổi token, monthly estimate, budget alert (ideas.md #6)
+- [ ] **Source reliability research** — Google News RSS và trafilatura trên các nguồn tiếng Việt.
+- [ ] **Multi-source** — adapter Hacker News RSS, Reddit, custom RSS (ideas.md #4)
+- [ ] **Better Summarization** — structured JSON output, dedupe similar stories, entity extraction (ideas.md #7)
 
 ## Low / Nice-to-have
 
