@@ -33,3 +33,7 @@ go run ./cmd/newsctl --help → ok
 ```
 
 > Chi tiết hơn trong [changelog.md](../changelog.md).
+
+## Operational reports
+
+- [2026-09-13 operational validation](2026-09-13-operational-validation.md) — RSS/fallback và RSS/OpenRouter pass; Telegram test delivery chờ credentials.

@@ -79,7 +79,7 @@ ScrawlNews/
 - Analytics chưa quy đổi token thành chi phí tiền tệ; provider price tables thay đổi nên đây là chủ ý trong scope hiện tại.
 - Dữ liệu trước schema telemetry không thể hồi dựng stage/source/LLM metrics chính xác.
 - Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
-- Chưa có biên bản operational validation cho chuỗi 2–3 pipeline runs với RSS/LLM/Telegram thật.
+- RSS/fallback và RSS/OpenRouter đã pass qua 3 isolated operational runs; Telegram test delivery chưa chạy do thiếu test-chat credentials.
 - Một số CI checks (`mypy`, frontend coverage, Docker build) hiện còn advisory do có `|| true`; hardening CI thuộc task tiếp theo.
 
 ## References
