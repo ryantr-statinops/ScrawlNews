@@ -25,6 +25,27 @@ from src.worker.celery_app import celery_app
 logger = logging.getLogger(__name__)
 
 
+async def _synthesize_articles(articles: list[Article], run_id: str) -> list[Summary]:
+    service = SynthesizerService()
+    try:
+        return await service.execute(articles, run_id=run_id)
+    finally:
+        await service.close()
+
+
+async def _build_digest(
+    category: str,
+    articles: list[Article],
+    summaries: list[Summary],
+    run_id: str,
+):
+    service = DigestService()
+    try:
+        return await service.execute(category, articles, summaries, run_id=run_id)
+    finally:
+        await service.close()
+
+
 def _record_source_events(
     telemetry: TelemetryRepository,
     scrawler: ScrawlerService,
@@ -34,9 +55,7 @@ def _record_source_events(
     for source_event in getattr(scrawler, "fetch_events", []):
         event_urls = set(source_event.get("article_urls", []))
         new_count = sum(article.url in event_urls for article in new_articles)
-        stored_event = {
-            key: value for key, value in source_event.items() if key != "article_urls"
-        }
+        stored_event = {key: value for key, value in source_event.items() if key != "article_urls"}
         try:
             telemetry.record_source_fetch(
                 run_id=run_id,
@@ -119,9 +138,7 @@ def pipeline_run(
             stage = "synthesize"
             with track_stage(telemetry, run_id, stage) as event:
                 summaries = (
-                    asyncio.run(SynthesizerService().execute(new_articles, run_id=run_id))
-                    if new_articles
-                    else []
+                    asyncio.run(_synthesize_articles(new_articles, run_id)) if new_articles else []
                 )
                 event["item_count"] = len(summaries)
             stage = "save summaries"
@@ -161,9 +178,7 @@ def pipeline_run(
                         if article.id in summaries_by_article
                     ]
                     digest = asyncio.run(
-                        DigestService().execute(
-                            category, category_articles, category_summaries, run_id=run_id
-                        )
+                        _build_digest(category, category_articles, category_summaries, run_id)
                     )
                     digest_repo.save(digest, [article.id for article in category_articles])
                     digest_ids.append(digest.id)
@@ -197,9 +212,7 @@ def pipeline_run(
     except Exception as exc:
         if scrawler is not None and not source_events_recorded:
             _record_source_events(telemetry, scrawler, run_id, [])
-        logger.exception(
-            "Pipeline failed", extra={"run_id": run_id, "stage": stage}
-        )
+        logger.exception("Pipeline failed", extra={"run_id": run_id, "stage": stage})
         retryable = (
             isinstance(exc, ScrawlError)
             and exc.retryable

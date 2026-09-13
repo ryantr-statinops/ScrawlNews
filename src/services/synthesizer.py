@@ -31,6 +31,10 @@ class SynthesizerService(BaseService):
         base_url = "https://openrouter.ai/api/v1" if settings.llm_provider == "openrouter" else None
         self.client = AsyncOpenAI(api_key=api_key, base_url=base_url) if api_key else None
 
+    async def close(self) -> None:
+        if self.client is not None:
+            await self.client.close()
+
     async def execute(self, articles: list[Article], run_id: str | None = None) -> list[Summary]:
         if not articles:
             return []
