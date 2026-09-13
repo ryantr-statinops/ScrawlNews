@@ -4,7 +4,7 @@
 
 ## Hiện tại
 
-Không có task implementation active sau khi đồng bộ trạng thái tài liệu. Hạng mục đã được duyệt tiếp theo là audit execution model và semantics `--dry-run`; xem [TODO.md](TODO.md).
+Không có task implementation active. Hạng mục đã được duyệt tiếp theo là operational validation theo ba tầng; xem [TODO.md](TODO.md).
 
 ## Quy tắc
 

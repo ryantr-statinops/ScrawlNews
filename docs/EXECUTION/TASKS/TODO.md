@@ -4,7 +4,6 @@
 
 ## Release 1.0 hardening — High priority
 
-- [ ] **Chốt execution model** — audit semantics của `--dry-run`; chọn Celery Beat local là scheduler chính và thu hẹp GitHub Actions cron thành CI/smoke check không gửi production.
 - [ ] **Operational validation theo ba tầng** — dry-run; LLM thật với Telegram tắt; Telegram test chat. Ghi nhận 2–3 runs và telemetry tương ứng.
 - [ ] **CI hardening** — dùng `npm ci`, bỏ `|| true` theo từng gate đã verify, đo coverage baseline và chốt Docker build gate.
 

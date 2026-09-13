@@ -132,7 +132,7 @@ class ConfigError(ScrawlError): ...
 
 - ✅ Beat schedule, worker execute
 - ✅ Result backend lưu task state
-- 📌 GA cron vẫn là primary scheduler cho production
+- ✅ Celery Beat local là primary scheduler cho production (ADR-014)
 
 ### Timezone: **UTC lưu, convert khi display**
 

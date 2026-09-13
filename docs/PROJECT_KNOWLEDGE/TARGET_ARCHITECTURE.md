@@ -2,16 +2,16 @@
 
 > Kiến trúc đích của ScrawlNews. Phần lớn đã implement; phần "Future" là hướng phát triển.
 
-## System Blocks (Dashboard-first, ADR-011)
+## System Blocks (Dashboard-first, ADR-011/014)
 
 ```
 Nginx :80
   /        -> Vite React :5173
   /api     -> FastAPI :8000 -> Celery Beat -> Redis -> Worker -> Pipeline -> SQLite
-GitHub Actions cron 0 8,12,16,21 * * * -> pipeline (không cần dashboard) -> SQLite
+GitHub Actions daily -> non-delivery smoke -> temporary SQLite (isolated)
 ```
 
-- Dashboard là entrypoint quan sát, Celery là execution engine
+- Dashboard là entrypoint quan sát, Celery là execution engine và Celery Beat local là production scheduler
 - Api, worker, beat, redis, web, nginx chạy qua `docker-compose.yml`
 - `make dev` cũng chạy nginx + redis trong Docker để parity
 - Storage thuần local, không Turso
@@ -58,7 +58,7 @@ GitHub Actions cron 0 8,12,16,21 * * * -> pipeline (không cần dashboard) -> S
 
 ```
 Local: Nginx (:80) → / → Vite React, /api → FastAPI → Celery Beat → Redis → Worker → SQLite file
-GitHub Actions (free) → cron 4 lần/ngày → pipeline (không cần dashboard) → OmniRoute → OpenRouter → SQLite file
+GitHub Actions (free) → daily dry-run smoke → RSS/fallback → temporary SQLite; không LLM/Telegram secrets
 Tổng chi phí: $0/tháng (Redis/Nginx local, không hosting)
 ```
 
@@ -87,7 +87,7 @@ Tổng chi phí: $0/tháng (Redis/Nginx local, không hosting)
 
 ## References
 
-- [DECISIONS.md](DECISIONS.md) — ADR-011/012/013
+- [DECISIONS.md](DECISIONS.md) — ADR-011/012/013/014
 - [DOMAIN_CONCEPTS/02-core-engine.md](DOMAIN_CONCEPTS/02-core-engine.md) — service interfaces
 - [DOMAIN_CONCEPTS/04-data-config.md](DOMAIN_CONCEPTS/04-data-config.md) — data model, repository
 - [EXECUTION/ACTIVE_PLANS/roadmap.md](../EXECUTION/ACTIVE_PLANS/roadmap.md) — lộ trình theo stage
