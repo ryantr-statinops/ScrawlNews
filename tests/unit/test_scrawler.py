@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 import pytest
 
+from src.models.article import Article
 from src.services.scrawler import ScrawlerService
 from src.utils.errors import ScrawlerError
 
@@ -102,3 +103,21 @@ async def test_execute_merges_categories():
         result = await service.execute(limit=10, categories=["tech", "business"])
         assert mock_fetch.call_count == 2
         assert result == []
+
+
+@pytest.mark.asyncio
+async def test_execute_enforces_total_limit_across_categories():
+    service = ScrawlerService()
+    articles = [
+        Article(id=f"a{index}", url=f"https://example.com/{index}", title=f"Article {index}")
+        for index in range(4)
+    ]
+    with patch.object(
+        service,
+        "_fetch_with_event",
+        new_callable=AsyncMock,
+        side_effect=[[article] for article in articles],
+    ):
+        result = await service.execute(limit=2, categories=["one", "two", "three", "four"])
+
+    assert result == articles[:2]

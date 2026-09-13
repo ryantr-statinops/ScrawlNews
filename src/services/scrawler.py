@@ -90,7 +90,7 @@ class ScrawlerService(BaseService):
                     articles.append(article)
         if not articles and results and all(isinstance(result, Exception) for result in results):
             raise ScrawlerError("All configured news sources failed")
-        return articles
+        return articles[:limit]
 
     async def _fetch_with_event(self, source: dict, limit: int) -> list[Article]:
         started = perf_counter()
@@ -163,7 +163,7 @@ class ScrawlerService(BaseService):
             raise ScrawlerError(
                 "All news categories failed", retryable=any(e.retryable for e in failures)
             ) from failures[-1]
-        return articles
+        return articles[:limit]
 
     async def fetch_rss(
         self,
