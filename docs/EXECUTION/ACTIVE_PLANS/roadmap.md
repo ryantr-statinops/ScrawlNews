@@ -82,18 +82,32 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 - [x] Dashboard Agent tại `/agent`
 - [x] `pip-audit` trong CI
 
-## Stage 5+: Mở rộng (Post-MVP)
+## Post-1.0 Roadmap — Reliability First
 
 Scheduler/`--dry-run` và CI hardening đã hoàn thành. Release 1.0 chỉ còn Telegram test delivery validation cần external credentials trước khi đánh dấu operationally validated toàn bộ.
 
-| Feature | Effort | Priority |
-|---------|--------|----------|
-| Interactive Telegram Bot | Medium | High |
-| Category Filtering | Low | High |
-| Multi-source (HN, Reddit) | Medium | Medium |
-| Cost Tracking chi tiết | Low | Medium |
-| Audio Newsletter (TTS) | Medium | Low |
-| Go fetcher sidecar (nếu cần) | Medium | Low |
+### Release 1.1 — Reliability, Security and Guardrails
+
+| Thứ tự | Deliverable | Exit criteria |
+|---|---|---|
+| 1 | Frontend toolchain security migration | Vite/Vitest major upgrade có kiểm soát; không còn high/critical `npm audit` finding; build/test pass |
+| 2 | Prometheus metrics | Expose run count, duration, errors và pipeline-stage latency; có unit/integration tests |
+| 3 | Config validation | Invalid schedule, limit, timezone, URLs và production Telegram config fail fast với public error an toàn |
+| 4 | Cost guardrails | Token-to-cost qua configurable price snapshot; monthly estimate và budget alert; không hard-code bảng giá khó update |
+| 5 | Source reliability baseline | Report Google News/trafilatura trên nguồn tiếng Việt; chốt fallback và success-rate target |
+| 6 | Frontend coverage expansion | Test critical routes/API states, nâng baseline trước khi bật coverage threshold |
+
+### Release 1.2 — Source Expansion
+
+- Chuẩn hóa source adapter interface và canonical article mapping.
+- Thêm Hacker News RSS, Reddit và custom RSS với per-source telemetry, timeout, dedup và circuit-breaker behavior.
+- Chỉ bắt đầu sau khi Release 1.1 observability/config guardrails hoàn thành.
+
+### Release 1.3 — News Intelligence
+
+- Structured summarization output, similar-story dedup và entity extraction.
+- Feedback loop 👍/👎 với audit/opt-out rõ ràng.
+- Audio, multilingual và rich Telegram formatting giữ trong backlog cho đến khi có nhu cầu sản phẩm.
 
 ## References
 

@@ -48,6 +48,7 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 - Execution model đã chốt theo ADR-014: Celery Beat local là production scheduler; GitHub Actions là daily non-delivery smoke. Beat dùng chung SQLite volume với dashboard.
 - Operational validation: 3 isolated runs xác nhận RSS/fallback và RSS/OpenRouter paths; sửa package-module CLI invocation, total fetch-limit enforcement và LLM async-client lifecycle. Telegram test delivery còn chờ credentials.
 - CI hardening: bỏ toàn bộ soft-fail, bắt buộc lint/typecheck/tests/Docker build, backend coverage threshold 85%, `npm ci` và frontend Docker context tối giản.
+- Post-1.0 roadmap đã được sắp theo reliability-first: frontend toolchain security → metrics → config validation → cost guardrails → source reliability/coverage; source expansion và news intelligence theo sau.
 
 **Not yet operationally validated**:
 - Chuỗi 2–3 runs theo ba tầng với RSS/LLM/Telegram thật.
@@ -76,6 +77,8 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 | Dependency scanning | `pip-audit` trong scheduled workflow | Medium | Complete |
 | Operational validation | 2–3 runs với external services thật | High | Pending |
 | CI hardening | Bỏ soft-fail theo từng gate đã verify | High | Complete |
+| Frontend dependency security | Vite/Vitest audit findings cần major migration | High | Pending |
+| Frontend coverage | Baseline 11.12%, chưa có threshold | Medium | Pending |
 
 ## Useful Commands
 
