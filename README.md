@@ -59,7 +59,7 @@ CLI pipeline still works without dashboard:
 
 ```bash
 make run
-python src/main.py --dry-run
+python -m src.main --dry-run
 ```
 
 Go stub:

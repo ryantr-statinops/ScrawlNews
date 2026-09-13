@@ -91,7 +91,7 @@ jobs:
           TELEGRAM_ENABLED: "false"
           LLM_API_KEY: ""
           OPENROUTER_API_KEY: ""
-        run: python src/main.py --dry-run --limit 3
+        run: python -m src.main --dry-run --limit 3
 ```
 
 Workflow này không dùng production secrets. SQLite trên runner là tạm và không xuất hiện trong dashboard local.

@@ -37,7 +37,7 @@ Hot reload limited to fetch_limit, summary_lang, telegram_enabled, retention_day
 
 ```bash
 make run
-python src/main.py --dry-run --limit 10
+python -m src.main --dry-run --limit 10
 go run ./cmd/newsctl --help
 ```
 

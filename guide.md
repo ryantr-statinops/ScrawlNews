@@ -96,7 +96,7 @@ curl -X POST http://localhost:8000/api/runs -H "Content-Type: application/json" 
 CLI không cần dashboard:
 
 ```bash
-PYTHONPATH=. python src/main.py --dry-run --limit 5
+python -m src.main --dry-run --limit 5
 go run ./cmd/newsctl --help
 ```
 
@@ -108,7 +108,7 @@ go run ./cmd/newsctl --help
 | `externally-managed-environment` | Ubuntu PEP 668 | `pip install --break-system-packages` hoặc venv |
 | `unknown shorthand flag: 'd'` | `docker compose` vs `docker-compose` | Dùng `docker-compose` hyphen, đã fix Makefile:9 |
 | `No such file: .env` | Chưa `cp` | `cp .env.example .env` trước `docker-compose config` |
-| `ModuleNotFoundError: No module named 'src'` | Chạy `python src/main.py` từ sai thư mục | `PYTHONPATH=. python src/main.py` từ root |
+| `ModuleNotFoundError: No module named 'src'` | Chạy file `src/main.py` trực tiếp | Từ project root, chạy `python -m src.main` |
 
 ## 8. Dừng
 
