@@ -86,13 +86,16 @@ cd frontend && npm run test
 
 ```yaml
 # .github/workflows/ci.yml
-- pytest tests/ --cov=src --cov-fail-under=80
-- cd frontend && npm run test
-- mypy src/
-- cd frontend && npm run typecheck
+- pytest tests/ --cov=src --cov-report=term-missing
+- cd frontend && npm run test -- --coverage || true
+- mypy src/ || true
+- cd frontend && npm run typecheck || true
 - ruff check src/
 - cd frontend && npm run lint
+- docker compose build || true
 ```
+
+`mypy`, frontend coverage/typecheck và Docker build hiện là advisory do có `|| true`. Task CI hardening sẽ bỏ soft-fail theo từng gate sau khi đã verify và chốt coverage baseline.
 
 ## Analytics regression focus
 
@@ -103,11 +106,12 @@ cd frontend && npm run test
 - Frontend KPI hiển thị previous-period comparison và mở drill-down bằng chuột hoặc bàn phím.
 - `/api/stats` vẫn có trong OpenAPI để giữ client cũ tương thích.
 
-## Status (2026-09-09)
+## Status (2026-09-13)
 
-- Targeted analytics, telemetry và pipeline suites pass.
-- Frontend typecheck, lint, tests và production build pass. Vitest có thể in cảnh báo WebSocket `EPERM` trong sandbox nhưng test process vẫn pass.
-- Full backend batch vẫn cần lưu ý hiện tượng TestClient/lifespan có thể treo trong môi trường sandbox; handler contract được test trực tiếp trên SQLite cô lập.
+- Full backend batch: 249 passed, 6 skipped trong 131.72 giây; không còn tái hiện hiện tượng treo.
+- Frontend: 4 test files / 11 tests passed; typecheck và lint passed.
+- `mypy src/` và `ruff check src/` passed.
+- Automated tests không gọi external API thật; operational validation được theo dõi riêng trong `EXECUTION/TASKS/TODO.md`.
 
 ## Notes
 

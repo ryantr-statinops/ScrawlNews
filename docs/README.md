@@ -74,3 +74,20 @@ docs/
 ```
 
 > Nguyên tắc: `PROJECT_KNOWLEDGE` giải thích **tại sao / là gì**, `EXECUTION` giải thích **làm gì / đã làm gì**, `GUIDES` giải thích **làm sao**.
+
+## Nguồn trạng thái chuẩn
+
+| Tài liệu | Trách nhiệm |
+|---|---|
+| `PROJECT_KNOWLEDGE/CURRENT_STATE.md` | Trạng thái thực tế đã đối chiếu với code và verification gần nhất |
+| `EXECUTION/ACTIVE_PLANS/roadmap.md` | Milestone, phạm vi release và tiến độ cấp cao |
+| `EXECUTION/TASKS/TODO.md` | Chỉ công việc chưa hoàn thành |
+| `EXECUTION/TASKS/IN_PROGRESS.md` | Chỉ công việc đang được thực hiện |
+| `EXECUTION/COMPLETED/changelog.md` | Nhật ký hoàn thành theo thời gian; không dùng là current-state snapshot |
+| `PROJECT_KNOWLEDGE/DECISIONS.md` | Quyết định kiến trúc/sản phẩm và lý do |
+
+Ba nhãn trạng thái không thay thế cho nhau:
+
+- **Implemented**: code và automated tests đã có.
+- **Verified**: quality gates liên quan đã chạy thành công trên revision hiện tại.
+- **Operationally validated**: luồng thật với external services đã được chạy và ghi nhận kết quả.
