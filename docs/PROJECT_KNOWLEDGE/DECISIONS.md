@@ -121,7 +121,7 @@ Chọn **single async Python script** (`src/main.py`) với class `Pipeline`.
 ## ADR-005: Deployment — GitHub Actions
 
 **Date**: 2025-08-21
-**Status**: Accepted
+**Status**: Superseded by ADR-014
 
 ### Context
 Cần chạy tự động 4 lần/ngày.
@@ -240,6 +240,7 @@ Cần LLM để tóm tắt tin tức. OpenAI gpt-4o-mini trả phí ($0.15/1K to
 
 **Date**: 2025-08-24
 **Status**: Accepted
+**Amended by**: ADR-014 (pipeline scheduler only)
 
 ### Context
 ScrawlNews cần:
@@ -284,6 +285,7 @@ ScrawlNews cần:
 **Date**: 2026-08-27
 **Status**: Accepted
 **Supersedes**: ADR-004 (Single Python Script) extended, ADR-005 (Deployment only GA) extended
+**Amended by**: ADR-014 (scheduler ownership)
 
 ### Context
 Ban đầu newsbot (fetch → summarize → Telegram) là service chính. Nhu cầu mới: service chính là **local dev hosting monitor dashboard** bật bằng 1 terminal, newsbot chỉ là 1 feature toggle trong dashboard. Dashboard cần full 6 nhóm: Feed Monitor, Summarization Monitor, Pipeline Control, Delivery Monitor, System/Health, Analytics.
@@ -371,3 +373,45 @@ Chọn **Option 1 + 3**: Thêm `src/repositories/config_repo.py` + `migrate.py` 
 ### Consequences
 - `src/repositories/migrate.py` SCHEMA_VERSION 2, `ConfigRepository` tạo bảng nếu thiếu
 - `make lint` đổi `web` sang `npm run lint` flat, thêm deps `@eslint/js`, `globals`
+
+---
+
+## ADR-014: Local Celery Beat Owns Production Scheduling
+
+**Date**: 2026-09-13
+**Status**: Accepted
+**Supersedes**: ADR-005 and the scheduler parts of ADR-010/ADR-011
+
+### Context
+
+ScrawlNews là Local Monitor Dashboard với SQLite local. GitHub Actions runner có filesystem tạm thời, vì vậy pipeline chạy trên runner không thể ghi lịch sử vào database của dashboard. Duy trì cả GitHub cron và Celery Beat như scheduler production cũng tạo hai nguồn thực thi có thể trùng lặp.
+
+Audit code xác nhận `--dry-run` vẫn fetch RSS, persist article/summary/digest, gọi LLM nếu có credentials và ghi telemetry; nó chỉ bỏ qua Telegram delivery. Celery Beat gọi `pipeline.run` với `dry_run=False` mặc định.
+
+### Options
+
+1. GitHub Actions là scheduler production, thêm remote durable storage.
+2. Celery Beat local là scheduler production; GitHub Actions chỉ chạy non-delivery smoke.
+3. Hybrid scheduler với database dùng chung.
+
+### Decision
+
+Chọn **Option 2**:
+
+- Celery Beat local là scheduler duy nhất cho pipeline production và Telegram delivery.
+- Dashboard manual trigger vẫn queue task trên cùng Celery worker.
+- GitHub Actions chạy scheduled smoke một lần/ngày với SQLite tạm, `TELEGRAM_ENABLED=false`, không có LLM/Telegram secrets và `--dry-run --limit 3`.
+- API `dry_run=true` và CLI `--dry-run` nghĩa là chạy toàn bộ pipeline trừ Telegram; không có nghĩa là không ghi database hay không gọi LLM.
+
+### Rationale
+
+- Giữ articles, summaries, telemetry và run history trong cùng SQLite mà dashboard quan sát.
+- Tránh hai scheduler production và nguy cơ gửi digest trùng.
+- Giữ scheduled external smoke miễn phí, không gửi Telegram và không tiêu thụ LLM credit.
+- Remote scheduling/storage có thể được thiết kế lại nếu sản phẩm chuyển sang cloud/hybrid.
+
+### Consequences
+
+- Máy local và stack Celery/Redis/Beat phải hoạt động để chạy theo lịch và gửi Telegram.
+- Beat phải mount cùng `./data` và dùng cùng `DATABASE_URL` với API/worker để đọc schedule overrides.
+- Scheduled smoke trên GitHub chỉ xác nhận RSS/persistence/fallback path; operational validation LLM và Telegram được thực hiện riêng.
