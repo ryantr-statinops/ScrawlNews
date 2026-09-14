@@ -15,7 +15,8 @@ const queryClient = new QueryClient();
 
 function InnerApp() {
   const colorScheme = useThemeStore((s) => s.colorScheme);
-  const activeRouter = import.meta.env.VITE_APP === "ops" ? opsRouter : router;
+  const isOpsApp = import.meta.env.VITE_APP === "ops" || import.meta.env.MODE === "ops";
+  const activeRouter = isOpsApp ? opsRouter : router;
   return (
     <MantineProvider theme={theme} forceColorScheme={colorScheme}>
       <Notifications />
