@@ -82,6 +82,38 @@ services:
       redis:
         condition: service_healthy
 
+  dagster-webserver:
+    build: .
+    command: dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml
+    env_file: .env
+    environment:
+      - DAGSTER_HOME=/app
+      - DATABASE_URL=sqlite:///data/scrawlnews.db
+      - TELEGRAM_ENABLED=false
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./dagster.yaml:/app/dagster.yaml:ro
+      - ./workspace.yaml:/app/workspace.yaml:ro
+    ports:
+      - "6768:3000"
+
+  dagster-daemon:
+    build: .
+    command: dagster-daemon run
+    env_file: .env
+    environment:
+      - DAGSTER_HOME=/app
+      - DATABASE_URL=sqlite:///data/scrawlnews.db
+      - TELEGRAM_ENABLED=false
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./dagster.yaml:/app/dagster.yaml:ro
+      - ./workspace.yaml:/app/workspace.yaml:ro
+    depends_on:
+      - dagster-webserver
+
   web:
     build: ./frontend
     ports:

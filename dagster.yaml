@@ -1,0 +1,6 @@
+storage:
+  sqlite:
+    base_dir: /app/data/dagster
+run_coordinator:
+  module: dagster.core.run_coordinator
+  class: QueuedRunCoordinator
