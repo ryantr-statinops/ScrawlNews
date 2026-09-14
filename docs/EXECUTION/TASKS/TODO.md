@@ -2,9 +2,9 @@
 
 > Các task cụ thể chưa làm / chưa chốt. Kéo từ technical debt, ideas backlog, và open questions còn lại.
 
-## Release 1.0 hardening — High priority
+## Release 1.0 hardening — Complete with exception
 
-- [ ] **Telegram test delivery validation** — RSS/fallback và RSS/LLM đã pass qua 3 isolated runs; còn chạy delivery với test-chat credentials và xác nhận `telegram_sent=1`.
+- [ ] **Telegram test delivery validation (deferred)** — RSS/fallback và RSS/LLM đã pass qua 3 isolated runs; delivery với test-chat credentials chưa chạy, nhưng không phải blocker runtime khi `TELEGRAM_ENABLED=false`.
 
 ## Release 1.1 — Reliability, Security and Guardrails
 

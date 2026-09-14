@@ -1,6 +1,6 @@
 # Active Plan — Roadmap
 
-> Cập nhật: 2026-09-13. ScrawlNews đã hoàn thành phạm vi implementation của Local Release 1.0; operational validation và release hardening đang là công việc kế tiếp.
+> Cập nhật: 2026-09-14. ScrawlNews đã hoàn thành phạm vi implementation và release hardening của Local Release 1.0; Telegram live validation được ghi nhận là ngoại lệ deferred.
 
 ## Overview
 
@@ -64,7 +64,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 - [x] Lấp feature: Feed search/filter + phân trang, Runs polling + cron note, Delivery stat cards, Analytics cost + donut, Config history, Health error board
 - [x] Verify `docker-compose up` với `frontend/` mới; dashboard local mở tại `http://localhost`
 
-## Local Release 1.0 — COMPLETE
+## Local Release 1.0 — COMPLETE WITH EXCEPTION
 
 - [x] Làm pytest chạy ổn định theo batch — 228 passed khi đóng scope; current suite 251 passed, 6 skipped (2026-09-13)
 - [x] Chuẩn hóa MyPy theo Python 3.11
@@ -84,7 +84,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 ## Post-1.0 Roadmap — Reliability First
 
-Scheduler/`--dry-run` và CI hardening đã hoàn thành. Release 1.0 chỉ còn Telegram test delivery validation cần external credentials trước khi đánh dấu operationally validated toàn bộ.
+Scheduler/`--dry-run` và CI hardening đã hoàn thành. Telegram test delivery validation được deferred đến khi có external credentials; runtime local vẫn operational với `TELEGRAM_ENABLED=false`.
 
 ### Release 1.1 — Reliability, Security and Guardrails
 

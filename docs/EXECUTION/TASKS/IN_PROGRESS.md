@@ -4,7 +4,7 @@
 
 ## Hiện tại
 
-Không có task implementation active. Telegram test delivery đang chờ external credentials; task có thể bắt đầu độc lập tiếp theo là frontend toolchain security migration trong Release 1.1; xem [TODO.md](TODO.md).
+Không có task implementation active. Telegram validation được deferred đến khi có external test credentials; task kế tiếp có thể bắt đầu độc lập là frontend toolchain security migration trong Release 1.1; xem [TODO.md](TODO.md).
 
 ## Quy tắc
 
