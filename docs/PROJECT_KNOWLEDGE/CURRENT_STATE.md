@@ -8,6 +8,12 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 
 ## Đã build được gì
 
+- Client Product được phục vụ qua gateway `localhost:6767`.
+- Dagster webserver và daemon chạy độc lập qua `localhost:6768`.
+- Dagster shadow definition hiện có asset graph cho ingestion, extraction,
+  normalization, summarization, topic digest và delivery simulation.
+- Celery/Beat vẫn là production orchestrator trong thời gian shadow validation.
+
 | Stage | Mục tiêu | Status |
 |-------|----------|--------|
 | Stage 1: Foundation | Scaffold + config + DB thuần local + Go stub | ✅ Done `014cc6d`..`c774e8f` |
