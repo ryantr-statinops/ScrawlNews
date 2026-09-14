@@ -2,10 +2,8 @@ import { createRouter, createRootRoute, createRoute, Outlet } from "@tanstack/re
 import { ClientShell } from "./components/layout/ClientShell";
 import { FeedPage } from "./routes/index";
 import { SummariesPage } from "./routes/summaries";
-import { RunsPage } from "./routes/runs";
 import { DeliveryPage } from "./routes/delivery";
 import { AnalyticsPage } from "./routes/analytics";
-import { HealthPage } from "./routes/health";
 import { ConfigPage } from "./routes/config";
 import { SettingsPage } from "./routes/settings";
 import { AgentPage } from "./routes/agent";
@@ -28,10 +26,8 @@ function withRoot(path: string, component: () => JSX.Element) {
 
 const indexRoute = withRoot("/", FeedPage);
 const summariesRoute = withRoot("/summaries", SummariesPage);
-const runsRoute = withRoot("/runs", RunsPage);
 const deliveryRoute = withRoot("/delivery", DeliveryPage);
 const analyticsRoute = withRoot("/analytics", AnalyticsPage);
-const healthRoute = withRoot("/health", HealthPage);
 const configRoute = withRoot("/config", ConfigPage);
 const settingsRoute = withRoot("/settings", SettingsPage);
 const agentRoute = withRoot("/agent", AgentPage);
@@ -39,10 +35,8 @@ const agentRoute = withRoot("/agent", AgentPage);
 const routeTree = rootRoute.addChildren([
   indexRoute,
   summariesRoute,
-  runsRoute,
   deliveryRoute,
   analyticsRoute,
-  healthRoute,
   configRoute,
   settingsRoute,
   agentRoute,
