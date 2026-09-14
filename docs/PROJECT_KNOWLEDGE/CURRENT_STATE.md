@@ -1,6 +1,6 @@
 # Current State — Project đang thực sự như thế nào
 
-> Cập nhật: 2026-09-13. Stage 1–5, Feed product upgrade, Analytics Command Center và Agent v1 đã được triển khai. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
+> Cập nhật: 2026-09-14. Stage 1–5, Feed product upgrade, Analytics Command Center và Agent v1 đã được triển khai. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
 
 ## Purpose
 
@@ -43,8 +43,8 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 ### Verification
 - `docker-compose config` passed với .env
 - `go run ./cmd/newsctl --help` ok — `6a7392c`
-- Verification local ngày 2026-09-13: 251 backend tests passed, 6 skipped, 87% coverage; `mypy src/` và `ruff check src/ tests/` passed.
-- Frontend ngày 2026-09-13: 4 test files / 11 tests passed; typecheck và ESLint passed.
+- Verification local ngày 2026-09-14: 251 backend tests passed, 6 skipped, 87% coverage; `mypy src/` và `ruff check src/ tests/` passed.
+- Frontend ngày 2026-09-14: 4 test files / 11 tests passed; typecheck và ESLint passed.
 - 6 skipped tests là các live/integration checks phụ thuộc runtime; automated suite không gọi API thật.
 - Analytics API live qua Docker: 6 endpoint mới trả HTTP 200; dry-run xác nhận pipeline/source/LLM telemetry và Content freshness với timestamp có timezone.
 - Analytics regression: service/API contract/drill-down tests passed; `mypy src/` passed.
@@ -82,6 +82,7 @@ ScrawlNews/
 - RSS/fallback và RSS/OpenRouter đã pass qua 3 isolated operational runs; Telegram test delivery chưa chạy do thiếu test-chat credentials.
 - Frontend coverage baseline mới 11.12%; test pass là mandatory nhưng coverage threshold chưa được bật.
 - `npm audit` còn 4 findings trong Vite/Vitest toolchain (2 moderate, 1 high, 1 critical), cần major-version migration có kiểm soát.
+- CI quality gates hiện là mandatory; không còn soft-fail cho lint, typecheck, test hoặc Docker build.
 
 ## References
 
