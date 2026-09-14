@@ -45,10 +45,13 @@ OPENROUTER_API_KEY=sk-or-...    # OpenRouter (free models)
 
 ```bash
 make dev
-# → http://localhost:6767
+# Client Product → http://localhost:6767
+# Dagster Operations → http://localhost:6768 (Docker only)
 ```
 
 Dashboard sẽ hiện ở `http://localhost:6767`. Click "Run Now" để test pipeline.
+Dagster UI vận hành hiện ở `http://localhost:6768` khi các service Dagster
+được khởi động bằng Docker Compose.
 
 ### Bước 5: Verify (30s)
 
