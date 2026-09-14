@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { theme } from "./theme";
 import { router } from "./router";
+import { opsRouter } from "./ops-router";
 import { useThemeStore } from "./stores/themeStore";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
@@ -14,11 +15,12 @@ const queryClient = new QueryClient();
 
 function InnerApp() {
   const colorScheme = useThemeStore((s) => s.colorScheme);
+  const activeRouter = import.meta.env.VITE_APP === "ops" ? opsRouter : router;
   return (
     <MantineProvider theme={theme} forceColorScheme={colorScheme}>
       <Notifications />
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <RouterProvider router={activeRouter} />
       </QueryClientProvider>
     </MantineProvider>
   );
