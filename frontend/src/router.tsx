@@ -1,5 +1,5 @@
 import { createRouter, createRootRoute, createRoute, Outlet } from "@tanstack/react-router";
-import { AppShell } from "./components/layout/AppShell";
+import { ClientShell } from "./components/layout/ClientShell";
 import { FeedPage } from "./routes/index";
 import { SummariesPage } from "./routes/summaries";
 import { RunsPage } from "./routes/runs";
@@ -12,9 +12,9 @@ import { AgentPage } from "./routes/agent";
 
 const rootRoute = createRootRoute({
   component: () => (
-    <AppShell>
+    <ClientShell>
       <Outlet />
-    </AppShell>
+    </ClientShell>
   ),
 });
 
