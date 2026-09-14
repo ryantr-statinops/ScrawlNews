@@ -105,6 +105,21 @@ Cần chạy pipeline: fetch → summarize → send.
 ### Options
 1. **Single script (`main.py`)** — Simple, trực quan
 2. **Workflow engine** (Airflow, Prefect, Dagster) — Overkill
+
+## ADR-015: Separate client product and operations UI
+
+ScrawlNews uses two local UI surfaces with distinct responsibilities:
+
+- `http://localhost:6767` is the client product for reading news, digests,
+  search, configuration and product analytics.
+- `http://localhost:6768` is the internal operations surface, with Dagster UI
+  as the primary interface for runs, assets, logs, scheduling and failures.
+
+Celery/Beat remains the production orchestrator while Dagster is evaluated in
+shadow mode. Shadow runs use isolated storage and do not send Telegram or
+mutate the domain SQLite database. This boundary prevents operational concepts
+from leaking into the client reading experience while keeping the local setup
+simple and reversible.
 3. **Makefile + shell** — Khó debug, error handling yếu
 
 ### Decision
