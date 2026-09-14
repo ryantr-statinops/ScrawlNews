@@ -2,6 +2,8 @@ note.txt
 .env
 data/*.db
 data/*.sqlite
+data/dagster/
+data/dagster-shadow/
 backups/
 logs/*.log
 __pycache__/
