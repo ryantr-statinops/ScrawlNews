@@ -44,7 +44,7 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 - Product frontend cutover, Analytics Command Center và telemetry retention 30 ngày.
 - Agent v1 deterministic policy, approval gate, SQLite audit trail, database backup và pipeline dry-run queue.
 - SQLite backup/restore; `pip-audit` đã có trong scheduled workflow.
-- Backend batch suite không còn treo trong verification local: 249 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff `src/` passed.
+- Backend batch suite không còn treo trong verification local: 251 passed, 6 skipped; frontend 11 passed; MyPy, frontend typecheck/lint và Ruff `src/ tests/` passed.
 - Execution model đã chốt theo ADR-014: Celery Beat local là production scheduler; GitHub Actions là daily non-delivery smoke. Beat dùng chung SQLite volume với dashboard.
 - Operational validation: 3 isolated runs xác nhận RSS/fallback và RSS/OpenRouter paths; sửa package-module CLI invocation, total fetch-limit enforcement và LLM async-client lifecycle. Telegram test delivery còn chờ credentials.
 - CI hardening: bỏ toàn bộ soft-fail, bắt buộc lint/typecheck/tests/Docker build, backend coverage threshold 85%, `npm ci` và frontend Docker context tối giản.
@@ -52,7 +52,11 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 
 **Not yet operationally validated**:
 - Chuỗi 2–3 runs theo ba tầng với RSS/LLM/Telegram thật.
-- CI hardening cho các gate còn advisory.
+- Telegram live delivery với test-chat credentials vẫn deferred; không phải blocker runtime khi tắt Telegram.
+
+### 2026-09-14 — Release status and lockfile follow-up
+- Chuẩn hóa metadata lockfile frontend trong commit độc lập; không thay đổi version Vite/Vitest.
+- Release 1.0 được ghi nhận **Complete with exception** vì Telegram live validation cần external test credentials.
 
 ## Template for Future Entries
 
