@@ -39,9 +39,14 @@ Docker (recommended):
 
 ```bash
 docker-compose up -d --build
-# http://localhost:6767
+# Client Product: http://localhost:6767
+# Dagster Operations: http://localhost:6768
 # http://localhost:8000/docs
 ```
+
+Dagster currently runs as an isolated shadow operations surface. Celery and
+Celery Beat remain the production pipeline; Dagster shadow assets do not send
+Telegram messages or write to the domain SQLite database.
 
 Telegram is optional for the local dashboard. Set `TELEGRAM_ENABLED=false` in
 `.env` when no valid Telegram bot credentials are available.
