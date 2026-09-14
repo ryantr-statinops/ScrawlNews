@@ -22,3 +22,14 @@ Ba pipeline runs được chạy trên SQLite tạm, giới hạn 1–2 bài và
 ## Remaining validation
 
 Telegram delivery chưa thể chạy vì local environment không có `TELEGRAM_BOT_TOKEN` và `TELEGRAM_CHAT_ID`. Chỉ thực hiện bước này với test chat credentials; không tự động gửi vào production chat.
+
+## Deferred Telegram runbook
+
+Khi có credentials hợp lệ, chỉ chạy với một test chat và một digest:
+
+1. Dùng SQLite tạm và giới hạn `--limit 1`.
+2. Đặt `TELEGRAM_ENABLED=true`, `TELEGRAM_BOT_TOKEN` và `TELEGRAM_CHAT_ID` chỉ trong environment local/secret store.
+3. Chạy pipeline một lần, kiểm tra `telegram_sent=1` và xác nhận tin nhắn trong test chat.
+4. Không ghi token, chat ID hoặc payload nhạy cảm vào log/report/repository.
+
+Các key từng xuất hiện trong terminal output phải được rotate trước khi dùng lại; report này không chứa giá trị secret.

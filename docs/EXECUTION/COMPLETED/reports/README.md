@@ -8,10 +8,10 @@ Thư mục lưu **test reports** và **verification results** của các lần c
 - Mỗi report đặt tên theo ngày + mục đích để dễ tìm.
 - Không commit artifact lớn (coverage HTML, logs); chỉ commit tóm tắt text nếu cần tham chiếu lâu dài.
 
-## Latest verification (2026-09-13, Local Release 1.0 baseline)
+## Latest verification (2026-09-14, Local Release 1.0 baseline)
 
 ```
-pytest -q                         → 249 passed, 6 skipped
+pytest -q                         → 251 passed, 6 skipped
 ruff check src/                   → passed
 mypy src/                         → passed
 cd frontend && npm test           → 4 files / 11 tests passed
