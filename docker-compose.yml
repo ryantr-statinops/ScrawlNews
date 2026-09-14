@@ -82,6 +82,20 @@ services:
       redis:
         condition: service_healthy
 
+  dagster-init:
+    build: .
+    command: dagster instance migrate
+    env_file: .env
+    environment:
+      - DAGSTER_HOME=/app
+      - DATABASE_URL=sqlite:///data/scrawlnews.db
+      - TELEGRAM_ENABLED=false
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./dagster.yaml:/app/dagster.yaml:ro
+      - ./workspace.yaml:/app/workspace.yaml:ro
+
   dagster-webserver:
     build: .
     command: dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml
@@ -97,6 +111,9 @@ services:
       - ./workspace.yaml:/app/workspace.yaml:ro
     ports:
       - "6768:3000"
+    depends_on:
+      dagster-init:
+        condition: service_completed_successfully
 
   dagster-daemon:
     build: .
@@ -112,7 +129,8 @@ services:
       - ./dagster.yaml:/app/dagster.yaml:ro
       - ./workspace.yaml:/app/workspace.yaml:ro
     depends_on:
-      - dagster-webserver
+      dagster-init:
+        condition: service_completed_successfully
 
   web:
     build: ./frontend
