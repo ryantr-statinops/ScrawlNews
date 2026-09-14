@@ -1,0 +1,34 @@
+.feed-article-card {
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.feed-article-card[role="button"] {
+  cursor: pointer;
+}
+
+.feed-article-card[role="button"]:hover,
+.feed-article-card[role="button"]:focus-visible {
+  border-color: var(--mantine-color-blue-5);
+  box-shadow: var(--mantine-shadow-sm);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.feed-article-card__title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.feed-article-card__status {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 40em) {
+  .feed-article-card {
+    padding: var(--mantine-spacing-md);
+  }
+
+  .feed-article-card__status {
+    display: none;
+  }
+}
