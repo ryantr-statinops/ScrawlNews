@@ -1,10 +1,10 @@
 # IN PROGRESS — Task đang thực hiện
 
-> Cập nhật: 2026-09-13. File này chỉ liệt kê task đang có người thực hiện, không lặp lại backlog.
+> Cập nhật: 2026-09-15. File này chỉ liệt kê task đang có người thực hiện, không lặp lại backlog.
 
 ## Hiện tại
 
-Không có task implementation active. Telegram validation được deferred đến khi có external test credentials; task kế tiếp có thể bắt đầu độc lập là frontend toolchain security migration trong Release 1.1; xem [TODO.md](TODO.md).
+Không có task implementation active. Shadow lifecycle parity đã hoàn tất với deterministic fixtures. Telegram live validation được deferred đến khi có external test credentials; task kế tiếp có thể bắt đầu độc lập là frontend toolchain security migration trong Release 1.1; xem [TODO.md](TODO.md).
 
 ## Quy tắc
 

@@ -30,14 +30,14 @@ cp .env.example .env
 # 4. Test
 make test
 
-# Agent: request an action, then approve it with the returned correlation_id
-curl -X POST http://localhost/api/agent/run \
+# Assistant: request an action, then approve it with the returned correlation_id
+curl -X POST http://localhost:6767/api/agent/run \
   -H 'Content-Type: application/json' -d '{"request":"backup"}'
-curl -X POST http://localhost/api/agent/approve/<correlation_id>
+curl -X POST http://localhost:6767/api/agent/approve/<correlation_id>
 
 # 5. Run — 2 cách 1 terminal
 # Docker (có Nginx + Redis):
-docker-compose up -d --build # → http://localhost (Nginx), :8000/docs (API)
+docker-compose up -d --build # → :6767 Client, :6768 Dagster, :8000/docs API
 # Local dev parity (cũng qua Nginx :80):
 make dev                    # nginx redis Docker + concurrently uvicorn + celery + vite
 # CLI:
@@ -67,8 +67,11 @@ go run ./cmd/newsctl --help
 | `REDIS_URL` | ❌ | `redis://localhost:6379/0` | Redis (docker: `redis://redis:6379/0`) |
 | `CELERY_BROKER_URL` | ❌ | `redis://localhost:6379/0` | Celery broker |
 | `CELERY_RESULT_BACKEND` | ❌ | `redis://localhost:6379/1` | Celery result |
+| `DAGSTER_SHADOW_DB_URL` | ❌ | `sqlite:///data/dagster-shadow/shadow.db` | Shadow DB namespace |
+| `DAGSTER_SHADOW_LIMIT` | ❌ | `20` | Shadow fetch limit |
+| `DAGSTER_SHADOW_CATEGORIES` | ❌ | `technology` | Shadow categories |
 
-Hot reload chỉ 4 vars (`fetch_limit`, `summary_lang`, `telegram_enabled`, `retention_days`) qua `PUT /api/config`. Secrets/connection đổi thì restart.
+Hot reload các preference không nhạy cảm qua `PUT /api/config`. Secret chỉ nằm trong `.env`, GET config chỉ trả configured state; thay credentials/connection thì restart.
 
 ## Make Commands
 
@@ -92,7 +95,7 @@ Dependency audit:
 pip-audit -r requirements.txt
 ```
 
-Agent dashboard: mở `http://localhost/agent`. Các action yêu cầu approval; hiện `backup` chạy sau approval và pipeline chỉ chạy ở chế độ `dry_run`.
+Client: mở `http://localhost:6767`. Dagster Operations: mở `http://localhost:6768` để xem asset graph, runs, logs và retries. Các action Assistant yêu cầu approval; pipeline production vẫn do Celery/Beat xử lý.
 
 ## Usage (Run Modes)
 

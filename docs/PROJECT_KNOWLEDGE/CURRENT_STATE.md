@@ -1,6 +1,6 @@
 # Current State — Project đang thực sự như thế nào
 
-> Cập nhật: 2026-09-14. Stage 1–5, Feed product upgrade, Analytics Command Center và Agent v1 đã được triển khai. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
+> Cập nhật: 2026-09-15. Stage 1–5, Client Product split, Dagster shadow validation và Agent v1 đã được triển khai. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
 
 ## Purpose
 
@@ -42,15 +42,15 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 - Telemetry additive schema v9: pipeline stage timing, source yield/duplicate/region và LLM tokens/latency/status; cleanup tự động sau 30 ngày — `0fd00f6e`..`32c5d7fe`
 
 ### Frontend (product, đã cutover)
-- `frontend/` là web chính: Mantine UI v7, TanStack Router, ApexCharts, Zustand, SSE logs — xem `DOMAIN_CONCEPTS/frontend/01-stack.md`. Chạy `:5173`, nối `docker-compose.yml` + `Makefile` + CI
-- Analytics là Command Center 5 tab dùng shared URL filters, KPI delta, responsive/theme-aware charts và drawer drill-down — `9bc36dc7`..`547385c5`
+- `frontend/` là Client Product: Mantine UI v7, TanStack Router, ApexCharts, Zustand — xem `DOMAIN_CONCEPTS/frontend/01-stack.md`. Client chạy qua `:6767`; operations chạy bằng Dagster UI tại `:6768`.
+- Analytics Client gồm News insights và Model analytics, dùng shared URL filters, KPI delta, responsive/theme-aware charts và drawer drill-down — `9bc36dc7`..`547385c5`
 - MVP cũ (`web/` react-router-dom + recharts + tailwind) đã xóa sau cutover (`8593dd5f`), xem lại qua git history nếu cần
 
 ### Verification
 - `docker-compose config` passed với .env
 - `go run ./cmd/newsctl --help` ok — `6a7392c`
 - Verification local ngày 2026-09-14: 251 backend tests passed, 6 skipped, 87% coverage; `mypy src/` và `ruff check src/ tests/` passed.
-- Frontend ngày 2026-09-14: 4 test files / 11 tests passed; typecheck và ESLint passed.
+- Frontend ngày 2026-09-15: 4 test files / 11 tests passed; typecheck, ESLint và client/ops builds passed.
 - 6 skipped tests là các live/integration checks phụ thuộc runtime; automated suite không gọi API thật.
 - Analytics API live qua Docker: 6 endpoint mới trả HTTP 200; dry-run xác nhận pipeline/source/LLM telemetry và Content freshness với timestamp có timezone.
 - Analytics regression: service/API contract/drill-down tests passed; `mypy src/` passed.
@@ -60,7 +60,7 @@ ScrawlNews là **Local Monitor Dashboard** cho tin tức. Dashboard là service 
 
 ```
 ScrawlNews/
-├── docker-compose.yml      # api + worker + beat + redis + web + nginx
+├── docker-compose.yml      # api + worker + beat + redis + Client + Dagster
 ├── nginx.conf              # /api → :8000, / → :5173, SSE off
 ├── Makefile                # install, dev, worker, beat, run, test, lint
 ├── go.mod + cmd/newsctl/   # Go Cobra stub (run/history gọi API)
@@ -87,6 +87,7 @@ ScrawlNews/
 - Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
 - RSS/fallback và RSS/OpenRouter đã pass qua 3 isolated operational runs; Telegram test delivery chưa chạy do thiếu test-chat credentials.
 - Frontend coverage baseline mới 11.12%; test pass là mandatory nhưng coverage threshold chưa được bật.
+- Celery/Dagster fixture lifecycle parity và shadow isolation đã pass; live LLM/Telegram comparison vẫn deferred.
 - `npm audit` còn 4 findings trong Vite/Vitest toolchain (2 moderate, 1 high, 1 critical), cần major-version migration có kiểm soát.
 - CI quality gates hiện là mandatory; không còn soft-fail cho lint, typecheck, test hoặc Docker build.
 

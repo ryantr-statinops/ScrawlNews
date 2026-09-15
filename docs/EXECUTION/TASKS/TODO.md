@@ -4,6 +4,8 @@
 
 ## Release 1.0 hardening — Complete with exception
 
+- [x] **Celery/Dagster shadow lifecycle parity** — deterministic fixture comparison, DB isolation and Telegram-disabled safety validated; see [comparison report](../COMPLETED/reports/2026-09-15-dagster-shadow-comparison.md).
+
 - [ ] **Telegram test delivery validation (deferred)** — RSS/fallback và RSS/LLM đã pass qua 3 isolated runs; delivery với test-chat credentials chưa chạy, nhưng không phải blocker runtime khi `TELEGRAM_ENABLED=false`.
 
 ## Release 1.1 — Reliability, Security and Guardrails

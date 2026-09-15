@@ -5,11 +5,24 @@
 ## Overview
 
 - **Primary scheduler**: Celery Beat local, dùng chung Redis/worker/SQLite với dashboard.
-- **Local monitor**: `docker-compose up` (api + worker + beat + redis + web + nginx) hoặc `make dev` (uvicorn + celery + vite, parity Nginx).
+- **Client Product**: `localhost:6767` (React/Vite through Nginx).
+- **Operations**: `localhost:6768` (Dagster webserver with shared instance storage).
+- **Local monitor**: `docker-compose up` (API + worker + Beat + Redis + Client + Dagster) hoặc `make dev`.
 - **Scheduled smoke**: GitHub Actions một lần/ngày, dry-run không LLM/Telegram secrets trên SQLite tạm.
 - **Cost**: $0/tháng (Redis/Nginx local, GA free).
 
-## Local Dashboard (Nginx + Celery, ADR-011/012)
+## Local Dashboard and Operations (ADR-011/012)
+
+The two ports have separate ownership:
+
+| Port | Surface | Responsibility |
+|---|---|---|
+| `6767` | Client Product | Feed, digests, Telegram, settings and product insights |
+| `6768` | Dagster Operations | Asset graph, runs, logs, retries and shadow metadata |
+
+Celery/Beat remains the only production scheduler. Dagster schedules are not
+enabled during shadow validation. Dagster uses `data/dagster/` for instance
+events and `data/dagster-shadow/` for isolated shadow outputs.
 
 ```yaml
 # docker-compose.yml (1 terminal: docker-compose up)
@@ -109,16 +122,33 @@ Workflow này không dùng production secrets. SQLite trên runner là tạm và
 ## Deployment Architecture (tổng, DB thuần local)
 
 ```
-Local: Nginx (:6767 host/:80 container) → / → Vite React, /api → FastAPI → Celery Beat → Redis → Worker → SQLite file
+Local: Client gateway (:6767 host/:80 container) → Vite React + /api → FastAPI → Celery Beat → Redis → Worker → SQLite file
+Dagster Operations (:6768 host/:3000 container) → isolated instance/shadow storage; no production schedule or Telegram delivery
 GitHub Actions (free) → daily RSS/fallback smoke → temporary SQLite; không production delivery
 ```
+
+### Health and rollback
+
+```bash
+docker-compose ps
+curl -fsS http://localhost:6767/
+curl -fsS http://localhost:6768/server_info
+docker-compose exec -T dagster-daemon dagster-daemon liveness-check
+```
+
+To roll back orchestration behavior, stop/disable Dagster services and keep
+Celery Beat + worker running. The domain database remains `data/scrawlnews.db`;
+do not copy shadow files into it.
 
 ## Verify Checklist (Stage 4)
 
 - [x] `docker-compose config` passed với .env
+- [x] Client Product `:6767` and Dagster Operations `:6768` smoke checked
+- [x] Dagster webserver and daemon healthchecks passed
+- [x] Shadow lifecycle parity fixture and isolation tests passed
 - [ ] `make dev` parity Nginx ok
-- [ ] `go run ./cmd/newsctl --help` ok
-- [ ] `pytest` + `npm run test` green
+- [x] `go run ./cmd/newsctl --help` ok
+- [x] `pytest` + `npm run test` green
 - [ ] Scheduled smoke chạy ít nhất 1 lần thành công
 
 ## References
