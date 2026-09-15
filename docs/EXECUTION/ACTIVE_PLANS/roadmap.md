@@ -62,7 +62,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 - [x] Cutover frontend cũ sang frontend mới và repoint compose/nginx/Makefile/CI
 - [x] Lấp feature: Feed search/filter + phân trang, Runs polling + cron note, Delivery stat cards, Analytics cost + donut, Config history, Health error board
-- [x] Verify `docker-compose up` với `frontend/` mới; dashboard local mở tại `http://localhost`
+- [x] Verify `docker-compose up` với `frontend/` mới; dashboard local mở tại `http://localhost:6767`
 
 ## Local Release 1.0 — COMPLETE WITH EXCEPTION
 
