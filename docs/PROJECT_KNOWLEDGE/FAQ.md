@@ -10,7 +10,7 @@
 make install           # Cài deps
 cp .env.example .env   # Tạo env file
 make dev               # Chạy dashboard qua Nginx
-# → http://localhost
+# → http://localhost:6767
 ```
 
 Xem chi tiết: [docs/GUIDES/setup.md](../GUIDES/setup.md).
@@ -24,7 +24,7 @@ Xem chi tiết: [docs/GUIDES/setup.md](../GUIDES/setup.md).
 | **Redis** | Docker (chỉ redis) | Docker (full stack) |
 | **Nginx** | Docker | Docker |
 | **Hot-reload code** | ✅ Native watcher | Cần `docker-compose restart` |
-| **Parity prod** | ✅ Qua Nginx :80 | ✅ Qua Nginx :80 |
+| **Parity prod** | ✅ Qua gateway :6767 | ✅ Qua gateway :6767 |
 
 Cả 2 đều parity Nginx, chọn 1.
 
