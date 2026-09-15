@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, zodResolver } from "@mantine/form";
-import { NumberInput, TextInput, Switch, Button, Stack, Card, Table, Title } from "@mantine/core";
+import { NumberInput, TextInput, Switch, Button, Stack, Card, Table, Title, Group, Badge, Text } from "@mantine/core";
 import { z } from "zod";
 import { fetchConfig, fetchConfigHistory, updateConfig } from "../lib/api";
 import { PageHeader } from "../components/ui/PageHeader";
@@ -55,7 +55,20 @@ export function ConfigPage() {
 
   return (
     <div>
-      <PageHeader title="Config" description="Hot-reload 4 vars (secrets require restart)" />
+      <PageHeader title="Settings" description="Reading, delivery, and schedule preferences" />
+      <Card withBorder mb="md">
+        <Text fw={600} mb="xs">Connected services</Text>
+        <Group gap="sm">
+          <Badge variant="light">Model: {data?.llm_provider} / {data?.llm_model}</Badge>
+          <Badge color={data?.llm_configured ? "teal" : "gray"} variant="light">
+            AI {data?.llm_configured ? "configured" : "fallback mode"}
+          </Badge>
+          <Badge color={data?.telegram_configured ? "teal" : "gray"} variant="light">
+            Telegram {data?.telegram_configured ? "configured" : "not configured"}
+          </Badge>
+        </Group>
+        <Text size="xs" c="dimmed" mt="xs">Credentials are kept outside the browser and are never shown here.</Text>
+      </Card>
       <Card shadow="sm">
         <form onSubmit={form.onSubmit((v) => save.mutate(v))}>
           <Stack>
@@ -63,7 +76,7 @@ export function ConfigPage() {
             <TextInput label="Summary lang" {...form.getInputProps("summary_lang")} />
             <Switch label="Telegram enabled" {...form.getInputProps("telegram_enabled", { type: "checkbox" })} />
             <NumberInput label="Retention days" {...form.getInputProps("retention_days")} />
-            <TextInput label="Daily run times" description="HH:MM values separated by commas" {...form.getInputProps("schedule_times")} />
+            <TextInput label="Daily update times" description="HH:MM values separated by commas" {...form.getInputProps("schedule_times")} />
             <TextInput label="Schedule timezone" {...form.getInputProps("schedule_timezone")} />
             <TextInput label="News country" {...form.getInputProps("news_country")} />
             <TextInput label="News city" {...form.getInputProps("news_city")} />
@@ -75,16 +88,16 @@ export function ConfigPage() {
       </Card>
       <SourceManager />
       <Title order={4} mt="lg" mb="xs">
-        Change history
+        Preference history
       </Title>
       {history.length > 0 ? (
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Key</Table.Th>
-              <Table.Th>Old</Table.Th>
-              <Table.Th>New</Table.Th>
-              <Table.Th>Changed</Table.Th>
+              <Table.Th>Preference</Table.Th>
+              <Table.Th>Previous</Table.Th>
+              <Table.Th>Current</Table.Th>
+              <Table.Th>Updated</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
