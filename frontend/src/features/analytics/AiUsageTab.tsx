@@ -62,7 +62,7 @@ export function AiUsageTab({ filters }: { filters: AnalyticsFiltersState }) {
       <SimpleGrid cols={{ base: 1, xl: 3 }}>
         <Breakdown title="Providers" dimension="provider" rows={providers} onSelect={setSelection} />
         <Breakdown title="Models" dimension="model" rows={models} onSelect={setSelection} />
-        <Breakdown title="Operations" dimension="operation" rows={operations} onSelect={setSelection} />
+        <Breakdown title="Model activities" dimension="operation" rows={operations} onSelect={setSelection} />
       </SimpleGrid>
       <AnalyticsDrawer selection={selection} filters={filters} onClose={() => setSelection(null)} />
     </>
