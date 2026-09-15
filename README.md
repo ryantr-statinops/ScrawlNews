@@ -15,7 +15,8 @@ Google News RSS -> Scrawler -> Articles -> Synthesizer -> Summaries -> Messenger
                   ArticleRepo              SummaryRepo
                        ^                        ^
                        +---- Dashboard (FastAPI + React) -- Celery/Redis ----+
-                                Nginx :6767 -> /api :8000, / :5173
+                                Client :6767 -> /api :8000, / :5173
+                                Dagster Operations :6768 -> Dagster webserver :3000
 ```
 
 ## Stack
@@ -27,7 +28,8 @@ Google News RSS -> Scrawler -> Articles -> Synthesizer -> Summaries -> Messenger
 | Messenger | Telegram Bot API, toggle via telegram_enabled |
 | Dashboard Backend | FastAPI, Celery, Redis, sqlite3 (stdlib, raw SQL), Pydantic Settings |
 | Dashboard Frontend | React 18, TypeScript, Vite, Mantine UI v7, TanStack Router, TanStack Query, ApexCharts, Zustand, SSE (xem [docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/frontend/01-stack.md](docs/PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/frontend/01-stack.md)) |
-| Gateway | Nginx, reverse proxy /api to FastAPI and / to Vite |
+| Operations UI | Dagster 1.13.22, isolated shadow assets and SQLite instance storage |
+| Gateway | Client gateway on 6767; Dagster webserver on 6768 |
 | CLI | Go, Cobra, newsctl stub |
 | Storage | SQLite file, pure local, mount ./data:/app/data |
 
@@ -46,7 +48,8 @@ docker-compose up -d --build
 
 Dagster currently runs as an isolated shadow operations surface. Celery and
 Celery Beat remain the production pipeline; Dagster shadow assets do not send
-Telegram messages or write to the domain SQLite database.
+Telegram messages or write to the domain SQLite database. Open `http://localhost:6768`
+for asset graph, runs, logs and retries.
 
 Telegram is optional for the local dashboard. Set `TELEGRAM_ENABLED=false` in
 `.env` when no valid Telegram bot credentials are available.
@@ -102,24 +105,26 @@ Key variables:
 | REDIS_URL | no | redis://localhost:6379/0 | Redis for Celery broker, docker uses redis://redis:6379/0 |
 | CELERY_BROKER_URL | no | redis://localhost:6379/0 | Celery broker |
 | CELERY_RESULT_BACKEND | no | redis://localhost:6379/1 | Celery result backend |
+| DAGSTER_SHADOW_DB_URL | no | sqlite:///data/dagster-shadow/shadow.db | Per-run shadow SQLite namespace |
+| DAGSTER_SHADOW_LIMIT | no | 20 | Shadow fetch limit |
+| DAGSTER_SHADOW_CATEGORIES | no | technology | Shadow categories, comma-separated |
 
-Hot reload supports fetch_limit, summary_lang, telegram_enabled, retention_days, news_categories, schedule_times, schedule_timezone, news_country and news_city via PUT /api/config. Secrets and connection URLs require restart.
+Hot reload supports fetch_limit, summary_lang, telegram_enabled, retention_days, news_categories, schedule_times, schedule_timezone, news_country and news_city via PUT /api/config. Secrets and connection URLs require restart; the config API returns only configured/not-configured state.
 
 ## Feed workflow
 
-Feed is the main local dashboard. Use **Update feed** to run the pipeline without opening Runs, filter articles by query/category/source/date, and open an article row for extracted content, published/fetched timestamps and related summaries. The workspace places the Agent mock and Topic digests in the left utility rail, with the article table on the right at desktop widths; it becomes a single-column layout on mobile. The Agent is frontend-only mock mode with local message input and a collapse/expand control; its collapsed state keeps a 48px header and 16px spacing before Topic digests. Settings contains the fetch limit, schedule, locale, health and source manager. Sources are RSS/Atom URLs from the built-in catalog or user-added feeds; the Source Manager can test and enable/disable them. Topic digests are generated per category after a successful run when summaries are available and open in a left-side detail drawer with source articles and history.
+Feed is the main local dashboard. Use **Update feed** to fetch articles, filter by query/category/source/date, and open an article for extracted content, published/fetched timestamps and related summaries. Topic digests, Telegram delivery and preferences stay in the Client Product UI. The workspace becomes a single-column layout on mobile. Operations details stay at `:6768` in Dagster.
 
 ## Analytics Command Center
 
-Analytics has five workspaces sharing a `1h`–`30d` time window and category, source, provider and model filters:
+Analytics has four Client workspaces sharing a `1h`–`30d` time window and category, source, provider and model filters:
 
 - **Overview** — current-vs-previous KPI, operational alerts, news velocity and category/source snapshots.
 - **Content** — category movement, source diversity and article freshness.
-- **Pipeline** — run success, throughput, median/P95 timing and stage errors.
 - **Sources** — fetch health, article yield, duplicate rate and latency by source.
-- **AI Usage** — input/output/total tokens, request failures and latency by provider, model and operation.
+- **Model analytics** — input/output/total tokens, request failures and latency by provider, model and activity.
 
-Analytics filters are reflected in the URL. KPI, table and chart drill-downs open records in place and link to Feed or Runs where applicable. Pipeline, source-fetch and LLM telemetry is best-effort and retained for 30 days independently of article retention. Historical articles created before telemetry migration still appear in Content totals, but historical stage/source/LLM measurements cannot be reconstructed.
+Analytics filters are reflected in the URL. KPI, table and chart drill-downs open records in place. Source-fetch and LLM telemetry is best-effort and retained for 30 days independently of article retention. Historical articles created before telemetry migration still appear in Content totals, but historical stage/source/LLM measurements cannot be reconstructed.
 
 ## Project Structure
 

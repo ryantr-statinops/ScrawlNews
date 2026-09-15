@@ -21,7 +21,7 @@
 ```
 tests/                          # BE (pytest)
 ├── conftest.py
-├── fixtures/                   # sample_articles.json, sample_rss.xml, sample_html.html, llm_responses.json
+├── fixtures/                   # sample data + shadow_pipeline.json (deterministic)
 ├── unit/
 │   ├── test_models.py
 │   ├── test_config.py          # + hot-reload 4 vars vs secrets
@@ -36,7 +36,11 @@ tests/                          # BE (pytest)
 │   ├── test_analytics_service.py # windows, comparison, telemetry aggregates
 │   ├── test_analytics_api.py    # handler/OpenAPI contract + legacy /api/stats
 │   ├── test_telemetry_repo.py   # event persistence + 30-day cleanup
-│   └── test_celery_tasks.py
+│   ├── test_celery_tasks.py
+│   ├── test_dagster_shadow.py
+│   ├── test_dagster_fixtures.py
+│   ├── test_dagster_comparison.py
+│   └── test_dagster_lifecycle_parity.py
 └── integration/
     ├── test_pipeline.py
     ├── test_database.py        # thuần local SQLite tmp
@@ -65,6 +69,7 @@ frontend/                         # FE (Vitest)
 - `mock_telegram_bot` — patch `telegram.Bot`
 - `temp_db` — temporary SQLite (`tmp_path`) cho test repo
 - `sample_articles` — load fixture JSON
+- `shadow_pipeline.json` — fixed RSS/summary/digest values with Telegram disabled
 
 ## Running Tests
 
@@ -117,7 +122,19 @@ Tất cả CI commands là mandatory. Backend coverage có threshold 85%. Fronte
 
 - No real API calls trong automated tests
 - Fixtures committed để reproduce
-- `tests/parity/test_parity.py` (nếu có) so sánh old/new implementation
+- `test_dagster_lifecycle_parity.py` compares lifecycle identity/count/status, not nondeterministic LLM text
+
+## Dagster shadow verification
+
+The shadow path uses a per-run SQLite namespace and never sends Telegram or
+writes `data/scrawlnews.db`. Run the focused checks with:
+
+```bash
+pytest -q tests/unit/test_dagster_shadow.py tests/unit/test_dagster_fixtures.py tests/unit/test_dagster_lifecycle_parity.py
+```
+
+The archived operational result is in
+[2026-09-15-dagster-shadow-comparison.md](../EXECUTION/COMPLETED/reports/2026-09-15-dagster-shadow-comparison.md).
 
 ## References
 
