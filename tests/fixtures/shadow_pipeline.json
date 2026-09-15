@@ -1,0 +1,7 @@
+{
+  "rss_response": "sample_rss.xml",
+  "extraction_content": "Deterministic article content for shadow pipeline tests.",
+  "summary_response": "Deterministic summary response.",
+  "digest_response": "Deterministic technology digest.",
+  "telegram_enabled": false
+}
