@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, zodResolver } from "@mantine/form";
 import { NumberInput, TextInput, Switch, Button, Stack, Card, Table, Title } from "@mantine/core";
 import { z } from "zod";
-import { fetchConfig, updateConfig } from "../lib/api";
+import { fetchConfig, fetchConfigHistory, updateConfig } from "../lib/api";
 import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
@@ -44,9 +44,7 @@ export function ConfigPage() {
   const historyQuery = useQuery({
     queryKey: ["config-history"],
     queryFn: async () => {
-      const res = await fetch("/api/config/history?limit=20");
-      if (!res.ok) throw new Error(`Failed: ${res.status}`);
-      return res.json();
+      return fetchConfigHistory();
     },
   });
   const history: { key: string; old_value: string | null; new_value: string; changed_at: string }[] =

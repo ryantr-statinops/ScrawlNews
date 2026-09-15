@@ -68,3 +68,73 @@ export interface AgentAuditEvent {
   message: string;
   created_at: string;
 }
+
+export interface ArticleListResponse {
+  count: number;
+  articles: Article[];
+}
+
+export interface DigestListResponse {
+  digests: Digest[];
+}
+
+export interface SummaryListResponse {
+  count: number;
+  summaries: Summary[];
+}
+
+export interface DigestArticlesResponse {
+  articles: Article[];
+}
+
+export interface RunListResponse {
+  runs: PipelineRun[];
+}
+
+export interface ConfigResponse {
+  fetch_limit: number;
+  summary_lang: string;
+  llm_provider: string;
+  llm_model: string;
+  llm_configured: boolean;
+  telegram_enabled: boolean;
+  telegram_configured: boolean;
+  retention_days: number;
+  news_categories: string;
+  schedule_times: string;
+  schedule_timezone: string;
+  news_country: string;
+  news_city: string;
+  log_level: string;
+}
+
+export interface ConfigUpdateResponse {
+  updated: Record<string, string>;
+}
+
+export interface Source {
+  id: string;
+  name: string;
+  url: string;
+  category: string | null;
+  enabled: number;
+}
+
+export interface SourceListResponse {
+  sources: Source[];
+}
+
+export interface ConfigHistoryResponse {
+  history: Array<{
+    key: string;
+    old_value: string | null;
+    new_value: string;
+    changed_at: string;
+  }>;
+}
+
+export interface HealthResponse {
+  status: string;
+  db: string;
+  redis: string;
+}

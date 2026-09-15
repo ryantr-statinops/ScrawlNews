@@ -4,24 +4,20 @@ import { PageHeader } from "../components/ui/PageHeader";
 import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { useLogStream } from "../lib/sse";
+import { fetchRuns, requestJson } from "../lib/api";
+import type { HealthResponse, PipelineRun } from "../types/api";
 
-async function fetchHealth() {
-  const res = await fetch("/health");
-  if (!res.ok) throw new Error(`Health check failed: ${res.status}`);
-  return res.json();
-}
+const fetchHealth = () => requestJson<HealthResponse>("/health");
 
 export function HealthPage() {
   const { data, isLoading, error } = useQuery({ queryKey: ["health"], queryFn: fetchHealth });
   const runsQuery = useQuery({
     queryKey: ["runs"],
     queryFn: async () => {
-      const res = await fetch("/api/runs?limit=20");
-      if (!res.ok) throw new Error(`Failed: ${res.status}`);
-      return res.json();
+      return fetchRuns();
     },
   });
-  const failed = (runsQuery.data?.runs ?? []).filter((r: { status: string }) => r.status === "failed");
+  const failed = (runsQuery.data?.runs ?? []).filter((r: PipelineRun) => r.status === "failed");
   const logs = useLogStream();
 
   return (
@@ -49,7 +45,7 @@ export function HealthPage() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {failed.map((r: { id: string; error: string | null }) => (
+              {failed.map((r: PipelineRun) => (
                 <Table.Tr key={r.id}>
                   <Table.Td style={{ fontFamily: "monospace" }}>{r.id.slice(0, 8)}</Table.Td>
                   <Table.Td>{r.error ?? "-"}</Table.Td>

@@ -1,13 +1,7 @@
-import type { Article } from "../../types/api";
+import { requestJson } from "../../lib/api";
+import type { ArticleListResponse } from "../../types/api";
 
-interface FeedResponse {
-  count: number;
-  articles: Article[];
-}
-
-export async function fetchArticles(params: Record<string, string> = {}): Promise<FeedResponse> {
+export function fetchArticles(params: Record<string, string> = {}): Promise<ArticleListResponse> {
   const q = new URLSearchParams(params).toString();
-  const res = await fetch(`/api/articles?${q}`);
-  if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
-  return res.json();
+  return requestJson<ArticleListResponse>(`/api/articles?${q}`);
 }

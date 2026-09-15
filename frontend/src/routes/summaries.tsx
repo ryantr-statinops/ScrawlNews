@@ -5,15 +5,14 @@ import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { EmptyState } from "../components/ui/EmptyState";
 import type { Summary } from "../types/api";
+import { requestJson } from "../lib/api";
 
-async function fetchSummaries() {
-  const res = await fetch("/api/summaries?limit=20");
-  if (!res.ok) throw new Error(`Failed: ${res.status}`);
-  return res.json();
+async function fetchAllSummaries() {
+  return requestJson<{ summaries: Summary[] }>("/api/summaries?limit=20");
 }
 
 export function SummariesPage() {
-  const { data, isLoading, error } = useQuery({ queryKey: ["summaries"], queryFn: fetchSummaries });
+  const { data, isLoading, error } = useQuery({ queryKey: ["summaries"], queryFn: fetchAllSummaries });
   const summaries: Summary[] = data?.summaries ?? [];
 
   return (

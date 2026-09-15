@@ -1,81 +1,116 @@
-export async function fetchArticles(params: Record<string, string> = {}) {
+import type {
+  ArticleListResponse,
+  ConfigHistoryResponse,
+  ConfigResponse,
+  ConfigUpdateResponse,
+  DigestArticlesResponse,
+  DigestListResponse,
+  RunListResponse,
+  Source,
+  SourceListResponse,
+  SummaryListResponse,
+} from "../types/api";
+
+export class ApiError extends Error {
+  constructor(message: string, readonly status: number, readonly body?: unknown) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+function errorMessage(body: unknown, status: number): string {
+  if (typeof body === "object" && body !== null) {
+    const payload = body as { error?: unknown; detail?: unknown };
+    if (typeof payload.error === "string") return payload.error;
+    if (typeof payload.detail === "string") return payload.detail;
+  }
+  return `Request failed: ${status}`;
+}
+
+export async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
+  const response = await fetch(input, init);
+  const text = await response.text();
+  let body: unknown;
+  if (text) {
+    try {
+      body = JSON.parse(text);
+    } catch {
+      throw new ApiError("Server returned invalid JSON", response.status);
+    }
+  }
+  if (!response.ok) throw new ApiError(errorMessage(body, response.status), response.status, body);
+  return body as T;
+}
+
+export function fetchArticles(params: Record<string, string> = {}): Promise<ArticleListResponse> {
   const q = new URLSearchParams(params).toString();
-  const res = await fetch(`/api/articles?${q}`);
-  return res.json();
+  return requestJson<ArticleListResponse>(`/api/articles?${q}`);
 }
 
-export async function fetchRuns() {
-  const res = await fetch("/api/runs");
-  return res.json();
+export function fetchRuns(): Promise<RunListResponse> {
+  return requestJson<RunListResponse>("/api/runs");
 }
 
-export async function triggerRun(fetch_limit?: number, categories?: string[]) {
+export function triggerRun(fetch_limit?: number, categories?: string[]) {
   const params = new URLSearchParams();
   if (fetch_limit !== undefined) params.set("fetch_limit", String(fetch_limit));
   if (categories?.length) params.set("categories", categories.join(","));
   const query = params.toString();
-  const res = await fetch(`/api/runs${query ? `?${query}` : ""}`, {
-    method: "POST",
-  });
-  if (!res.ok) throw new Error(`Failed to trigger run: ${res.status}`);
-  return res.json();
+  return requestJson<{ task_id: string; status: string; run_id: string }>(
+    `/api/runs${query ? `?${query}` : ""}`,
+    { method: "POST" },
+  );
 }
 
-export async function fetchConfig() {
-  const res = await fetch("/api/config");
-  return res.json();
+export function fetchConfig(): Promise<ConfigResponse> {
+  return requestJson<ConfigResponse>("/api/config");
 }
 
-export async function fetchDigests(category?: string) {
+export function fetchConfigHistory(): Promise<ConfigHistoryResponse> {
+  return requestJson<ConfigHistoryResponse>("/api/config/history?limit=20");
+}
+
+export function fetchDigests(category?: string): Promise<DigestListResponse> {
   const query = category ? `?category=${encodeURIComponent(category)}` : "";
-  const res = await fetch(`/api/digests${query}`);
-  if (!res.ok) throw new Error(`Failed to fetch digests: ${res.status}`);
-  return res.json();
+  return requestJson<DigestListResponse>(`/api/digests${query}`);
 }
 
-export async function fetchSummaries(articleId: string) {
-  const res = await fetch(`/api/summaries?article_id=${encodeURIComponent(articleId)}&limit=20`);
-  if (!res.ok) throw new Error(`Failed to fetch summaries: ${res.status}`);
-  return res.json();
+export function fetchSummaries(articleId: string): Promise<SummaryListResponse> {
+  return requestJson<SummaryListResponse>(
+    `/api/summaries?article_id=${encodeURIComponent(articleId)}&limit=20`,
+  );
 }
 
-export async function fetchDigestArticles(digestId: string) {
-  const res = await fetch(`/api/digests/${encodeURIComponent(digestId)}/articles`);
-  if (!res.ok) throw new Error(`Failed to fetch digest articles: ${res.status}`);
-  return res.json();
+export function fetchDigestArticles(digestId: string): Promise<DigestArticlesResponse> {
+  return requestJson<DigestArticlesResponse>(`/api/digests/${encodeURIComponent(digestId)}/articles`);
 }
 
-export async function updateConfig(payload: Record<string, unknown>) {
-  const res = await fetch("/api/config", {
+export function updateConfig(payload: Record<string, unknown>): Promise<ConfigUpdateResponse> {
+  return requestJson<ConfigUpdateResponse>("/api/config", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return res.json();
 }
 
-export async function fetchSources(query = "") {
-  const res = await fetch(`/api/sources${query ? `?q=${encodeURIComponent(query)}` : ""}`);
-  if (!res.ok) throw new Error(`Failed to fetch sources: ${res.status}`);
-  return res.json();
+export function fetchSources(query = ""): Promise<SourceListResponse> {
+  return requestJson<SourceListResponse>(
+    `/api/sources${query ? `?q=${encodeURIComponent(query)}` : ""}`,
+  );
 }
 
-export async function updateSource(id: string, payload: Record<string, unknown>) {
-  const res = await fetch(`/api/sources/${id}`, {
+export function updateSource(id: string, payload: Record<string, unknown>): Promise<Source> {
+  return requestJson<Source>(`/api/sources/${encodeURIComponent(id)}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error(`Failed to update source: ${res.status}`);
-  return res.json();
 }
 
-export async function createSource(payload: Record<string, unknown>) {
-  const res = await fetch("/api/sources", {
+export function createSource(payload: Record<string, unknown>): Promise<Source> {
+  return requestJson<Source>("/api/sources", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error(`Failed to create source: ${res.status}`);
-  return res.json();
 }

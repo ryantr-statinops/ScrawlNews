@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Card, Group, Stack, Switch, Table, TextInput, Text } from "@mantine/core";
-import { createSource, fetchSources, updateSource } from "../lib/api";
+import { createSource, fetchSources, requestJson, updateSource } from "../lib/api";
 
 type Source = { id: string; name: string; url: string; category: string | null; enabled: number };
 
@@ -19,9 +19,7 @@ export function SourceManager() {
   });
   const test = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/sources/${id}/test`, { method: "POST" });
-      if (!res.ok) throw new Error(`Source test failed: ${res.status}`);
-      return res.json();
+      return requestJson(`/api/sources/${encodeURIComponent(id)}/test`, { method: "POST" });
     },
     onSuccess: refresh,
   });
