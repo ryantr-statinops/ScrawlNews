@@ -25,10 +25,17 @@ class Settings(BaseSettings):
     schedule_timezone: str = "Asia/Ho_Chi_Minh"
     news_country: str = "VN"
     news_city: str = "Hanoi"
+    dagster_shadow_db_url: str = "sqlite:///data/dagster-shadow/shadow.db"
+    dagster_shadow_limit: int = 20
+    dagster_shadow_categories: str = "technology"
 
     @property
     def news_categories_list(self) -> list[str]:
         return [c.strip().lower() for c in self.news_categories.split(",") if c.strip()]
+
+    @property
+    def dagster_shadow_categories_list(self) -> list[str]:
+        return [c.strip().lower() for c in self.dagster_shadow_categories.split(",") if c.strip()]
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
