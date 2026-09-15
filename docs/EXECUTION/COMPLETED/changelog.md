@@ -8,6 +8,12 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 
 ## Developer Log
 
+### 2026-09-15 — Agent Context Gateway
+- README có protocol đọc context, kiểm tra Git state và compact handoff checklist.
+- Thêm `PROJECT_KNOWLEDGE/AGENT_CONTEXT.md` làm context ổn định cho agent; branch, commit, test và runtime status vẫn phải kiểm tra trực tiếp.
+- Thêm validation cho links, required sections, ports, review date và secret-pattern safety.
+- Quy ước: thay đổi lớn cập nhật context/current state; thay đổi nhỏ chỉ ghi changelog; session handoff dùng task docs và Git history.
+
 ### 2025-08-21 — Project Planning Complete
 - Created comprehensive project plan (khi đó ở `docs/plan/`)
 - Architecture defined (Service-based, 3 services)

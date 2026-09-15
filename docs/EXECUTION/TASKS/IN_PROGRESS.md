@@ -4,7 +4,7 @@
 
 ## Hiện tại
 
-Không có task implementation active. Shadow lifecycle parity đã hoàn tất với deterministic fixtures. Telegram live validation được deferred đến khi có external test credentials; task kế tiếp có thể bắt đầu độc lập là frontend toolchain security migration trong Release 1.1; xem [TODO.md](TODO.md).
+Không có task implementation active. Shadow lifecycle parity đã hoàn tất với deterministic fixtures. Telegram live validation được deferred đến khi có external test credentials. Khi một session dừng giữa task, ghi handoff vào file này gồm task, files, tests, blocker và next step; không tạo file session riêng. Task kế tiếp có thể bắt đầu độc lập là frontend toolchain security migration trong Release 1.1; xem [TODO.md](TODO.md).
 
 ## Quy tắc
 

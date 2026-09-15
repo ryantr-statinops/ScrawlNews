@@ -7,6 +7,7 @@ Tài liệu dự án được chia thành 2 phần chính:
 
 ## Quick links
 
+- 🤖 **[AGENT_CONTEXT.md](PROJECT_KNOWLEDGE/AGENT_CONTEXT.md)** — Context compact cho agent
 - 🚀 **[QUICKSTART.md](PROJECT_KNOWLEDGE/QUICKSTART.md)** — Chạy project trong 5 phút
 - ❓ **[FAQ.md](PROJECT_KNOWLEDGE/FAQ.md)** — Câu hỏi thường gặp
 - 📖 **[GLOSSARY.md](PROJECT_KNOWLEDGE/GLOSSARY.md)** — Bảng chú giải thuật ngữ
@@ -16,6 +17,7 @@ Tài liệu dự án được chia thành 2 phần chính:
 
 | Bạn muốn biết… | Đọc file |
 |---|---|
+| Context compact khi agent được tag vào README | [PROJECT_KNOWLEDGE/AGENT_CONTEXT.md](PROJECT_KNOWLEDGE/AGENT_CONTEXT.md) |
 | Dự án đang thực sự như thế nào (đã build được gì) | [PROJECT_KNOWLEDGE/CURRENT_STATE.md](PROJECT_KNOWLEDGE/CURRENT_STATE.md) |
 | Dự án muốn trở thành như thế nào (kiến trúc đích) | [PROJECT_KNOWLEDGE/TARGET_ARCHITECTURE.md](PROJECT_KNOWLEDGE/TARGET_ARCHITECTURE.md) |
 | Tại sao team/AI quyết định xây như vậy (ADR) | [PROJECT_KNOWLEDGE/DECISIONS.md](PROJECT_KNOWLEDGE/DECISIONS.md) |
@@ -39,6 +41,7 @@ docs/
 │   ├── FAQ.md                        ← Câu hỏi thường gặp
 │   ├── GLOSSARY.md                   ← Thuật ngữ
 │   ├── DOCS_ROADMAP.md               ← Kế hoạch soạn docs
+│   ├── AGENT_CONTEXT.md              ← Context compact cho agent
 │   ├── CURRENT_STATE.md              ← Project đang thực sự như thế nào
 │   ├── TARGET_ARCHITECTURE.md        ← Project muốn trở thành như thế nào
 │   ├── DECISIONS.md                  ← Tại sao quyết định xây như vậy (ADR)
@@ -80,6 +83,7 @@ docs/
 | Tài liệu | Trách nhiệm |
 |---|---|
 | `PROJECT_KNOWLEDGE/CURRENT_STATE.md` | Trạng thái thực tế đã đối chiếu với code và verification gần nhất |
+| `PROJECT_KNOWLEDGE/AGENT_CONTEXT.md` | Context ổn định, boundary và quy tắc cho agent |
 | `EXECUTION/ACTIVE_PLANS/roadmap.md` | Milestone, phạm vi release và tiến độ cấp cao |
 | `EXECUTION/TASKS/TODO.md` | Chỉ công việc chưa hoàn thành |
 | `EXECUTION/TASKS/IN_PROGRESS.md` | Chỉ công việc đang được thực hiện |
