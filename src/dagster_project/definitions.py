@@ -3,6 +3,7 @@ from collections import defaultdict
 
 import dagster as dg
 
+from src.config import settings
 from src.dagster_project.shadow import isolated_settings
 from src.models.article import Article
 from src.models.digest import Digest
@@ -15,7 +16,12 @@ from src.worker.tasks import _synthesize_articles
 @dg.asset(group_name="shadow")
 def rss_ingestion(context: dg.AssetExecutionContext) -> list[Article]:
     with isolated_settings(context.run_id):
-        articles = asyncio.run(ScrawlerService().execute())
+        articles = asyncio.run(
+            ScrawlerService().execute(
+                limit=settings.dagster_shadow_limit,
+                categories=settings.dagster_shadow_categories_list,
+            )
+        )
     context.add_output_metadata({"article_count": len(articles), "domain_db_mutated": False})
     return articles
 
