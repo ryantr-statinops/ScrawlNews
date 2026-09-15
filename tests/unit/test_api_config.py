@@ -12,6 +12,24 @@ def test_get_config():
     assert "fetch_limit" in data
     assert "summary_lang" in data
     assert "telegram_enabled" in data
+    assert data["llm_configured"] is False
+    assert data["telegram_configured"] is False
+
+
+def test_get_config_never_returns_secret_values(monkeypatch):
+    monkeypatch.setattr("src.api.routes.config.settings.llm_api_key", "llm-secret")
+    monkeypatch.setattr("src.api.routes.config.settings.telegram_bot_token", "bot-secret")
+    monkeypatch.setattr("src.api.routes.config.settings.telegram_chat_id", "chat-secret")
+
+    response = client.get("/api/config")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["llm_configured"] is True
+    assert data["telegram_configured"] is True
+    assert "llm-secret" not in response.text
+    assert "bot-secret" not in response.text
+    assert "chat-secret" not in response.text
 
 
 def test_update_config_allowed_keys():
