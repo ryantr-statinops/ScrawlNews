@@ -2,6 +2,8 @@
 
 > Compact project context for agents and contributors. This file describes stable
 > runtime contracts; verify volatile status with Git, Docker and tests.
+>
+> Last reviewed: 2026-09-15.
 
 ## Project purpose
 
