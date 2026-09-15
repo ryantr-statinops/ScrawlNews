@@ -138,7 +138,8 @@ Run start                                         End
 
 ## Monitoring (planned)
 
-- `/api/health` — current health check
+- `/api/health` — current health check through the Nginx gateway (`:6767`)
+- `/health` — current health check when calling FastAPI directly (`:8000`)
 - `/api/live` / `/api/ready` — k8s probes
 - `/api/stats` — chart data (articles/day, cost/month)
 - `/api/runs` — recent runs with status
