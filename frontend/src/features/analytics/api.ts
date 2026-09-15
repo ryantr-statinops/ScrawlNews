@@ -7,6 +7,7 @@ import type {
   PipelineResponse,
   SourceAnalyticsResponse,
 } from "./types";
+import { requestJson } from "../../lib/api";
 
 function query(filters: AnalyticsFiltersState, extra: Record<string, string> = {}) {
   const params = new URLSearchParams({ window: filters.window, ...extra });
@@ -18,9 +19,7 @@ function query(filters: AnalyticsFiltersState, extra: Record<string, string> = {
 }
 
 async function get<T>(path: string, filters: AnalyticsFiltersState, extra?: Record<string, string>) {
-  const response = await fetch(`${path}?${query(filters, extra)}`);
-  if (!response.ok) throw new Error(`Analytics request failed: ${response.status}`);
-  return response.json() as Promise<T>;
+  return requestJson<T>(`${path}?${query(filters, extra)}`);
 }
 
 export const analyticsApi = {
