@@ -2,6 +2,28 @@
 
 Local Monitor Dashboard for news. The dashboard is the primary service running locally in one terminal; the newsbot pipeline (fetch, summarize, deliver via Telegram) is a feature toggle.
 
+## Agent: start here when this README is tagged
+
+This README is a navigation entrypoint, not the complete project context. Before
+changing code, read [AGENT_CONTEXT.md](docs/PROJECT_KNOWLEDGE/AGENT_CONTEXT.md),
+then [CURRENT_STATE.md](docs/PROJECT_KNOWLEDGE/CURRENT_STATE.md). Read
+[TARGET_ARCHITECTURE.md](docs/PROJECT_KNOWLEDGE/TARGET_ARCHITECTURE.md) for
+architecture work, [DECISIONS.md](docs/PROJECT_KNOWLEDGE/DECISIONS.md) for
+decision rationale, and only the relevant guides/source files for the task.
+
+Always inspect the live repository state first:
+
+```bash
+git branch --show-current
+git status --short
+git log -8 --oneline
+```
+
+Before implementation, report a compact context checklist: project purpose,
+runtime ports, Client/Operations boundary, orchestrator, storage, current
+branch/status, relevant files, risks/limitations, and proposed next step. Do not
+infer current branch, commit, test, or runtime status from static documentation.
+
 ## Overview
 
 ScrawlNews aggregates news from Google News RSS and custom RSS/Atom sources, extracts full content, summarizes via LLM, and delivers results. All operations are observable through a local dashboard with pipeline control, delivery monitoring, health checks, and an Analytics Command Center.
