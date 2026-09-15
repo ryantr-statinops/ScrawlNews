@@ -2,6 +2,7 @@ import logging
 
 import redis
 from fastapi import APIRouter, Query
+from pydantic import BaseModel
 
 from src.config import settings
 from src.repositories.config_repo import ConfigRepository
@@ -11,6 +12,29 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 _config_repo = ConfigRepository(settings.database_url)
+_SENSITIVE_CONFIG_KEYS = {
+    "llm_api_key",
+    "openrouter_api_key",
+    "telegram_bot_token",
+    "telegram_chat_id",
+}
+
+
+class SafeConfigResponse(BaseModel):
+    fetch_limit: int
+    summary_lang: str
+    llm_provider: str
+    llm_model: str
+    llm_configured: bool
+    telegram_enabled: bool
+    telegram_configured: bool
+    retention_days: int
+    news_categories: str
+    schedule_times: str
+    schedule_timezone: str
+    news_country: str
+    news_city: str
+    log_level: str
 
 
 def _publish_config_change(changed_keys: list[str]) -> None:
@@ -21,26 +45,28 @@ def _publish_config_change(changed_keys: list[str]) -> None:
         logger.warning("Config saved but change notification unavailable", exc_info=True)
 
 
-@router.get("/api/config")
-def get_config():
+@router.get("/api/config", response_model=SafeConfigResponse)
+def get_config() -> SafeConfigResponse:
     db_overrides = _config_repo.get_all()
-    return {
-        "fetch_limit": int(db_overrides.get("fetch_limit", settings.fetch_limit)),
-        "summary_lang": db_overrides.get("summary_lang", settings.summary_lang),
-        "llm_provider": settings.llm_provider,
-        "llm_model": settings.llm_model,
-        "telegram_enabled": db_overrides.get(
+    return SafeConfigResponse(
+        fetch_limit=int(db_overrides.get("fetch_limit", settings.fetch_limit)),
+        summary_lang=db_overrides.get("summary_lang", settings.summary_lang),
+        llm_provider=settings.llm_provider,
+        llm_model=settings.llm_model,
+        llm_configured=bool(settings.openrouter_api_key or settings.llm_api_key),
+        telegram_enabled=db_overrides.get(
             "telegram_enabled", str(settings.telegram_enabled)
         ).lower()
         == "true",
-        "retention_days": int(db_overrides.get("retention_days", settings.retention_days)),
-        "news_categories": db_overrides.get("news_categories", settings.news_categories),
-        "schedule_times": db_overrides.get("schedule_times", settings.schedule_times),
-        "schedule_timezone": db_overrides.get("schedule_timezone", settings.schedule_timezone),
-        "news_country": db_overrides.get("news_country", settings.news_country),
-        "news_city": db_overrides.get("news_city", settings.news_city),
-        "log_level": settings.log_level,
-    }
+        telegram_configured=bool(settings.telegram_bot_token and settings.telegram_chat_id),
+        retention_days=int(db_overrides.get("retention_days", settings.retention_days)),
+        news_categories=db_overrides.get("news_categories", settings.news_categories),
+        schedule_times=db_overrides.get("schedule_times", settings.schedule_times),
+        schedule_timezone=db_overrides.get("schedule_timezone", settings.schedule_timezone),
+        news_country=db_overrides.get("news_country", settings.news_country),
+        news_city=db_overrides.get("news_city", settings.news_city),
+        log_level=settings.log_level,
+    )
 
 
 @router.put("/api/config")
@@ -116,7 +142,8 @@ def update_config(payload: dict):
 
 @router.get("/api/config/history")
 def get_config_history(key: str | None = Query(None), limit: int = Query(50, le=200)):
-    return {"history": _config_repo.get_history(key=key, limit=limit)}
+    history = _config_repo.get_history(key=key, limit=limit)
+    return {"history": [item for item in history if item.get("key") not in _SENSITIVE_CONFIG_KEYS]}
 
 
 def _valid_time(value: str) -> bool:
