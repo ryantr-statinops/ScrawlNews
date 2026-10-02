@@ -1,0 +1,206 @@
+{
+  "aggregates": {
+    "average_latency_ms": 7601.75,
+    "categories": {
+      "business": {
+        "average_latency_ms": 7320.67,
+        "category_request_count": 3,
+        "content_band": "fallback_target",
+        "content_count": 0,
+        "content_extraction_rate": 0.0,
+        "fetched_count": 60,
+        "rss_band": "healthy",
+        "rss_success_count": 3,
+        "rss_success_rate": 100.0
+      },
+      "science": {
+        "average_latency_ms": 7161.33,
+        "category_request_count": 3,
+        "content_band": "fallback_target",
+        "content_count": 0,
+        "content_extraction_rate": 0.0,
+        "fetched_count": 60,
+        "rss_band": "healthy",
+        "rss_success_count": 3,
+        "rss_success_rate": 100.0
+      },
+      "technology": {
+        "average_latency_ms": 8827.67,
+        "category_request_count": 3,
+        "content_band": "fallback_target",
+        "content_count": 0,
+        "content_extraction_rate": 0.0,
+        "fetched_count": 60,
+        "rss_band": "healthy",
+        "rss_success_count": 3,
+        "rss_success_rate": 100.0
+      },
+      "world": {
+        "average_latency_ms": 7097.33,
+        "category_request_count": 3,
+        "content_band": "fallback_target",
+        "content_count": 0,
+        "content_extraction_rate": 0.0,
+        "fetched_count": 60,
+        "rss_band": "healthy",
+        "rss_success_count": 3,
+        "rss_success_rate": 100.0
+      }
+    },
+    "category_request_count": 12,
+    "content_band": "fallback_target",
+    "content_count": 0,
+    "content_extraction_rate": 0.0,
+    "fetched_count": 240,
+    "rss_band": "healthy",
+    "rss_success_count": 12,
+    "rss_success_rate": 100.0
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "categories": [
+        {
+          "category": "technology",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 9185,
+          "status": "success"
+        },
+        {
+          "category": "business",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 7396,
+          "status": "success"
+        },
+        {
+          "category": "world",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 6925,
+          "status": "success"
+        },
+        {
+          "category": "science",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 7159,
+          "status": "success"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "categories": [
+        {
+          "category": "technology",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 10489,
+          "status": "success"
+        },
+        {
+          "category": "business",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 7209,
+          "status": "success"
+        },
+        {
+          "category": "world",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 6887,
+          "status": "success"
+        },
+        {
+          "category": "science",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 7169,
+          "status": "success"
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "categories": [
+        {
+          "category": "technology",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 6809,
+          "status": "success"
+        },
+        {
+          "category": "business",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 7357,
+          "status": "success"
+        },
+        {
+          "category": "world",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 7480,
+          "status": "success"
+        },
+        {
+          "category": "science",
+          "content_count": 0,
+          "error": null,
+          "fetched_count": 20,
+          "latency_ms": 7156,
+          "status": "success"
+        }
+      ]
+    }
+  ],
+  "fallback_targets": [
+    {
+      "category": "technology",
+      "metric": "content_extraction_rate",
+      "recommendation": "Readability-lxml before Playwright"
+    },
+    {
+      "category": "business",
+      "metric": "content_extraction_rate",
+      "recommendation": "Readability-lxml before Playwright"
+    },
+    {
+      "category": "world",
+      "metric": "content_extraction_rate",
+      "recommendation": "Readability-lxml before Playwright"
+    },
+    {
+      "category": "science",
+      "metric": "content_extraction_rate",
+      "recommendation": "Readability-lxml before Playwright"
+    }
+  ],
+  "generated_at": "2026-10-02T13:11:24.721767Z",
+  "parameters": {
+    "categories": [
+      "technology",
+      "business",
+      "world",
+      "science"
+    ],
+    "country": "VN",
+    "limit": 20,
+    "runs": 3
+  }
+}
