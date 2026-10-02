@@ -1,7 +1,10 @@
+import math
+
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.config_validation import (
+    canonical_price_snapshot,
     validate_redis_url,
     validate_schedule_times,
     validate_sqlite_url,
@@ -23,6 +26,8 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = None
     llm_provider: str = "openrouter"
     llm_model: str = "google/gemma-2-9b-it"
+    llm_price_snapshot_json: str = "{}"
+    llm_monthly_budget_usd: float = 0.0
     fetch_limit: int = 20
     summary_lang: str = "vi"
     retention_days: int = 7
@@ -76,6 +81,18 @@ class Settings(BaseSettings):
     @classmethod
     def check_schedule_timezone(cls, value: str) -> str:
         return validate_timezone(value)
+
+    @field_validator("llm_price_snapshot_json")
+    @classmethod
+    def check_price_snapshot(cls, value: str) -> str:
+        return canonical_price_snapshot(value)
+
+    @field_validator("llm_monthly_budget_usd")
+    @classmethod
+    def check_budget(cls, value: float) -> float:
+        if not math.isfinite(value) or value < 0:
+            raise ValueError("Budget must be finite and nonnegative")
+        return value
 
     @property
     def news_categories_list(self) -> list[str]:

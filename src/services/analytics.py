@@ -2,10 +2,12 @@ import sqlite3
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from decimal import ROUND_HALF_UP, Decimal
 from statistics import median
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from src.config import settings
+from src.config_validation import parse_price_snapshot
 from src.repositories.article_repo import ArticleRepository
 from src.repositories.config_repo import ConfigRepository
 from src.repositories.run_repo import PipelineRunRepository
@@ -582,11 +584,59 @@ class AnalyticsService:
                 + filters,
                 [previous_start, previous_end, *params],
             ).fetchall()
+            month_start = self.now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            next_month = (month_start.replace(year=month_start.year + 1) if month_start.month == 12
+                          else month_start.replace(month=month_start.month + 1))
+            month_rows = conn.execute(
+                "SELECT * FROM llm_usage_events "
+                "WHERE datetime(occurred_at) >= datetime(?) AND datetime(occurred_at) < datetime(?)",
+                [month_start.replace(tzinfo=None).isoformat(), self.now.replace(tzinfo=None).isoformat()],
+            ).fetchall()
+        config = ConfigRepository(self.db_url).get_all()
+        prices = parse_price_snapshot(config.get("llm_price_snapshot_json", settings.llm_price_snapshot_json))
+        budget = Decimal(str(config.get("llm_monthly_budget_usd", settings.llm_monthly_budget_usd)))
+        unpriced: set[str] = set()
+        unpriced_ids: set[int] = set()
+        unpriced_tokens = 0
+        def estimated_cost(events: list[sqlite3.Row]) -> Decimal:
+            nonlocal unpriced_tokens
+            total = Decimal(0)
+            for event in events:
+                key = f"{event['provider']}/{event['model']}"
+                price = prices.get(key)
+                if price is None:
+                    unpriced.add(key)
+                    if event["id"] not in unpriced_ids:
+                        unpriced_ids.add(event["id"])
+                        unpriced_tokens += event["input_tokens"] + event["output_tokens"]
+                else:
+                    total += (Decimal(event["input_tokens"]) * price.input_per_million_usd
+                              + Decimal(event["output_tokens"]) * price.output_per_million_usd) / 1_000_000
+            return total
+        window_cost = estimated_cost(rows)
+        month_cost = estimated_cost(month_rows)
+        elapsed = Decimal(str((self.now - month_start).total_seconds()))
+        month_seconds = Decimal(str((next_month - month_start).total_seconds()))
+        projected = month_cost * month_seconds / elapsed if elapsed else Decimal(0)
+        def rounded(amount: Decimal) -> float:
+            return float(amount.quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP))
+        cost = {
+            "window_estimated_usd": rounded(window_cost),
+            "month_to_date_usd": rounded(month_cost),
+            "monthly_estimate_usd": rounded(projected),
+            "monthly_budget_usd": float(budget),
+            "budget_usage_percent": float(projected / budget * 100) if budget else 0.0,
+            "alert": budget > 0 and not unpriced and projected >= budget,
+            "pricing_complete": not unpriced,
+            "unpriced_tokens": unpriced_tokens,
+            "unpriced_models": sorted(unpriced),
+        }
         latency = [row["latency_ms"] for row in rows]
         previous_latency = [row["latency_ms"] for row in previous]
         current_failures = sum(row["status"] != "success" for row in rows)
         previous_failures = sum(row["status"] != "success" for row in previous)
         return {
+            "cost": cost,
             "period": period.as_dict(),
             "kpis": {
                 "total_tokens": comparison(

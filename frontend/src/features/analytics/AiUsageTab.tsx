@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, SimpleGrid, Table, Text, Title } from "@mantine/core";
+import { Alert, Card, SimpleGrid, Table, Text, Title } from "@mantine/core";
 import { BarChart } from "../../components/charts/BarChart";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { LoadingState } from "../../components/ui/LoadingState";
@@ -11,6 +11,7 @@ import type { AnalyticsFiltersState } from "./types";
 
 const percent = (value: number) => `${value.toFixed(1)}%`;
 const milliseconds = (value: number) => value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${Math.round(value)}ms`;
+const dollars = (value: number) => "$" + value.toFixed(6);
 
 interface BreakdownProps {
   title: string;
@@ -41,12 +42,21 @@ export function AiUsageTab({ filters }: { filters: AnalyticsFiltersState }) {
   if (query.isLoading) return <LoadingState />;
   if (query.error) return <ErrorState message={(query.error as Error).message} />;
   if (!query.data) return null;
-  const { kpis, trend, providers, models, operations } = query.data;
+  const { kpis, cost, trend, providers, models, operations } = query.data;
   const inspectCalls = () => setSelection({ title: "LLM calls", kind: "llm" });
 
   return (
     <>
+      {cost.alert && <Alert color="yellow" title="Monthly AI budget warning" mb="md">
+        Projected monthly cost {dollars(cost.monthly_estimate_usd)} meets or exceeds the budget of {dollars(cost.monthly_budget_usd)}
+        {cost.budget_usage_percent !== null ? " (" + cost.budget_usage_percent.toFixed(1) + "% used)" : ""}. This is a warning only; AI calls continue.
+      </Alert>}
+      {!cost.pricing_complete && <Alert color="yellow" title="Pricing incomplete" mb="md">
+        Cost excludes {cost.unpriced_tokens.toLocaleString()} unpriced tokens. Add prices for: {cost.unpriced_models.join(", ")}.
+      </Alert>}
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} mb="md">
+        <Card withBorder><Text size="xs" tt="uppercase" fw={700} c="dimmed">Estimated cost</Text><Title order={2}>{dollars(cost.window_estimated_usd)}</Title><Text size="xs" c="dimmed">Selected window</Text></Card>
+        <Card withBorder><Text size="xs" tt="uppercase" fw={700} c="dimmed">Monthly estimate</Text><Title order={2}>{dollars(cost.monthly_estimate_usd)}</Title><Text size="xs" c="dimmed">Month to date: {dollars(cost.month_to_date_usd)}</Text></Card>
         <KpiCard label="Total tokens" metric={kpis.total_tokens} onClick={inspectCalls} />
         <KpiCard label="Input tokens" metric={kpis.input_tokens} onClick={inspectCalls} />
         <KpiCard label="Output tokens" metric={kpis.output_tokens} onClick={inspectCalls} />

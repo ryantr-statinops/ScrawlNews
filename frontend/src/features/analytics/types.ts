@@ -86,6 +86,17 @@ export interface SourceAnalyticsResponse {
 
 export interface AiUsageResponse {
   period: AnalyticsPeriod;
+  cost: {
+    window_estimated_usd: number;
+    month_to_date_usd: number;
+    monthly_estimate_usd: number;
+    monthly_budget_usd: number;
+    budget_usage_percent: number | null;
+    alert: boolean;
+    pricing_complete: boolean;
+    unpriced_tokens: number;
+    unpriced_models: string[];
+  };
   kpis: Record<string, ComparisonMetric>;
   trend: Array<{ timestamp: string; input_tokens: number; output_tokens: number; requests: number }>;
   providers: Array<Record<string, string | number>>;

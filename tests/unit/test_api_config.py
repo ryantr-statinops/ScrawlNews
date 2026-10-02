@@ -94,3 +94,35 @@ def test_update_config_canonicalizes_schedule_before_persisting():
     duplicate = client.put("/api/config", json={"schedule_times": "08:00, 08:00"})
     assert duplicate.status_code == 400
     assert config._config_repo.get("schedule_times") == "08:00,23:59"
+
+def test_price_save_canonical_and_invalid_request_atomic(monkeypatch, tmp_path):
+    from src.api.routes import config as route
+    from src.repositories.config_repo import ConfigRepository
+
+    monkeypatch.setattr(route, "_config_repo", ConfigRepository(f"sqlite:///{tmp_path}/config.db"))
+    raw = '{"z/m":{"output_per_million_usd":2,"input_per_million_usd":1},"a/m":{"output_per_million_usd":0,"input_per_million_usd":0}}'
+    response = client.put("/api/config", json={"llm_price_snapshot_json": raw, "llm_monthly_budget_usd": 10})
+    assert response.status_code == 200
+    canonical = response.json()["updated"]["llm_price_snapshot_json"]
+    assert canonical.startswith('{"a/m":')
+    assert client.get("/api/config").json()["llm_price_snapshot_json"] == canonical
+    prior_history = route._config_repo.get_history()
+    invalid = client.put("/api/config", json={"llm_monthly_budget_usd": 999, "llm_price_snapshot_json": '{"p/m":{"input_per_million_usd":true,"output_per_million_usd":0}}'})
+    assert invalid.status_code == 400
+    assert invalid.json() == {"error": "Invalid configuration"}
+    assert route._config_repo.get_history() == prior_history
+    assert client.get("/api/config").json()["llm_monthly_budget_usd"] == 10
+
+
+def test_oversized_monthly_budget_rejects_without_writing(monkeypatch, tmp_path):
+    from src.api.routes import config as route
+    from src.repositories.config_repo import ConfigRepository
+
+    monkeypatch.setattr(route, "_config_repo", ConfigRepository(f"sqlite:///{tmp_path}/config.db"))
+    response = client.put(
+        "/api/config",
+        json={"summary_lang": "en", "llm_monthly_budget_usd": 10**400},
+    )
+    assert response.status_code == 400
+    assert response.json() == {"error": "Invalid configuration"}
+    assert route._config_repo.get_history() == []
