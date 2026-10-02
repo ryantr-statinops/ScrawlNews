@@ -96,6 +96,8 @@ export interface ConfigResponse {
   summary_lang: string;
   llm_provider: string;
   llm_model: string;
+  llm_price_snapshot_json: string;
+  llm_monthly_budget_usd: number;
   llm_configured: boolean;
   telegram_enabled: boolean;
   telegram_configured: boolean;

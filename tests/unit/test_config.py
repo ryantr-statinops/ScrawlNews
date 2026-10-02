@@ -1,7 +1,10 @@
+from decimal import Decimal
+
 import pytest
 from pydantic import ValidationError
 
 from src.config import Settings
+from src.config_validation import ModelPrice, parse_price_snapshot
 from src.repositories.config_repo import ConfigRepository
 
 
@@ -118,3 +121,30 @@ class TestConfigRepository:
     def test_get_history_empty(self, temp_db):
         repo = ConfigRepository(f"sqlite:///{temp_db}")
         assert repo.get_history() == []
+
+def test_price_snapshot_exact_decimal_and_canonical_order():
+    raw = '{"z/m":{"output_per_million_usd":0.000000000000000000001,"input_per_million_usd":2},"a/m":{"input_per_million_usd":0,"output_per_million_usd":3}}'
+    config = Settings(llm_price_snapshot_json=raw)
+    assert config.llm_price_snapshot_json.startswith('{"a/m":')
+    assert parse_price_snapshot(config.llm_price_snapshot_json)["z/m"] == ModelPrice(Decimal(2), Decimal("0.000000000000000000001"))
+
+
+@pytest.mark.parametrize("snapshot", [
+    '[]', '{"x/m":{}}', '{"x/m":{"input_per_million_usd":1,"output_per_million_usd":2,"other":0}}',
+    '{"x/m":{"input_per_million_usd":true,"output_per_million_usd":2}}',
+    '{"x/m":{"input_per_million_usd":-1,"output_per_million_usd":2}}',
+    '{"x/m":{"input_per_million_usd":NaN,"output_per_million_usd":2}}',
+    '{"x/m":{"input_per_million_usd":Infinity,"output_per_million_usd":2}}',
+    '{"x/m":{"input_per_million_usd":1,"input_per_million_usd":2,"output_per_million_usd":2}}',
+    '{"x/m":{"input_per_million_usd":1,"output_per_million_usd":2},"x/m":{"input_per_million_usd":1,"output_per_million_usd":2}}',
+    '{"no-slash":{"input_per_million_usd":1,"output_per_million_usd":2}}',
+])
+def test_price_snapshot_rejects_invalid_contract(snapshot):
+    with pytest.raises(ValidationError):
+        Settings(llm_price_snapshot_json=snapshot)
+
+
+@pytest.mark.parametrize("budget", [-1, float("nan"), float("inf")])
+def test_budget_rejects_invalid_numbers(budget):
+    with pytest.raises(ValidationError):
+        Settings(llm_monthly_budget_usd=budget)

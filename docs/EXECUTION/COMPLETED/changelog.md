@@ -64,6 +64,11 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 - Chuẩn hóa metadata lockfile frontend trong commit độc lập; không thay đổi version Vite/Vitest.
 - Release 1.0 được ghi nhận **Complete with exception** vì Telegram live validation cần external test credentials.
 
+### 2026-10-02 — Release 1.1 cost guardrails
+- Thêm snapshot giá JSON chính xác theo `provider/model`, giá input/output trên một triệu token và budget tháng (USD); validation trước khi ghi config/history.
+- Analytics tính chi phí theo token telemetry, dự phóng tháng UTC; cảnh báo chỉ khi đủ giá và dự phóng đạt budget. Thiếu giá được báo riêng, không chặn pipeline, LLM hay Telegram.
+- Kiểm thử backend/API và UI cho giá nhiều model, tháng nhuận, ngưỡng budget, thiếu giá và lỗi lưu config; live delivery Telegram vẫn không bật.
+
 ## Template for Future Entries
 
 ```markdown

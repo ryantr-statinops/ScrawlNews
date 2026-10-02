@@ -1,11 +1,16 @@
 import logging
+import math
 
 import redis
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 from src.config import settings
-from src.config_validation import validate_schedule_times, validate_timezone
+from src.config_validation import (
+    canonical_price_snapshot,
+    validate_schedule_times,
+    validate_timezone,
+)
 from src.repositories.config_repo import ConfigRepository
 from src.utils.errors import ConfigError
 
@@ -36,6 +41,8 @@ class SafeConfigResponse(BaseModel):
     news_country: str
     news_city: str
     log_level: str
+    llm_price_snapshot_json: str
+    llm_monthly_budget_usd: float
 
 
 def _publish_config_change(changed_keys: list[str]) -> None:
@@ -66,6 +73,8 @@ def get_config() -> SafeConfigResponse:
         schedule_timezone=db_overrides.get("schedule_timezone", settings.schedule_timezone),
         news_country=db_overrides.get("news_country", settings.news_country),
         news_city=db_overrides.get("news_city", settings.news_city),
+        llm_price_snapshot_json=db_overrides.get("llm_price_snapshot_json", settings.llm_price_snapshot_json),
+        llm_monthly_budget_usd=float(db_overrides.get("llm_monthly_budget_usd", settings.llm_monthly_budget_usd)),
         log_level=settings.log_level,
     )
 
@@ -82,6 +91,8 @@ def update_config(payload: dict):
         "schedule_timezone",
         "news_country",
         "news_city",
+        "llm_price_snapshot_json",
+        "llm_monthly_budget_usd",
     }
     rejected = {k: v for k, v in payload.items() if k not in allowed}
     if rejected:
@@ -112,6 +123,20 @@ def update_config(payload: dict):
                 validate_timezone(value)
             except (TypeError, ValueError) as exc:
                 raise ConfigError() from exc
+        elif key == "llm_price_snapshot_json":
+            try:
+                validated[key] = canonical_price_snapshot(value)
+            except (ValueError, TypeError, OverflowError) as exc:
+                raise ConfigError() from exc
+        elif key == "llm_monthly_budget_usd":
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+                raise ConfigError()
+            try:
+                finite = math.isfinite(value)
+            except OverflowError as exc:
+                raise ConfigError() from exc
+            if not finite:
+                raise ConfigError()
         elif not isinstance(value, str):
             raise ConfigError()
 
@@ -152,6 +177,10 @@ def update_config(payload: dict):
                 settings.news_country = str(v).upper()
             elif k == "news_city":
                 settings.news_city = str(v)
+            elif k == "llm_price_snapshot_json":
+                settings.llm_price_snapshot_json = str(v)
+            elif k == "llm_monthly_budget_usd":
+                settings.llm_monthly_budget_usd = float(v)
 
     if changed_keys:
         _publish_config_change(changed_keys)

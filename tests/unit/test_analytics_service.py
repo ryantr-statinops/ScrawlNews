@@ -181,3 +181,32 @@ def test_drilldown_limits_records_and_rejects_unknown_kind(tmp_path):
     assert [record["id"] for record in result["records"]] == ["run-1"]
     with pytest.raises(ValueError, match="Unsupported drilldown kind"):
         service.drilldown("unknown", "24h")
+
+@pytest.mark.parametrize("year,days", [(2024, 29), (2025, 28)])
+def test_cost_month_projection_and_exact_threshold(tmp_path, year, days):
+    from src.repositories.config_repo import ConfigRepository
+    from src.repositories.telemetry_repo import TelemetryRepository
+
+    service = AnalyticsService(f"sqlite:///{tmp_path}/cost.db", now=datetime(year, 2, 15, 12, tzinfo=UTC))
+    repo = TelemetryRepository(service.db_url)
+    config = ConfigRepository(service.db_url)
+    config.set("llm_price_snapshot_json", '{"provider/model-a":{"input_per_million_usd":2,"output_per_million_usd":4},"other/model-b":{"input_per_million_usd":1,"output_per_million_usd":9.5}}')
+    repo.record_llm_usage(operation="summary", provider="provider", model="model-a", input_tokens=1_000_000, output_tokens=500_000, total_tokens=1_500_000, latency_ms=2, status="success", occurred_at=f"{year}-02-01T12:00:00")
+    repo.record_llm_usage(operation="summary", provider="other", model="model-b", input_tokens=1_000_000, output_tokens=1_000_000, total_tokens=2_000_000, latency_ms=2, status="success", occurred_at=f"{year}-02-15T11:00:00")
+    projected = days
+    config.set("llm_monthly_budget_usd", str(projected))
+    cost = service.ai_usage("24h")["cost"]
+    assert cost["window_estimated_usd"] == 10.5
+    assert cost["month_to_date_usd"] == 14.5
+    assert cost["monthly_estimate_usd"] == days
+    assert cost["pricing_complete"] is True
+    assert cost["alert"] is True
+    config.set("llm_monthly_budget_usd", "0")
+    assert service.ai_usage("24h")["cost"]["alert"] is False
+    repo.record_llm_usage(operation="summary", provider="missing", model="model-z", input_tokens=7, output_tokens=5, total_tokens=12, latency_ms=2, status="success", occurred_at=f"{year}-02-15T11:30:00")
+    cost = service.ai_usage("24h")["cost"]
+    assert cost["pricing_complete"] is False
+    assert cost["unpriced_tokens"] == 12
+    assert cost["unpriced_models"] == ["missing/model-z"]
+    config.set("llm_monthly_budget_usd", "1")
+    assert service.ai_usage("24h")["cost"]["alert"] is False
