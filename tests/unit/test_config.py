@@ -1,3 +1,6 @@
+import pytest
+from pydantic import ValidationError
+
 from src.config import Settings
 from src.repositories.config_repo import ConfigRepository
 
@@ -43,6 +46,48 @@ class TestSettings:
         monkeypatch.setenv("UNKNOWN_FIELD", "value")
         settings = Settings()
         assert not hasattr(settings, "unknown_field")
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("fetch_limit", 0),
+            ("fetch_limit", 101),
+            ("dagster_shadow_limit", 0),
+            ("dagster_shadow_limit", 101),
+            ("retention_days", 0),
+            ("retention_days", 31),
+            ("schedule_interval_hours", 0),
+            ("schedule_interval_hours", 169),
+            ("schedule_times", "08:00,08:00"),
+            ("schedule_times", "8:00"),
+            ("schedule_timezone", "Mars/Olympus"),
+            ("redis_url", "http://example.com"),
+            ("database_url", "sqlite:///"),
+        ],
+    )
+    def test_rejects_invalid_settings(self, field, value):
+        with pytest.raises(ValidationError):
+            Settings(**{field: value})
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("fetch_limit", 1),
+            ("fetch_limit", 100),
+            ("dagster_shadow_limit", 1),
+            ("dagster_shadow_limit", 100),
+            ("retention_days", 1),
+            ("retention_days", 30),
+            ("schedule_interval_hours", 1),
+            ("schedule_interval_hours", 168),
+        ],
+    )
+    def test_accepts_inclusive_boundaries(self, field, value):
+        assert getattr(Settings(**{field: value}), field) == value
+
+    def test_production_requires_both_telegram_credentials(self):
+        with pytest.raises(ValidationError):
+            Settings(app_env="production", telegram_enabled=True)
 
 
 class TestConfigRepository:

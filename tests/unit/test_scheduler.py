@@ -33,3 +33,14 @@ def test_scheduler_keeps_existing_entries():
     schedule = scheduler.get_schedule()
     assert schedule["other"] == "entry"
     assert "pipeline.run.0" in schedule
+
+
+def test_scheduler_falls_back_safely_for_malformed_override(monkeypatch):
+    monkeypatch.setattr(
+        ConfigRepository,
+        "get",
+        lambda self, key: "08:00,invalid" if key == "schedule_times" else None,
+    )
+    scheduler = make_scheduler()
+    schedule = scheduler.get_schedule()
+    assert set(schedule) == {"pipeline.run.0", "pipeline.run.1", "pipeline.run.2"}
