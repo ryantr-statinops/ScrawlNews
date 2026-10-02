@@ -15,8 +15,9 @@ router = APIRouter()
 def metrics():
     registry = CollectorRegistry()
     try:
-        ScrawlNewsCollector(settings.database_url).collect(registry)
+        registry.register(ScrawlNewsCollector(settings.database_url))
+        exposition = generate_latest(registry)
     except (sqlite3.Error, OSError) as exc:
         logger.error("Prometheus metrics database collection failed", exc_info=exc)
         return Response(content="Metrics temporarily unavailable\n", status_code=503)
-    return Response(content=generate_latest(registry), media_type=CONTENT_TYPE_LATEST)
+    return Response(content=exposition, media_type=CONTENT_TYPE_LATEST)

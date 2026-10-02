@@ -47,7 +47,10 @@ def test_metrics_exposes_retained_counts_and_duration_statistics(tmp_path, monke
     stages = [
         (index, "r1", "fetch", "success", index * 1000, None, now.isoformat(), now.isoformat())
         for index in range(1, 5)
-    ] + [(5, "r2", "summarize", "failed", 500, "TimeoutError", now.isoformat(), now.isoformat())]
+    ] + [
+        (5, "r2", "summarize", "failed", 500, "TimeoutError", now.isoformat(), now.isoformat()),
+        (6, "r2", "fetch", "skipped", None, None, now.isoformat(), now.isoformat()),
+    ]
     database = tmp_path / "metrics.db"
     _seed_database(database, runs=runs, stages=stages)
     monkeypatch.setattr("src.api.routes.metrics.settings.database_url", f"sqlite:///{database}")
@@ -60,18 +63,45 @@ def test_metrics_exposes_retained_counts_and_duration_statistics(tmp_path, monke
     assert samples[("scrawlnews_pipeline_runs", (("status", "success"),))] == 2
     assert samples[("scrawlnews_pipeline_runs", (("status", "failed"),))] == 1
     assert samples[("scrawlnews_pipeline_runs", (("status", "running"),))] == 1
-    assert samples[("scrawlnews_pipeline_runs", (("status", "pending"),))] == 0
-    assert samples[("scrawlnews_pipeline_run_duration_seconds", (("statistic", "median"),))] == 2
-    assert samples[("scrawlnews_pipeline_run_duration_seconds", (("statistic", "p95"),))] == 3
-    assert samples[("scrawlnews_pipeline_errors", (("error_class", "TimeoutError"), ("stage", "summarize")))] == 1
-    assert samples[("scrawlnews_pipeline_stage_duration_seconds", (("stage", "fetch"), ("statistic", "median")))] == 2.5
-    assert samples[("scrawlnews_pipeline_stage_duration_seconds", (("stage", "fetch"), ("statistic", "p95")))] == 4
-    assert samples[("scrawlnews_pipeline_stage_duration_seconds", (("stage", "summarize"), ("statistic", "median")))] == 0.5
+    assert samples[("scrawlnews_pipeline_run_duration_seconds", (("stat", "median"),))] == 2
+    assert samples[("scrawlnews_pipeline_run_duration_seconds", (("stat", "p95"),))] == 3
+    assert (
+        samples[
+            (
+                "scrawlnews_pipeline_errors",
+                (("error_class", "TimeoutError"), ("stage", "summarize")),
+            )
+        ]
+        == 1
+    )
+    assert (
+        samples[("scrawlnews_pipeline_errors", (("error_class", "unknown"), ("stage", "fetch")))]
+        == 1
+    )
+    assert (
+        samples[
+            ("scrawlnews_pipeline_stage_duration_seconds", (("stage", "fetch"), ("stat", "median")))
+        ]
+        == 2.5
+    )
+    assert (
+        samples[
+            ("scrawlnews_pipeline_stage_duration_seconds", (("stage", "fetch"), ("stat", "p95")))
+        ]
+        == 4
+    )
+    assert (
+        samples[
+            (
+                "scrawlnews_pipeline_stage_duration_seconds",
+                (("stage", "summarize"), ("stat", "median")),
+            )
+        ]
+        == 0.5
+    )
 
 
-def test_metrics_empty_database_has_zero_statuses_and_no_sampleless_metrics(
-    tmp_path, monkeypatch
-):
+def test_metrics_empty_database_has_zero_statuses_and_no_sampleless_metrics(tmp_path, monkeypatch):
     database = tmp_path / "empty.db"
     _seed_database(database)
     monkeypatch.setattr("src.api.routes.metrics.settings.database_url", f"sqlite:///{database}")
@@ -80,8 +110,11 @@ def test_metrics_empty_database_has_zero_statuses_and_no_sampleless_metrics(
 
     assert response.status_code == 200
     samples = _samples(response.text)
-    assert {labels[0][1]: value for (name, labels), value in samples.items() if name == "scrawlnews_pipeline_runs"} == {
-        "pending": 0,
+    assert {
+        labels[0][1]: value
+        for (name, labels), value in samples.items()
+        if name == "scrawlnews_pipeline_runs"
+    } == {
         "running": 0,
         "success": 0,
         "failed": 0,
