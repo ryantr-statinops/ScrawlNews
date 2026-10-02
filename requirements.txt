@@ -16,6 +16,7 @@ celery[redis]>=5.3.0
 dagster==1.13.22
 dagster-webserver==1.13.22
 redis>=5.0.0
+prometheus-client>=0.21.0,<1.0.0
 
 # Optional: Playwright fallback
 playwright>=1.40.0
