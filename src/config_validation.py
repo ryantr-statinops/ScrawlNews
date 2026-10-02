@@ -4,14 +4,14 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
 def validate_schedule_times(value: str) -> str:
-    if not isinstance(value, str) or not value:
+    if not isinstance(value, str):
         raise ValueError("schedule_times must be nonempty")
-    entries = value.split(",")
-    if any(not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", item) for item in entries):
+    entries = [item.strip() for item in value.split(",")]
+    if not entries or any(not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", item) for item in entries):
         raise ValueError("schedule_times must contain HH:MM values")
     if len(set(entries)) != len(entries):
         raise ValueError("schedule_times must be unique")
-    return value
+    return ",".join(entries)
 
 
 def validate_timezone(value: str) -> str:

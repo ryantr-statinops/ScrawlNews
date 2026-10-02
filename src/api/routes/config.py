@@ -87,6 +87,7 @@ def update_config(payload: dict):
     if rejected:
         raise ConfigError("Requested keys require restart")
 
+    validated = dict(payload)
     # Validate every field before changing persistence, history, or live settings.
     for key, value in payload.items():
         if key in {"fetch_limit", "retention_days"}:
@@ -103,7 +104,7 @@ def update_config(payload: dict):
                 raise ConfigError()
         elif key == "schedule_times":
             try:
-                validate_schedule_times(value)
+                validated[key] = validate_schedule_times(value)
             except (TypeError, ValueError) as exc:
                 raise ConfigError() from exc
         elif key == "schedule_timezone":
@@ -125,7 +126,7 @@ def update_config(payload: dict):
 
     updated: dict[str, str] = {}
     changed_keys: list[str] = []
-    for k, v in payload.items():
+    for k, v in validated.items():
         if k in allowed:
             old_value = _config_repo.get(k)
             new_value = str(v)
