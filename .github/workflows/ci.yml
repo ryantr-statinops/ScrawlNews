@@ -16,11 +16,13 @@ jobs:
           python-version: "3.11"
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "20.19.0"
       - name: Install Python deps
         run: pip install -r requirements.txt
       - name: Install web deps
         run: cd frontend && npm ci
+      - name: Audit web deps
+        run: cd frontend && npm audit --audit-level=high
       - name: Lint BE
         run: ruff check src/ tests/
       - name: Lint FE
