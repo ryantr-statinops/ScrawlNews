@@ -77,3 +77,20 @@ def test_update_config_rejects_malformed_schedule(times):
 def test_update_config_accepts_canonical_schedule():
     response = client.put("/api/config", json={"schedule_times": "00:00,23:59"})
     assert response.status_code == 200
+
+
+def test_update_config_canonicalizes_schedule_before_persisting():
+    from src.api.routes import config
+    from src.config import settings
+
+    response = client.put(
+        "/api/config", json={"schedule_times": " 08:00 , 23:59 ", "summary_lang": "en"}
+    )
+    assert response.status_code == 200
+    assert response.json()["updated"]["schedule_times"] == "08:00,23:59"
+    assert config._config_repo.get("schedule_times") == "08:00,23:59"
+    assert settings.schedule_times == "08:00,23:59"
+
+    duplicate = client.put("/api/config", json={"schedule_times": "08:00, 08:00"})
+    assert duplicate.status_code == 400
+    assert config._config_repo.get("schedule_times") == "08:00,23:59"
