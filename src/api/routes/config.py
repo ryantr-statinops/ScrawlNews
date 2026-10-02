@@ -5,6 +5,7 @@ from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 from src.config import settings
+from src.config_validation import validate_schedule_times, validate_timezone
 from src.repositories.config_repo import ConfigRepository
 from src.utils.errors import ConfigError
 
@@ -86,24 +87,41 @@ def update_config(payload: dict):
     if rejected:
         raise ConfigError("Requested keys require restart")
 
-    # Validate the whole request before changing persisted or in-memory settings.
+    # Validate every field before changing persistence, history, or live settings.
     for key, value in payload.items():
         if key in {"fetch_limit", "retention_days"}:
             try:
-                if isinstance(value, bool) or not isinstance(value, (str, int)):
+                if isinstance(value, bool) or not isinstance(value, int):
                     raise ValueError("Expected an integer")
-                if int(value) < (1 if key == "fetch_limit" else 0):
+                upper = 100 if key == "fetch_limit" else 30
+                if not 1 <= value <= upper:
                     raise ValueError("Integer out of range")
             except ValueError as exc:
-                raise ConfigError("Invalid numeric configuration") from exc
+                raise ConfigError() from exc
         elif key == "telegram_enabled":
             if str(value).lower() not in {"true", "false"}:
-                raise ConfigError("Invalid Telegram toggle")
+                raise ConfigError()
         elif key == "schedule_times":
-            if not isinstance(value, str) or not all(_valid_time(item) for item in value.split(",") if item.strip()):
-                raise ConfigError("Invalid schedule times")
+            try:
+                validate_schedule_times(value)
+            except (TypeError, ValueError) as exc:
+                raise ConfigError() from exc
+        elif key == "schedule_timezone":
+            try:
+                validate_timezone(value)
+            except (TypeError, ValueError) as exc:
+                raise ConfigError() from exc
         elif not isinstance(value, str):
-            raise ConfigError("Expected a configuration string")
+            raise ConfigError()
+
+    enabled = payload.get("telegram_enabled", settings.telegram_enabled)
+    enabled = enabled is True or str(enabled).lower() == "true"
+    if (
+        enabled
+        and settings.app_env.lower() in {"production", "prod"}
+        and not (settings.telegram_bot_token and settings.telegram_chat_id)
+    ):
+        raise ConfigError()
 
     updated: dict[str, str] = {}
     changed_keys: list[str] = []
@@ -144,11 +162,3 @@ def update_config(payload: dict):
 def get_config_history(key: str | None = Query(None), limit: int = Query(50, le=200)):
     history = _config_repo.get_history(key=key, limit=limit)
     return {"history": [item for item in history if item.get("key") not in _SENSITIVE_CONFIG_KEYS]}
-
-
-def _valid_time(value: str) -> bool:
-    try:
-        hour, minute = (int(part) for part in value.strip().split(":"))
-        return 0 <= hour <= 23 and 0 <= minute <= 59
-    except (TypeError, ValueError):
-        return False

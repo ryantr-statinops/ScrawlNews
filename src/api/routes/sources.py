@@ -5,9 +5,11 @@ import httpx
 from fastapi import APIRouter, HTTPException, Query
 
 from src.config import settings
+from src.config_validation import validate_http_url
 from src.models.source import NewsSource
 from src.repositories.source_repo import NewsSourceRepository
 from src.services.source_catalog import DEFAULT_SOURCES
+from src.utils.errors import ConfigError
 
 router = APIRouter()
 
@@ -17,7 +19,11 @@ def _repo() -> NewsSourceRepository:
 
 
 def _is_custom_url(url: str) -> bool:
-    return url.startswith(("http://", "https://"))
+    try:
+        validate_http_url(url)
+        return True
+    except ValueError:
+        return False
 
 
 def _source_rows(query: str | None = None, enabled: bool | None = None) -> list[dict]:
@@ -49,7 +55,7 @@ def create_source(payload: dict):
     name = str(payload.get("name", "")).strip()
     url = str(payload.get("url", "")).strip()
     if not name or not _is_custom_url(url):
-        raise HTTPException(status_code=422, detail="name and HTTP(S) url are required")
+        raise ConfigError()
     source_id = hashlib.sha256(url.encode()).hexdigest()[:16]
     source = NewsSource(
         id=source_id,
@@ -67,15 +73,18 @@ def create_source(payload: dict):
 def update_source(source_id: str, payload: dict):
     existing = _repo().get(source_id)
     if existing is None:
-        existing = next((source.__dict__.copy() for source in DEFAULT_SOURCES if source.id == source_id), None)
+        existing = next(
+            (source.__dict__.copy() for source in DEFAULT_SOURCES if source.id == source_id), None
+        )
     if existing is None:
         raise HTTPException(status_code=404, detail="Source not found")
     url = str(payload.get("url", existing["url"])).strip()
-    if not _is_custom_url(url):
-        raise HTTPException(status_code=422, detail="HTTP(S) url is required")
+    name = str(payload.get("name", existing["name"])).strip()
+    if not name or not _is_custom_url(url):
+        raise ConfigError()
     source = NewsSource(
         id=source_id,
-        name=str(payload.get("name", existing["name"])).strip(),
+        name=name,
         url=url,
         category=payload.get("category", existing["category"]),
         country=str(payload.get("country", existing["country"])).upper(),

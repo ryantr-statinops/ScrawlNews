@@ -8,13 +8,23 @@ import { LoadingState } from "../components/ui/LoadingState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { SourceManager } from "../components/SourceManager";
 
+const scheduleTimes = z.string().refine((value) => {
+  const entries = value.split(",");
+  return entries.length > 0 && entries.every((entry) => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(entry)) &&
+    new Set(entries).size === entries.length;
+}, "Use unique HH:MM times separated by commas");
+const timezone = z.string().min(1).refine((value) => {
+  try { new Intl.DateTimeFormat("en", { timeZone: value }); return true; }
+  catch { return false; }
+}, "Enter a valid IANA timezone");
+
 const schema = z.object({
   fetch_limit: z.number().min(1).max(100),
   summary_lang: z.string().min(2).max(5),
   telegram_enabled: z.boolean(),
   retention_days: z.number().min(1).max(30),
-  schedule_times: z.string().min(5),
-  schedule_timezone: z.string().min(3),
+  schedule_times: scheduleTimes,
+  schedule_timezone: timezone,
   news_country: z.string().min(2),
   news_city: z.string().min(2),
 });
