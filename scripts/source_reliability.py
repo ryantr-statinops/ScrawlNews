@@ -5,13 +5,17 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
 from typing import Any
 from urllib.parse import quote
 
-from src.services.scrawler import ScrawlerService
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from src.services.scrawler import ScrawlerService  # noqa: E402
 
 DEFAULT_CATEGORIES = "technology,business,world,science"
 DEFAULT_OUTPUT = "source_reliability.json"
