@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
 from typing import Any
+from urllib.parse import quote
 
 from src.services.scrawler import ScrawlerService
 
@@ -42,12 +43,19 @@ async def collect_report(
         for category in requested_categories:
             started = timer()
             try:
+                region = country.upper()
+                language = "vi" if region == "VN" else "en"
+                feed_url = (
+                    f"https://news.google.com/rss/search?q={quote(category)}"
+                    f"&hl={language}&gl={region}&ceid={region}:{language}"
+                )
                 articles = await service._fetch_with_event(
                     {
                         "id": f"google-{category}",
                         "name": f"Google News · {category}",
                         "category": category,
                         "country": country,
+                        "url": feed_url,
                     },
                     limit,
                 )
@@ -57,7 +65,10 @@ async def collect_report(
                         "category": category,
                         "status": "success",
                         "fetched_count": len(articles),
-                        "content_count": sum(bool(article.content and article.content.strip()) for article in articles),
+                        "content_count": sum(
+                            bool(article.content and article.content.strip())
+                            for article in articles
+                        ),
                         "latency_ms": event["latency_ms"],
                         "error": None,
                     }
@@ -77,16 +88,56 @@ async def collect_report(
         attempts.append({"attempt": attempt_number, "categories": category_results})
 
     requests = [result for attempt in attempts for result in attempt["categories"]]
-    request_count = len(requests)
-    fetched_count = sum(result["fetched_count"] for result in requests)
-    content_count = sum(result["content_count"] for result in requests)
-    rss_rate = (100 * sum(result["status"] == "success" for result in requests) / request_count) if request_count else 0.0
-    content_rate = (100 * content_count / fetched_count) if fetched_count else 0.0
-    fallback_targets: list[str] = []
-    if reliability_band(rss_rate) == "fallback_target":
-        fallback_targets.append("alternate/custom RSS")
-    if reliability_band(content_rate) == "fallback_target":
-        fallback_targets.append("Readability-lxml before Playwright")
+
+    def aggregate(results: list[dict[str, Any]]) -> dict[str, Any]:
+        request_count = len(results)
+        successes = sum(result["status"] == "success" for result in results)
+        fetched = sum(result["fetched_count"] for result in results)
+        content = sum(result["content_count"] for result in results)
+        rss_rate = 100 * successes / request_count if request_count else None
+        extraction_rate = 100 * content / fetched if fetched else None
+        return {
+            "category_request_count": request_count,
+            "rss_success_count": successes,
+            "fetched_count": fetched,
+            "content_count": content,
+            "rss_success_rate": round(rss_rate, 2) if rss_rate is not None else None,
+            "rss_band": reliability_band(rss_rate) if rss_rate is not None else "unverifiable",
+            "content_extraction_rate": round(extraction_rate, 2)
+            if extraction_rate is not None
+            else None,
+            "content_band": reliability_band(extraction_rate)
+            if extraction_rate is not None
+            else "unverifiable",
+            "average_latency_ms": round(
+                sum(result["latency_ms"] for result in results) / request_count, 2
+            )
+            if request_count
+            else None,
+        }
+
+    category_aggregates = {
+        category: aggregate([result for result in requests if result["category"] == category])
+        for category in requested_categories
+    }
+    fallback_targets = []
+    for category, metrics in category_aggregates.items():
+        if metrics["rss_band"] == "fallback_target":
+            fallback_targets.append(
+                {
+                    "category": category,
+                    "metric": "rss_success_rate",
+                    "recommendation": "alternate/custom RSS",
+                }
+            )
+        if metrics["content_band"] == "fallback_target":
+            fallback_targets.append(
+                {
+                    "category": category,
+                    "metric": "content_extraction_rate",
+                    "recommendation": "Readability-lxml before Playwright",
+                }
+            )
 
     generated = clock(UTC).isoformat().replace("+00:00", "Z")
     return {
@@ -98,17 +149,7 @@ async def collect_report(
             "country": country,
         },
         "attempts": attempts,
-        "aggregates": {
-            "category_request_count": request_count,
-            "rss_success_count": sum(result["status"] == "success" for result in requests),
-            "fetched_count": fetched_count,
-            "content_count": content_count,
-            "rss_success_rate": round(rss_rate, 2),
-            "rss_band": reliability_band(rss_rate),
-            "content_extraction_rate": round(content_rate, 2),
-            "content_band": reliability_band(content_rate),
-            "average_latency_ms": round(sum(result["latency_ms"] for result in requests) / request_count, 2) if request_count else 0.0,
-        },
+        "aggregates": {**aggregate(requests), "categories": category_aggregates},
         "fallback_targets": fallback_targets,
     }
 
@@ -130,7 +171,9 @@ async def _run(args: argparse.Namespace) -> None:
     report = await collect_report(
         runs=args.runs,
         limit=args.limit,
-        categories=[category.strip() for category in args.categories.split(",") if category.strip()],
+        categories=[
+            category.strip() for category in args.categories.split(",") if category.strip()
+        ],
         country=args.country,
     )
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
