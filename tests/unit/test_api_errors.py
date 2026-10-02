@@ -77,7 +77,7 @@ def test_config_validation_precedes_all_writes(payload):
 
 def test_config_notification_failure_preserves_saved_update():
     with patch("redis.from_url", side_effect=redis.ConnectionError("offline")):
-        response = TestClient(app).put("/api/config", json={"fetch_limit": "25"})
+        response = TestClient(app).put("/api/config", json={"fetch_limit": 25})
     assert response.status_code == 200
     assert response.json() == {"updated": {"fetch_limit": "25"}}
     assert config._config_repo.get("fetch_limit") == "25"
