@@ -2,6 +2,7 @@ from celery import schedules
 from celery.beat import ScheduleEntry, Scheduler
 
 from src.config import settings
+from src.config_validation import validate_schedule_times, validate_timezone
 from src.repositories.config_repo import ConfigRepository
 
 
@@ -15,7 +16,13 @@ class ConfigurableScheduler(Scheduler):
         config_repo = ConfigRepository(settings.database_url)
         times = config_repo.get("schedule_times") or settings.schedule_times
         timezone = config_repo.get("schedule_timezone") or settings.schedule_timezone
-        entries = [item.strip() for item in times.split(",") if item.strip()]
+        try:
+            validate_schedule_times(times)
+            validate_timezone(timezone)
+            entries = times.split(",")
+        except (TypeError, ValueError):
+            entries = settings.schedule_times.split(",")
+            timezone = settings.schedule_timezone
         if entries:
             self.app.conf.timezone = timezone
             for index, item in enumerate(entries):

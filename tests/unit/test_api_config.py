@@ -53,3 +53,27 @@ def test_update_config_disallowed_key():
     assert response.status_code == 400
     data = response.json()
     assert data == {"error": "Invalid configuration"}
+
+
+def test_update_config_rejects_invalid_multi_key_payload_before_writes(monkeypatch):
+    route = __import__("src.api.routes.config", fromlist=["config"])
+    writes = []
+    monkeypatch.setattr(route._config_repo, "set", lambda *args: writes.append(args))
+    monkeypatch.setattr(route._config_repo, "log_change", lambda *args: writes.append(args))
+    response = client.put("/api/config", json={"fetch_limit": 33, "schedule_times": "08:00,08:00"})
+    assert response.status_code == 400
+    assert response.json() == {"error": "Invalid configuration"}
+    assert writes == []
+
+
+@__import__("pytest").mark.parametrize(
+    "times", ["", "8:00", "24:00", "08:60", "08:00,,09:00", "08:00,08:00"]
+)
+def test_update_config_rejects_malformed_schedule(times):
+    response = client.put("/api/config", json={"schedule_times": times})
+    assert response.status_code == 400
+
+
+def test_update_config_accepts_canonical_schedule():
+    response = client.put("/api/config", json={"schedule_times": "00:00,23:59"})
+    assert response.status_code == 200

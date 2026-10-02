@@ -15,7 +15,18 @@ def test_list_sources_includes_default_catalog():
 
 def test_create_source_rejects_non_http_url():
     response = client.post("/api/sources", json={"name": "Bad", "url": "file:///tmp/feed"})
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {"error": "Invalid configuration"}
+
+
+def test_create_source_rejects_whitespace_name_and_malformed_http_urls():
+    for name, url in [
+        ("  ", "https://example.com/feed"),
+        ("Bad", "https://"),
+        ("Bad", "http://bad host/feed"),
+    ]:
+        response = client.post("/api/sources", json={"name": name, "url": url})
+        assert response.status_code == 400
 
 
 def test_test_builtin_source():
