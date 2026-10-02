@@ -12,6 +12,7 @@ from src.api.routes import (
     digests,
     health,
     logs,
+    metrics,
     runs,
     sources,
     stats,
@@ -68,3 +69,4 @@ app.include_router(analytics.router)
 app.include_router(agent.router)
 app.include_router(sources.router)
 app.include_router(digests.router)
+app.include_router(metrics.router)
