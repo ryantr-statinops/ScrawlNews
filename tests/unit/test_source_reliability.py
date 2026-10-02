@@ -25,11 +25,7 @@ async def test_report_is_deterministic_and_uses_rss_extraction_and_mocked_clock(
     async def mocked_rss(*args, **kwargs):
         downloaded = trafilatura.fetch_url("https://example.test/story")
         content = trafilatura.extract(downloaded)
-        return [
-            Article(
-                id="1", url="https://example.test/story", title="Story", content=content
-            )
-        ]
+        return [Article(id="1", url="https://example.test/story", title="Story", content=content)]
 
     with (
         patch.object(ScrawlerService, "fetch_rss", new_callable=AsyncMock, side_effect=mocked_rss),
@@ -61,12 +57,15 @@ async def test_report_is_deterministic_and_uses_rss_extraction_and_mocked_clock(
 
 @pytest.mark.asyncio
 async def test_report_sanitizes_rss_error_to_class_name():
-    with patch.object(
-        ScrawlerService,
-        "fetch_rss",
-        new_callable=AsyncMock,
-        side_effect=ScrawlerError("private URL and token=secret"),
-    ), patch("src.services.scrawler.perf_counter", return_value=1.0):
+    with (
+        patch.object(
+            ScrawlerService,
+            "fetch_rss",
+            new_callable=AsyncMock,
+            side_effect=ScrawlerError("private URL and token=secret"),
+        ),
+        patch("src.services.scrawler.perf_counter", return_value=1.0),
+    ):
         report = await source_reliability.collect_report(
             runs=1,
             categories=["world"],
@@ -78,4 +77,42 @@ async def test_report_sanitizes_rss_error_to_class_name():
     assert outcome["status"] == "failure"
     assert outcome["error"] == "ScrawlerError"
     assert "secret" not in str(report)
-    assert report["fallback_targets"] == ["alternate/custom RSS", "Readability-lxml before Playwright"]
+    assert report["aggregates"]["content_band"] == "unverifiable"
+    assert report["fallback_targets"] == [
+        {
+            "category": "world",
+            "metric": "rss_success_rate",
+            "recommendation": "alternate/custom RSS",
+        }
+    ]
+
+
+@pytest.mark.asyncio
+async def test_country_url_and_category_specific_extraction_target():
+    urls = []
+
+    async def mocked_rss(*args, **kwargs):
+        urls.append(kwargs["source_url"])
+        return [Article(id="1", url="https://example.test/story", title="Story", content=None)]
+
+    with (
+        patch.object(ScrawlerService, "fetch_rss", new_callable=AsyncMock, side_effect=mocked_rss),
+        patch("src.services.scrawler.perf_counter", return_value=1.0),
+    ):
+        report = await source_reliability.collect_report(
+            runs=1,
+            categories=["business"],
+            country="US",
+            clock=lambda tz: datetime(2026, 1, 2, tzinfo=UTC),
+            timer=lambda: 1.0,
+        )
+
+    assert "gl=US&ceid=US:en" in urls[0]
+    assert report["aggregates"]["categories"]["business"]["content_band"] == "fallback_target"
+    assert report["fallback_targets"] == [
+        {
+            "category": "business",
+            "metric": "content_extraction_rate",
+            "recommendation": "Readability-lxml before Playwright",
+        }
+    ]
