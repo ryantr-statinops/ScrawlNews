@@ -121,13 +121,19 @@ Tất cả CI commands là mandatory. Backend coverage có threshold 85%. Fronte
 - Frontend KPI hiển thị previous-period comparison và mở drill-down bằng chuột hoặc bàn phím.
 - `/api/stats` vẫn có trong OpenAPI để giữ client cũ tương thích.
 
-## Status (2026-09-13)
+## Historical status (2026-09-13)
 
 - Full backend batch sau hardening: 251 passed, 6 skipped; 87% coverage.
-- Frontend: 22 test files / 106 tests passed; typecheck và lint passed.
-- Frontend coverage gate: lines 99.87%, statements 99.87%, branches 92.20%, functions 84.23% (threshold 80%).
+- Frontend: 4 test files / 11 tests passed; typecheck và lint passed.
 - `mypy src/` và `ruff check src/` passed.
 - Automated tests không gọi external API thật; operational validation được theo dõi riêng trong `EXECUTION/TASKS/TODO.md`.
+
+## Release 1.1 frontend coverage (2026-10-04)
+
+- Frontend: 22 test files / 106 tests passed; `npm run test:coverage` passed.
+- Coverage: lines 99.87%, statements 99.87%, branches 92.20%, functions 84.23% (80% minimum for each metric).
+- `npm run lint`, `npm run typecheck`, `npm run build:client`, and `npm run build:ops` passed.
+- GitHub CI run 37214987157 passed.
 
 ## Notes
 
