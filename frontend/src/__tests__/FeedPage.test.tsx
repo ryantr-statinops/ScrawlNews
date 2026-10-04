@@ -40,7 +40,24 @@ const digest = {
   created_at: "2026-09-10T00:00:00Z",
 };
 
-const config = { fetch_limit: 37, news_categories: "technology, business ,world" };
+const config = {
+  fetch_limit: 37,
+  summary_lang: "vi",
+  llm_provider: "openai",
+  llm_model: "gpt-4o",
+  llm_configured: true,
+  llm_price_snapshot_json: "{}",
+  llm_monthly_budget_usd: 0,
+  telegram_enabled: false,
+  telegram_configured: false,
+  retention_days: 7,
+  news_categories: "technology, business ,world",
+  schedule_times: "08:00",
+  schedule_timezone: "Asia/Ho_Chi_Minh",
+  news_country: "VN",
+  news_city: "Hanoi",
+  log_level: "INFO",
+};
 
 // The real Mantine Select hangs in jsdom when its dropdown is opened, so the
 // filter tests drive an injected native select that keeps the same
