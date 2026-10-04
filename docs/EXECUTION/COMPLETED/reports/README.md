@@ -4,11 +4,27 @@ Thư mục lưu **test reports** và **verification results** của các lần c
 
 ## Quy ước
 
-- Lưu output của `pytest --cov`, `ruff`, `mypy`, `npm run test` vào đây khi cần archive (vd: `reports/2026-08-28-stage4.txt`).
+- Lưu output của `pytest --cov`, `ruff`, `mypy`, `npm run test` và `npm run test:coverage` vào đây khi cần archive (vd: `reports/2026-08-28-stage4.txt`).
 - Mỗi report đặt tên theo ngày + mục đích để dễ tìm.
 - Không commit artifact lớn (coverage HTML, logs); chỉ commit tóm tắt text nếu cần tham chiếu lâu dài.
 
-## Latest verification (2026-09-14, Local Release 1.0 baseline)
+## Latest verification (2026-10-04, Release 1.1)
+
+```
+npm ci (Node 20.19.0 / npm 10.8.2)              → passed
+npm audit --audit-level=high                    → passed (0 high/critical; 3 moderate)
+npm run lint / npm run typecheck                → passed
+npm run test:coverage                           → 22 files / 106 tests passed
+V8 coverage                                    → lines 99.87%, statements 99.87%, branches 92.20%, functions 84.23%
+npm run build:client / npm run build:ops        → passed
+ruff check src/ tests/ → passed; `.venv311/bin/mypy src/` → passed
+.venv311/bin/pytest tests/ --cov=src --cov-report=term-missing --cov-fail-under=85 → 333 passed, 6 skipped; 87.35%
+```
+
+- [Release 1.1 integration report](2026-10-04-release-1.1-integration.md) contains runtime and UI evidence.
+- Automated tests do not replace live RSS/LLM/Telegram checks; the Release 1.1 smoke kept Telegram disabled.
+
+## Historical verification (2026-09-14, Local Release 1.0 baseline)
 
 ```
 pytest -q                         → 251 passed, 6 skipped
@@ -19,7 +35,7 @@ cd frontend && npm run typecheck  → passed
 cd frontend && npm run lint       → passed
 ```
 
-Automated suite không thay thế operational validation với RSS/LLM/Telegram thật. Kết quả Stage 4 bên dưới được giữ làm historical baseline.
+The Release 1.0 baseline is retained for history; Release 1.1 evidence is linked above.
 
 ## Historical verification (2026-08-28, Stage 4)
 

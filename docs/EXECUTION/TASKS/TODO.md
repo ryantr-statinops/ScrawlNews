@@ -12,12 +12,14 @@
 
 ## Release 1.1 — Reliability, Security and Guardrails
 
-- [ ] **1. Frontend toolchain security** — migrate Vite/Vitest theo major versions; xử lý 2 moderate, 1 high, 1 critical audit findings mà không dùng `npm audit fix --force`.
-- [ ] **2. Metrics** — Prometheus metrics cho runs/duration/errors/stage latency.
-- [ ] **3. Config validation** — stricter validation cho schedule, limit, timezone, URLs và Telegram production config.
-- [ ] **4. Cost guardrails** — configurable provider price snapshot, monthly estimate và budget alert (ideas.md #6).
-- [ ] **5. Source reliability baseline** — Google News RSS/trafilatura trên nguồn tiếng Việt; đề xuất fallback và success-rate target.
-- [ ] **6. Frontend coverage** — thêm tests cho critical routes/API states và chốt threshold từ baseline 11.12%.
+- [x] **1. Frontend toolchain security** — Vite/Vitest pinned; `npm audit --audit-level=high` passes with 0 high/critical (3 moderate Vitest advisory findings remain; no `--force`).
+- [x] **2. Metrics** — `/metrics` returns retained run counts, run/stage durations, and stage errors from an isolated seeded SQLite database.
+- [x] **3. Config validation** — invalid multi-key updates return 400 without config/history writes; valid schedule, timezone, and range values persist atomically.
+- [x] **4. Cost guardrails** — priced usage projects $25.17665 against a $0.01 budget and raises a warning-only alert; pricing is complete.
+- [x] **5. Source reliability baseline** — 12 category requests, RSS 12/12 (100%, healthy), extraction 0/240 (0%, `fallback_target` in all four categories); fallback recommendation recorded.
+- [x] **6. Frontend coverage** — V8 gate enforces 80% lines/statements/functions/branches; measured 99.87% / 99.87% / 84.23% / 92.20%.
+
+Release 1.1 integration evidence: [report](../COMPLETED/reports/2026-10-04-release-1.1-integration.md).
 
 ## Release 1.2 — Source Expansion
 
