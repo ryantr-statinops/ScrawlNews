@@ -40,7 +40,7 @@ describe("pricing configuration", () => {
   it("loads server values, rejects malformed JSON, saves edited prices/budget and refreshes history", async () => {
     setup();
     const prices = await screen.findByRole("textbox", { name: /LLM price snapshot JSON/i });
-    expect(prices).toHaveValue(config.llm_price_snapshot_json);
+    await waitFor(() => expect(prices).toHaveValue(config.llm_price_snapshot_json));
     expect(screen.getByRole("textbox", { name: "Fetch limit" })).toHaveValue("37");
     expect(screen.getByRole("textbox", { name: /Monthly AI budget/i })).toHaveValue("12.5");
     expect(screen.getByText("12.5")).toBeInTheDocument();
