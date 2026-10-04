@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSource, fetchArticles, fetchDigestArticles, fetchDigests, fetchSources, fetchSummaries, requestJson, updateConfig, updateSource } from "../lib/api";
+import { approveAgent, fetchAgentAudit, runAgent } from "../features/agent/api";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -54,4 +55,51 @@ describe("API requests", () => {
     await expect(requestJson("/api/articles")).rejects.toMatchObject({ name: "ApiError", status: 502, message: "Server returned invalid JSON" });
   });
 
+});
+
+describe("agent client", () => {
+  it("posts the agent request as JSON with the request body encoded", async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      respond({
+        decision: { status: "blocked", reason: "needs approval", action: null, correlation_id: "corr/1" },
+        verification: { status: "verified", message: "read-only", correlation_id: "corr/1" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    const result = await runAgent('summarize "Hanoi"');
+    expect(fetch).toHaveBeenCalledWith("/api/agent/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ request: 'summarize "Hanoi"' }),
+    });
+    expect(result.decision.correlation_id).toBe("corr/1");
+    expect(result.verification.status).toBe("verified");
+  });
+
+  it("posts an approval request with the encoded correlation id", async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      respond({ correlation_id: "corr/1", status: "executed", executed: true, backup_path: "/tmp/backup.sql" }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    const result = await approveAgent("corr/1");
+    expect(fetch).toHaveBeenCalledWith("/api/agent/approve/corr%2F1", { method: "POST" });
+    expect(result).toMatchObject({ executed: true, backup_path: "/tmp/backup.sql" });
+  });
+
+  it("unwraps the audit event list from the audit envelope", async () => {
+    const events = [{ id: 1, correlation_id: "corr/1", phase: "plan", status: "ok", message: "read", created_at: "2026-09-10T00:00:00Z" }];
+    const fetch = vi.fn().mockResolvedValue(respond({ events }));
+    vi.stubGlobal("fetch", fetch);
+    expect(await fetchAgentAudit("corr/1")).toEqual(events);
+    expect(fetch).toHaveBeenCalledWith("/api/agent/audit/corr%2F1", undefined);
+  });
+
+  it("propagates a refused agent run without mutating the caller", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(respond({ error: "Agent policy rejected" }, 403)));
+    await expect(runAgent("drop database")).rejects.toMatchObject({
+      name: "ApiError",
+      status: 403,
+      message: "Agent policy rejected",
+    });
+  });
 });

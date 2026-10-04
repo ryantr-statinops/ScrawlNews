@@ -14,6 +14,7 @@ __pycache__/
 .venv311/
 frontend/node_modules/
 frontend/dist/
+frontend/coverage/
 frontend-legacy/node_modules/
 frontend-legacy/dist/
 celerybeat-schedule*
