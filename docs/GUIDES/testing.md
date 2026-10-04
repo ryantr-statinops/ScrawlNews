@@ -62,6 +62,13 @@ frontend/                         # FE (Vitest)
 | Utils | >80% |
 | Overall | >85% |
 
+Frontend (Vitest + V8 provider) dùng một gate duy nhất: lines, statements,
+functions, branches đều >= 80%. Scope đo là `src/**/*.{ts,tsx}`; ngoại lệ chỉ
+gồm ambient declarations (`*.d.ts`), `src/types/**`, entrypoint `src/main.tsx`,
+hai router declaration (`src/router.tsx`, `src/ops-router.tsx`) và test
+harness (`src/test-setup.ts`, `src/test-utils.tsx`, `src/__tests__/**`). Không
+được thêm ngoại lệ mới hay hạ threshold để làm CI xanh.
+
 ## Key Mocking Strategies
 
 - `mock_http_client` — patch `httpx.AsyncClient` cho external calls
@@ -85,6 +92,9 @@ pytest tests/unit/test_scrawler.py::TestScrawlerService::test_fetch_rss_success 
 
 # FE
 cd frontend && npm run test
+
+# FE with enforced coverage gate
+cd frontend && npm run test:coverage
 ```
 
 ## CI
@@ -92,7 +102,7 @@ cd frontend && npm run test
 ```yaml
 # .github/workflows/ci.yml
 - pytest tests/ --cov=src --cov-report=term-missing --cov-fail-under=85
-- cd frontend && npm run test
+- cd frontend && npm run test:coverage
 - mypy src/
 - cd frontend && npm run typecheck
 - ruff check src/ tests/
@@ -100,7 +110,7 @@ cd frontend && npm run test
 - docker compose build
 ```
 
-Tất cả CI commands là mandatory. Backend coverage có threshold 85%. Frontend coverage baseline là 11.12% và chưa đặt threshold; frontend test pass vẫn là bắt buộc.
+Tất cả CI commands là mandatory. Backend coverage có threshold 85%. Frontend dùng V8 coverage trên `src/**/*.{ts,tsx}` và enforce threshold 80% cho lines, statements, functions, branches; `npm run test` vẫn giữ để chạy nhanh local.
 
 ## Analytics regression focus
 
@@ -114,7 +124,8 @@ Tất cả CI commands là mandatory. Backend coverage có threshold 85%. Fronte
 ## Status (2026-09-13)
 
 - Full backend batch sau hardening: 251 passed, 6 skipped; 87% coverage.
-- Frontend: 4 test files / 11 tests passed; typecheck và lint passed.
+- Frontend: 22 test files / 106 tests passed; typecheck và lint passed.
+- Frontend coverage gate: lines 99.87%, statements 99.87%, branches 92.20%, functions 84.23% (threshold 80%).
 - `mypy src/` và `ruff check src/` passed.
 - Automated tests không gọi external API thật; operational validation được theo dõi riêng trong `EXECUTION/TASKS/TODO.md`.
 
