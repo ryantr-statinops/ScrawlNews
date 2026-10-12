@@ -68,7 +68,10 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 - Thêm snapshot giá JSON chính xác theo `provider/model`, giá input/output trên một triệu token và budget tháng (USD); validation trước khi ghi config/history.
 - Analytics tính chi phí theo token telemetry, dự phóng tháng UTC; cảnh báo chỉ khi đủ giá và dự phóng đạt budget. Thiếu giá được báo riêng, không chặn pipeline, LLM hay Telegram.
 - Kiểm thử backend/API và UI cho giá nhiều model, tháng nhuận, ngưỡng budget, thiếu giá và lỗi lưu config; live delivery Telegram vẫn không bật.
-
+### 2026-10-12 — Frontend toolchain audit remediation
+- Nâng `vitest` và `@vitest/coverage-v8` từ 3.2.6 lên 4.1.11; lockfile cập nhật transitive dependencies, gồm `source-map-js` 1.2.2.
+- Node 20.19.0 / npm 10.8.2: `npm ci`, `npm audit --audit-level=high`, lint, typecheck, 106 tests (22 files), coverage và client/ops builds đều pass. Audit báo 0 vulnerabilities.
+- Coverage: 94.47% lines, 90.63% statements, 85.11% functions; build vẫn cảnh báo bundle JavaScript lớn hơn 500 kB.
 ## Template for Future Entries
 
 ```markdown
@@ -92,8 +95,8 @@ Trạng thái hiện tại và kết quả verification mới nhất được du
 | Dependency scanning | `pip-audit` trong scheduled workflow | Medium | Complete |
 | Operational validation | 2–3 runs với external services thật | High | Pending |
 | CI hardening | Bỏ soft-fail theo từng gate đã verify | High | Complete |
-| Frontend dependency security | Vite/Vitest audit findings cần major migration | High | Pending |
-| Frontend coverage | Baseline 11.12%, chưa có threshold | Medium | Pending |
+| Frontend dependency security | Vite/Vitest audit findings đã xử lý; `npm audit` báo 0 vulnerabilities | High | Complete (2026-10-12) |
+| Frontend coverage | Gates 80%; latest run đạt 94.47% lines, 90.63% statements và 85.11% functions | Medium | Complete (2026-10-12) |
 
 ## Useful Commands
 

@@ -1,6 +1,6 @@
 # Current State — Project đang thực sự như thế nào
 
-> Cập nhật: 2026-09-15. Stage 1–5, Client Product split, Dagster shadow validation và Agent v1 đã được triển khai. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
+> Cập nhật: 2026-10-12. Stage 1–5, Client Product split, Dagster shadow validation, Agent v1 và Release 1.1 đã được triển khai. File này mô tả trạng thái thực tế của codebase, không phải kế hoạch.
 
 ## Purpose
 
@@ -86,9 +86,9 @@ ScrawlNews/
 - Dữ liệu trước schema telemetry không thể hồi dựng stage/source/LLM metrics chính xác.
 - Telegram cần token hợp lệ nếu bật; dashboard vẫn chạy được với `TELEGRAM_ENABLED=false`.
 - RSS/fallback và RSS/OpenRouter đã pass qua 3 isolated operational runs; Telegram test delivery chưa chạy do thiếu test-chat credentials.
-- Frontend coverage baseline mới 11.12%; test pass là mandatory nhưng coverage threshold chưa được bật.
+- Frontend coverage gates đã bật ở mức 80% cho lines/statements/functions; lần kiểm tra sạch gần nhất đạt 94.47% lines, 90.63% statements và 85.11% functions (106 tests).
 - Celery/Dagster fixture lifecycle parity và shadow isolation đã pass; live LLM/Telegram comparison vẫn deferred.
-- `npm audit` còn 4 findings trong Vite/Vitest toolchain (2 moderate, 1 high, 1 critical), cần major-version migration có kiểm soát.
+- Frontend toolchain audit sạch sau khi nâng Vitest và `@vitest/coverage-v8` lên 4.1.11; `npm audit` báo 0 vulnerabilities.
 - CI quality gates hiện là mandatory; không còn soft-fail cho lint, typecheck, test hoặc Docker build.
 
 ## References
