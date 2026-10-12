@@ -1,10 +1,10 @@
 # IN PROGRESS — Task đang thực hiện
 
-> Cập nhật: 2026-09-15. File này chỉ liệt kê task đang có người thực hiện, không lặp lại backlog.
+> Cập nhật: 2026-10-04. Release 1.1 đã hoàn tất; file này chỉ liệt kê task đang có người thực hiện, không lặp lại backlog.
 
 ## Hiện tại
 
-Không có task implementation active. Shadow lifecycle parity đã hoàn tất với deterministic fixtures. Telegram live validation được deferred đến khi có external test credentials. Khi một session dừng giữa task, ghi handoff vào file này gồm task, files, tests, blocker và next step; không tạo file session riêng. Task kế tiếp có thể bắt đầu độc lập là frontend toolchain security migration trong Release 1.1; xem [TODO.md](TODO.md).
+Không có task implementation active. Release 1.1 reliability/security/guardrails và frontend coverage đã hoàn tất; xem [integration report](../COMPLETED/reports/2026-10-04-release-1.1-integration.md). Telegram live validation vẫn deferred đến khi có external test-chat credentials; runtime local an toàn với `TELEGRAM_ENABLED=false`. Next planned milestone là Release 1.2 source expansion; xem [TODO.md](TODO.md). Khi một session dừng giữa task, ghi handoff ở đây gồm task, files, tests, blocker và next step; không tạo file session riêng.
 
 ## Quy tắc
 
