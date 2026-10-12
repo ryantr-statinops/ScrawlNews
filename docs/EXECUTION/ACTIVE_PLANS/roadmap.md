@@ -1,6 +1,6 @@
 # Active Plan — Roadmap
 
-> Cập nhật: 2026-09-14. ScrawlNews đã hoàn thành phạm vi implementation và release hardening của Local Release 1.0; Telegram live validation được ghi nhận là ngoại lệ deferred.
+> Cập nhật: 2026-10-04. Local Release 1.0 đã hoàn tất với ngoại lệ Telegram live deferred; Release 1.1 Reliability, Security and Guardrails đã hoàn thành. Xem [integration report](../COMPLETED/reports/2026-10-04-release-1.1-integration.md).
 
 ## Overview
 
@@ -16,7 +16,7 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 | **Stage 4: Polish + Deploy** | Parity + automation verify | `make dev` Nginx parity + workflow + docs SETUP.md | ✅ Done `0f328aa`..`6a7392c`, `f753937`; scheduler amended by ADR-014 |
 
 **DB thuần local**: SQLite file `sqlite:///data/scrawlnews.db` mount `./data:/app/data`.
-**Testing FE+BE**: Có Vitest + Pytest. Verification 2026-09-13: backend 251 passed, 6 skipped, 87% coverage; frontend 11 passed; MyPy, frontend typecheck/lint, Ruff `src/ tests/` và Docker build passed.
+**Kiểm thử FE+BE**: Vitest/V8 và Pytest là các CI gate bắt buộc; kết quả Release 1.1 được ghi trong integration report.
 
 ---
 
@@ -86,22 +86,22 @@ ScrawlNews là **Local Monitor Dashboard** (FastAPI + Celery + Redis + React Vit
 
 Scheduler/`--dry-run` và CI hardening đã hoàn thành. Telegram test delivery validation được deferred đến khi có external credentials; runtime local vẫn operational với `TELEGRAM_ENABLED=false`.
 
-### Release 1.1 — Reliability, Security and Guardrails
+### Release 1.1 — COMPLETE (2026-10-04)
 
-| Thứ tự | Deliverable | Exit criteria |
-|---|---|---|
-| 1 | Frontend toolchain security migration | Vite/Vitest major upgrade có kiểm soát; không còn high/critical `npm audit` finding; build/test pass |
-| 2 | Prometheus metrics | Expose run count, duration, errors và pipeline-stage latency; có unit/integration tests |
-| 3 | Config validation | Invalid schedule, limit, timezone, URLs và production Telegram config fail fast với public error an toàn |
-| 4 | Cost guardrails | Token-to-cost qua configurable price snapshot; monthly estimate và budget alert; không hard-code bảng giá khó update |
-| 5 | Source reliability baseline | Report Google News/trafilatura trên nguồn tiếng Việt; chốt fallback và success-rate target |
-| 6 | Frontend coverage expansion | Test critical routes/API states, nâng baseline trước khi bật coverage threshold |
+| Thứ tự | Deliverable | Kết quả đã xác minh | Trạng thái |
+|---|---|---|---|
+| 1 | Bảo mật toolchain frontend | Vite/Vitest đã nâng cấp; `npm audit --audit-level=high` không còn high/critical (3 moderate advisory được ghi nhận, không dùng `--force`). | Hoàn thành |
+| 2 | Prometheus metrics | `/metrics` trả run counts, durations, errors và stage latency; scrape DB seed/runtime đã xác minh. | Hoàn thành |
+| 3 | Config validation | Schedule, limit, timezone, URLs và Telegram production config được validate; invalid multi-key update không ghi partial. | Hoàn thành |
+| 4 | Cost guardrails | Price snapshot theo provider/model, monthly estimate và warning-only budget alert; runtime đã xác minh. | Hoàn thành |
+| 5 | Source reliability baseline | 12 category requests, RSS 12/12; extraction 0/240, `fallback_target` và recommendation được ghi trong report. | Hoàn thành |
+| 6 | Frontend coverage | V8 gate tối thiểu 80% cho lines/statements/functions/branches; đo được 99.87%/99.87%/84.23%/92.20%. | Hoàn thành |
 
 ### Release 1.2 — Source Expansion
 
 - Chuẩn hóa source adapter interface và canonical article mapping.
 - Thêm Hacker News RSS, Reddit và custom RSS với per-source telemetry, timeout, dedup và circuit-breaker behavior.
-- Chỉ bắt đầu sau khi Release 1.1 observability/config guardrails hoàn thành.
+- Các guardrails Release 1.1 đã được xác minh; điều kiện tiên quyết này hoàn thành. Release 1.2 Source Expansion là giai đoạn kế tiếp theo roadmap.
 
 ### Release 1.3 — News Intelligence
 
