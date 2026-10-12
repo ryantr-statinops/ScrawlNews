@@ -1,54 +1,45 @@
-# Setup Guide
+# Setup and first run
 
 ## Prerequisites
+
 - Python 3.11+
-- Node 20+
-- Docker and Docker Compose
-- Git
+- Node.js 20.19.x (`frontend/package.json` requires `>=20.19.0 <21`)
+- Docker Engine with Docker Compose
 
-## Quick Start
+## Configure
 
 ```bash
-git clone https://github.com/ryantr-statinops/ScrawlNews.git
-cd ScrawlNews
-make install
 cp .env.example .env
-# edit .env with LLM_API_KEY, TELEGRAM_BOT_TOKEN if needed
-docker-compose up
-# http://localhost:6767
-# http://localhost:8000/docs
 ```
 
-Local without Docker (parity via Nginx in Docker):
+Set `TELEGRAM_ENABLED=false` unless Telegram delivery is intended and both Telegram credentials are configured. The sample file defaults this setting to `true` while leaving token/chat values blank. Configure `OPENROUTER_API_KEY` or `LLM_API_KEY` before running a pipeline that needs summarization.
+
+## Start the full local stack
 
 ```bash
-make install
-cp .env.example .env
-make dev
+docker compose up -d --build
 ```
 
-## Environment
+- Client Product: <http://localhost:6767>
+- FastAPI docs: <http://localhost:8000/docs>
+- Dagster shadow UI: <http://localhost:6768>
 
-See .env.example for DATABASE_URL pure local, REDIS_URL, CELERY_*, TELEGRAM_ENABLED, LLM_*
+Check status with `docker compose ps`; follow logs with `docker compose logs -f api worker beat`. Stop with `docker compose down` (without `--volumes` to preserve local data).
 
-Hot reload limited to fetch_limit, summary_lang, telegram_enabled, retention_days via PUT /api/config.
-
-## CLI
+For Python development without Docker:
 
 ```bash
-make run
-python -m src.main --dry-run --limit 10
-go run ./cmd/newsctl --help
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cd frontend && npm ci
 ```
 
-## Verification
+Then use `make dev` from the repository root. **It stops the current Compose stack and kills listeners on ports 8000 and 5173** before starting host processes. Read [the detailed local-development guide](docs/operations/local-development.md) first.
 
-```bash
-docker-compose config
-docker-compose build
-pytest tests/ --cov=src
-cd frontend && npm run test
-ruff check src/
-```
+## Continue
 
-See docs/README.md for reading guide and documentation map.
+- [Full documentation index](docs/README.md)
+- [Configuration reference](docs/reference/configuration.md)
+- [Testing and CI](docs/operations/testing.md)
+- [Deployment and runtime operations](docs/operations/deployment.md)

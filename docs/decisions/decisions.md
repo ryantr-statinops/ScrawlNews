@@ -315,7 +315,7 @@ Ban đầu newsbot (fetch → summarize → Telegram) là service chính. Nhu c�
 ### Decision
 Chọn **Option A** theo yêu cầu user:
 - **Backend**: FastAPI + Celery + Redis (broker + result backend), giữ toàn bộ `Scrawler/Synthesizer/Messenger` Python (Pydantic Settings mở rộng `redis_url`, `celery_broker_url`, `telegram_enabled` toggle).
-- **Frontend**: React 18 + TypeScript + Vite + Mantine UI v7 + TanStack Router + TanStack Query + ApexCharts + Zustand + SSE (`frontend/`). Xem [DOMAIN_CONCEPTS/frontend/01-stack.md](DOMAIN_CONCEPTS/frontend/01-stack.md) để biết chi tiết.
+- **Frontend**: React 18 + TypeScript + Vite + Mantine UI v7 + TanStack Router + TanStack Query + ApexCharts + Zustand + SSE (`frontend/`). Xem [Frontend architecture](../architecture/frontend.md) để biết chi tiết.
 - **Gateway**: Nginx (thay Traefik cho đơn giản, Go-base infra không cần Go service).
 - **Scheduler**: Giữ GitHub Actions cron `0 8,12,16,21 * * * UTC` làm primary, Celery Beat chỉ cho local manual trigger / dev schedule. Newsbot là feature `telegram_enabled` on/off.
 - **Dev DX**: Hỗ trợ cả `docker-compose up` (api + worker + beat + redis + web + nginx) và `make dev` (concurrently uvicorn + celery + vite).
@@ -333,7 +333,7 @@ Chọn **Option A** theo yêu cầu user:
 - SQLite vẫn Phase 1, nhưng `database_url` phải configurable cho volume mount.
 - Cần ADR-012 sau nếu quyết định tách Go fetcher sidecar.
 
-> **Update 2026-09-03**: Frontend stack thay đổi. Bỏ shadcn/Tailwind/Recharts, thêm Mantine UI v7 + TanStack Router + Zustand + ApexCharts. Xem [DOMAIN_CONCEPTS/frontend/01-stack.md](DOMAIN_CONCEPTS/frontend/01-stack.md).
+> **Update 2026-09-03**: Frontend stack thay đổi. Bỏ shadcn/Tailwind/Recharts, thêm Mantine UI v7 + TanStack Router + Zustand + ApexCharts. Xem [Frontend architecture](../architecture/frontend.md).
 
 ---
 

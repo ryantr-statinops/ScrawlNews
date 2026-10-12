@@ -1,97 +1,40 @@
-# ScrawlNews — Documentation
+# ScrawlNews documentation
 
-Tài liệu dự án được chia thành 2 phần chính:
+This documentation describes the checked-in project as it operates today. Execution plans, task backlogs, and release roadmaps are maintained separately under the repository-level `planning/` directory; they are not project reference documentation.
 
-- **PROJECT_KNOWLEDGE** — Hiểu dự án là gì, đang ở đâu, muốn thành gì, và tại sao.
-- **EXECUTION** — Kế hoạch, task, thứ đã xong, và thứ đã lưu trữ.
+## Start here
 
-## Quick links
+- [Product overview](product/overview.md) — purpose, workflows, capabilities, and current limits.
+- [System architecture](architecture/system.md) — runtime topology, services, ports, and ownership boundaries.
+- [Backend and pipeline](architecture/backend-pipeline.md) — ingestion, Celery lifecycle, retries, delivery, and Dagster shadow assets.
+- [Frontend](architecture/frontend.md) — Client routes, Ops mode, analytics, and build modes.
+- [Data and storage](architecture/data-and-storage.md) — SQLite ownership, migrations, repositories, and telemetry retention.
 
-- 🤖 **[AGENT_CONTEXT.md](PROJECT_KNOWLEDGE/AGENT_CONTEXT.md)** — Context compact cho agent
-- 🚀 **[QUICKSTART.md](PROJECT_KNOWLEDGE/QUICKSTART.md)** — Chạy project trong 5 phút
-- ❓ **[FAQ.md](PROJECT_KNOWLEDGE/FAQ.md)** — Câu hỏi thường gặp
-- 📖 **[GLOSSARY.md](PROJECT_KNOWLEDGE/GLOSSARY.md)** — Bảng chú giải thuật ngữ
-- 📋 **[DOCS_ROADMAP.md](PROJECT_KNOWLEDGE/DOCS_ROADMAP.md)** — Kế hoạch soạn docs
+## Reference
 
-## Đọc từ đâu?
+- [API reference](reference/api.md)
+- [Configuration reference](reference/configuration.md)
+- [Frequently asked questions](reference/faq.md)
+- [Glossary](reference/glossary.md)
+- [Architecture decisions](decisions/README.md)
 
-| Bạn muốn biết… | Đọc file |
-|---|---|
-| Context compact khi agent được tag vào README | [PROJECT_KNOWLEDGE/AGENT_CONTEXT.md](PROJECT_KNOWLEDGE/AGENT_CONTEXT.md) |
-| Dự án đang thực sự như thế nào (đã build được gì) | [PROJECT_KNOWLEDGE/CURRENT_STATE.md](PROJECT_KNOWLEDGE/CURRENT_STATE.md) |
-| Dự án muốn trở thành như thế nào (kiến trúc đích) | [PROJECT_KNOWLEDGE/TARGET_ARCHITECTURE.md](PROJECT_KNOWLEDGE/TARGET_ARCHITECTURE.md) |
-| Tại sao team/AI quyết định xây như vậy (ADR) | [PROJECT_KNOWLEDGE/DECISIONS.md](PROJECT_KNOWLEDGE/DECISIONS.md) |
-| Dự án nói về cái gì (domain concepts) | [PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/](PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/) |
-| Backend stack + patterns | [PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/backend/](PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/backend/) |
-| Frontend stack + patterns | [PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/frontend/](PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/frontend/) |
-| Pipeline + data flow + performance | [PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/pipeline/](PROJECT_KNOWLEDGE/DOMAIN_CONCEPTS/pipeline/) |
-| Kế hoạch đang thực hiện (roadmap, spec) | [EXECUTION/ACTIVE_PLANS/](EXECUTION/ACTIVE_PLANS/) |
-| Task cần làm / đang làm | [EXECUTION/TASKS/](EXECUTION/TASKS/) |
-| Những gì đã hoàn thành (developer log) | [EXECUTION/COMPLETED/](EXECUTION/COMPLETED/) |
-| Plan/task cũ không còn active (tham khảo) | [EXECUTION/ARCHIVED/](EXECUTION/ARCHIVED/) |
-| Cách setup / test / deploy | [GUIDES/](GUIDES/) |
+## Operations
 
-## Cấu trúc
+- [Local development](operations/local-development.md)
+- [Testing and CI](operations/testing.md)
+- [Deployment and runtime operations](operations/deployment.md)
+- [Backup and recovery](operations/backup-and-recovery.md)
+- [Contributor context](operations/agent-context.md)
 
-```
-docs/
-├── README.md                         ← Bạn đang ở đây
-├── PROJECT_KNOWLEDGE/
-│   ├── QUICKSTART.md                 ← 5 phút setup
-│   ├── FAQ.md                        ← Câu hỏi thường gặp
-│   ├── GLOSSARY.md                   ← Thuật ngữ
-│   ├── DOCS_ROADMAP.md               ← Kế hoạch soạn docs
-│   ├── AGENT_CONTEXT.md              ← Context compact cho agent
-│   ├── CURRENT_STATE.md              ← Project đang thực sự như thế nào
-│   ├── TARGET_ARCHITECTURE.md        ← Project muốn trở thành như thế nào
-│   ├── DECISIONS.md                  ← Tại sao quyết định xây như vậy (ADR)
-│   └── DOMAIN_CONCEPTS/
-│       ├── 01-overview.md            ← Mục đích, luồng tổng thể
-│       ├── 02-core-engine.md         ← Scrawler / Synthesizer / Messenger
-│       ├── 03-interface.md           ← Dashboard (API + Web) / CLI
-│       ├── 04-data-config.md         ← Storage, config, hot-reload
-│       ├── 05-extensibility.md       ← Security, skill system
-│       ├── backend/                  ← Backend stack, architecture, patterns, ...
-│       ├── frontend/                 ← Frontend stack, design tokens, ...
-│       └── pipeline/                 ← Pipeline sequence, data model, performance
-├── EXECUTION/
-│   ├── ACTIVE_PLANS/
-│   │   ├── roadmap.md                ← Kế hoạch đang thực hiện (stages)
-│   │   ├── execplan-template.md      ← Template viết plan mới
-│   │   └── specs/
-│   │       └── api.yaml              ← OpenAPI spec (active contract)
-│   ├── TASKS/
-│   │   ├── TODO.md                   ← Những đơn vị công việc cần làm
-│   │   └── IN_PROGRESS.md            ← Task đang thực hiện
-│   ├── COMPLETED/
-│   │   ├── changelog.md              ← Đã hoàn thành (developer log)
-│   │   └── reports/                  ← Test reports, verification results
-│   └── ARCHIVED/
-│       ├── old-plans.md              ← Plans cũ, superseded
-│       ├── ideas.md                  ← Ý tưởng tương lai (backlog)
-│       └── obsolete-specs/           ← API specs cũ (tham khảo)
-└── GUIDES/
-    ├── setup.md                      ← Dev setup, config, troubleshooting
-    ├── testing.md                    ← Testing strategy
-    └── deployment.md                 ← Deploy (GitHub Actions, Docker, Nginx)
-```
+## History
 
-> Nguyên tắc: `PROJECT_KNOWLEDGE` giải thích **tại sao / là gì**, `EXECUTION` giải thích **làm gì / đã làm gì**, `GUIDES` giải thích **làm sao**.
+- [Changelog](history/changelog.md)
+- [Verification reports](history/verification-reports/README.md)
 
-## Nguồn trạng thái chuẩn
+## Source-of-truth rules
 
-| Tài liệu | Trách nhiệm |
-|---|---|
-| `PROJECT_KNOWLEDGE/CURRENT_STATE.md` | Trạng thái thực tế đã đối chiếu với code và verification gần nhất |
-| `PROJECT_KNOWLEDGE/AGENT_CONTEXT.md` | Context ổn định, boundary và quy tắc cho agent |
-| `EXECUTION/ACTIVE_PLANS/roadmap.md` | Milestone, phạm vi release và tiến độ cấp cao |
-| `EXECUTION/TASKS/TODO.md` | Chỉ công việc chưa hoàn thành |
-| `EXECUTION/TASKS/IN_PROGRESS.md` | Chỉ công việc đang được thực hiện |
-| `EXECUTION/COMPLETED/changelog.md` | Nhật ký hoàn thành theo thời gian; không dùng là current-state snapshot |
-| `PROJECT_KNOWLEDGE/DECISIONS.md` | Quyết định kiến trúc/sản phẩm và lý do |
-
-Ba nhãn trạng thái không thay thế cho nhau:
-
-- **Implemented**: code và automated tests đã có.
-- **Verified**: quality gates liên quan đã chạy thành công trên revision hiện tại.
-- **Operationally validated**: luồng thật với external services đã được chạy và ghi nhận kết quả.
+- Runtime behavior: Python/TypeScript source, Compose configuration, and tests.
+- API behavior: FastAPI route definitions. `/metrics` is intentionally excluded from the generated OpenAPI schema.
+- Current dependency and verification status: lockfiles, CI workflow, and the latest CI run for the exact source tree.
+- Historical verification reports describe only the revision and date stated in each report; they are not current runtime guarantees.
+- Target-state ideas and execution plans are not descriptions of implemented behavior.
